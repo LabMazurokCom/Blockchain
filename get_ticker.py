@@ -33,7 +33,7 @@ def get_cex_ticker(symbol='BTC/USD'):
     """
     doc:
         https://cex.io/rest-api#ticker
-    limit: 180 / min
+    limit: 600 / 10 min
     """
     main_path = 'https://cex.io/api'
     info_path = '/ticker/' + symbol
