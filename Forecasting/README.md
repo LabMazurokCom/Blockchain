@@ -1,1 +1,1 @@
-# Forecasting methods for the cryptocurrency market.
+# Forecasting methods for the cryptocurrency market
