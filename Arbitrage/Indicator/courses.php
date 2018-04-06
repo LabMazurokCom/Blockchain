@@ -22,12 +22,12 @@
 	$y = json_decode($x,true); 
 	echo "gdax", "\n", $y[bid], "\n", $y[ask], "\n";
 	echo "<br />\n";
-
+/*
 	$x = file_get_contents('https://api.hitbtc.com/api/2/public/ticker/BTCUSD', false, $context); 
 	$y = json_decode($x,true); 
 	echo "hitbtc", "\n", $y[bid], "\n", $y[ask], "\n";
 	echo "<br />\n";
-
+*/
 	$x = file_get_contents('https://api.kucoin.com/v1/open/tick?symbol=BTC-USDT', false, $context); 
 	$y = json_decode($x,true); 
 	echo "kucoin", "\n", $y[data][buy], "\n", $y[data][sell], "\n";
@@ -35,6 +35,6 @@
 
 	$x = file_get_contents('https://api.exmo.com/v1/ticker', false, $context); 
 	$y = json_decode($x,true); 
-	echo "exmo", "\n", $x, "\n";
+	echo "exmo", "\n", $y[BTC_USDT][buy_price], "\n", $y[BTC_USDT][sell_price];
 	echo "<br />\n";
 ?>
