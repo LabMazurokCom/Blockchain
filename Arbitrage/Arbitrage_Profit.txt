@@ -44,7 +44,8 @@ print("The maximum recommended volume")
 VOLUME.BEST <- min(max(BID.GOOD$BID.volume),max(ASK.GOOD$ASK.volume))
 VOLUME.BEST
 # Îáúåì â äîëëàðàõ, íà êîòîðûé ìû áóäåì ñîâåðøàòü ñäåëêó
-VOLUME.CURR <- VOLUME.BEST
+VOLUME.CURR <- 300
+VOLUME.CURR
 
 # Íàõîäèì ñðåäíþþ BID öåíó ñ ó÷åòîì îáúåìîâ îðäåðîâ
 i <- 1
