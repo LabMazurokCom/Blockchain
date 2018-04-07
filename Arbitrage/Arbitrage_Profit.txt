@@ -1,52 +1,52 @@
-##########  Рассчет дохода Арбитража  ############
+##########  Р Р°СЃСЃС‡РµС‚ РґРѕС…РѕРґР° РђСЂР±РёС‚СЂР°Р¶Р° РІ R ############
 
-# Очистка переменных
+# РћС‡РёСЃС‚РєР° РїРµСЂРµРјРµРЅРЅС‹С…
 rm(list=ls())
 
-# Цена, по которой мы  можем купить BTC
+# Р¦РµРЅР°, РїРѕ РєРѕС‚РѕСЂРѕР№ РјС‹  РјРѕР¶РµРј РєСѓРїРёС‚СЊ BTC
 BID.price <- c(10.1,10.3,10.4,10.7,10.9,11.2,11.3)
-# Комиссия на BID и курс с учетом комиссии
+# ГЉГ®Г¬ГЁГ±Г±ГЁГї Г­Г  BID ГЁ ГЄГіГ°Г± Г± ГіГ·ГҐГІГ®Г¬ ГЄГ®Г¬ГЁГ±Г±ГЁГЁ
 a <- 0.00
 BID.price <- (1+a)*BID.price
-# Объем (кумулятивный) BTC в доллах, который мы можем купить
+# ГЋГЎГєГҐГ¬ (ГЄГіГ¬ГіГ«ГїГІГЁГўГ­Г»Г©) BTC Гў Г¤Г®Г«Г«Г Гµ, ГЄГ®ГІГ®Г°Г»Г© Г¬Г» Г¬Г®Г¦ГҐГ¬ ГЄГіГЇГЁГІГј
 BID.volume <- c(200,500,600,800,1000,1100,1300)
-# Цена, по которой мы  можем продать BTC
+# Г–ГҐГ­Г , ГЇГ® ГЄГ®ГІГ®Г°Г®Г© Г¬Г»  Г¬Г®Г¦ГҐГ¬ ГЇГ°Г®Г¤Г ГІГј BTC
 ASK.price <- c(10.8,10.6,10.4,10.3,10.2,9.9,9.7)
-# Комиссия на ASK и курс с учетом комиссии
+# ГЉГ®Г¬ГЁГ±Г±ГЁГї Г­Г  ASK ГЁ ГЄГіГ°Г± Г± ГіГ·ГҐГІГ®Г¬ ГЄГ®Г¬ГЁГ±Г±ГЁГЁ
 b <- 0.00
 ASK.price <- (1-b)*ASK.price
-# Объем (кумулятивный) BTC в долларах, который мы можем продать
+# ГЋГЎГєГҐГ¬ (ГЄГіГ¬ГіГ«ГїГІГЁГўГ­Г»Г©) BTC Гў Г¤Г®Г«Г«Г Г°Г Гµ, ГЄГ®ГІГ®Г°Г»Г© Г¬Г» Г¬Г®Г¦ГҐГ¬ ГЇГ°Г®Г¤Г ГІГј
 ASK.volume <- c(100,300,400,700,1000,1200,1500)
-# Формируем пары цена-объем
+# Г”Г®Г°Г¬ГЁГ°ГіГҐГ¬ ГЇГ Г°Г» Г¶ГҐГ­Г -Г®ГЎГєГҐГ¬
 BID <- data.frame(BID.price,BID.volume)
 BID
 ASK <- data.frame(ASK.price,ASK.volume)
 ASK
 
-# Определяем - будет ли сделка
+# ГЋГЇГ°ГҐГ¤ГҐГ«ГїГҐГ¬ - ГЎГіГ¤ГҐГІ Г«ГЁ Г±Г¤ГҐГ«ГЄГ 
 BID.price.min <- min(BID$BID.price)
 ASK.price.max <- max(ASK$ASK.price)
 if (BID.price.min > ASK.price.max) print("NO DEAL!") else print("WE'll DEAL!")
-# Цена BID, до которой мы пожем покупать, если будет соответствующий объем 
+# Г–ГҐГ­Г  BID, Г¤Г® ГЄГ®ГІГ®Г°Г®Г© Г¬Г» ГЇГ®Г¦ГҐГ¬ ГЇГ®ГЄГіГЇГ ГІГј, ГҐГ±Г«ГЁ ГЎГіГ¤ГҐГІ Г±Г®Г®ГІГўГҐГІГ±ГІГўГіГѕГ№ГЁГ© Г®ГЎГєГҐГ¬ 
 BID.price.max <- max(BID$BID.price)
 BID.price.limit <- min(BID.price.max,ASK.price.max)
 print("Limit good BID price")
 BID.price.limit
 
-# Оставляем только хорошие ордера
+# ГЋГ±ГІГ ГўГ«ГїГҐГ¬ ГІГ®Г«ГјГЄГ® ГµГ®Г°Г®ГёГЁГҐ Г®Г°Г¤ГҐГ°Г 
 BID.GOOD <- BID[BID$BID.price < BID.price.limit,]
 BID.GOOD
 ASK.GOOD <- ASK[ASK$ASK.price > BID.price.min,]
 ASK.GOOD
 
-# Определяем максимальный объем сделки
+# ГЋГЇГ°ГҐГ¤ГҐГ«ГїГҐГ¬ Г¬Г ГЄГ±ГЁГ¬Г Г«ГјГ­Г»Г© Г®ГЎГєГҐГ¬ Г±Г¤ГҐГ«ГЄГЁ
 print("The maximum recommended volume")
 VOLUME.BEST <- min(max(BID.GOOD$BID.volume),max(ASK.GOOD$ASK.volume))
 VOLUME.BEST
-# Объем в долларах, на который мы будем совершать сделку
+# ГЋГЎГєГҐГ¬ Гў Г¤Г®Г«Г«Г Г°Г Гµ, Г­Г  ГЄГ®ГІГ®Г°Г»Г© Г¬Г» ГЎГіГ¤ГҐГ¬ Г±Г®ГўГҐГ°ГёГ ГІГј Г±Г¤ГҐГ«ГЄГі
 VOLUME.CURR <- VOLUME.BEST
 
-# Находим среднюю BID цену с учетом объемов ордеров
+# ГЌГ ГµГ®Г¤ГЁГ¬ Г±Г°ГҐГ¤Г­ГѕГѕ BID Г¶ГҐГ­Гі Г± ГіГ·ГҐГІГ®Г¬ Г®ГЎГєГҐГ¬Г®Гў Г®Г°Г¤ГҐГ°Г®Гў
 i <- 1
 MINUS <- BID.GOOD$BID.volume[i]*BID.GOOD$BID.price[i]
 while (BID.GOOD$BID.volume[i] < VOLUME.CURR) {
@@ -55,10 +55,10 @@ while (BID.GOOD$BID.volume[i] < VOLUME.CURR) {
   }
 if (BID.GOOD$BID.volume[i]>VOLUME.CURR) MINUS <- MINUS-(BID.GOOD$BID.volume[i]-VOLUME.CURR)*BID.GOOD$BID.price[i]
 Prise.weight.BID <- MINUS/VOLUME.CURR
-# Средняя BID цена
+# Г‘Г°ГҐГ¤Г­ГїГї BID Г¶ГҐГ­Г 
 Prise.weight.BID
 
-# Находим среднюю ASK цену объемов ордеров
+# ГЌГ ГµГ®Г¤ГЁГ¬ Г±Г°ГҐГ¤Г­ГѕГѕ ASK Г¶ГҐГ­Гі Г®ГЎГєГҐГ¬Г®Гў Г®Г°Г¤ГҐГ°Г®Гў
 j <- 1
 PLUS <- ASK.GOOD$ASK.volume[j]*ASK.GOOD$ASK.price[j]
 while (ASK.GOOD$ASK.volume[j] < VOLUME.CURR) {
@@ -67,10 +67,10 @@ while (ASK.GOOD$ASK.volume[j] < VOLUME.CURR) {
 }
 if (ASK.GOOD$ASK.volume[j]>VOLUME.CURR) PLUS <- PLUS-(ASK.GOOD$ASK.volume[j]-VOLUME.CURR)*ASK.GOOD$ASK.price[j]
 Prise.weight.ASK <- PLUS/VOLUME.CURR
-# Средняя ASK цена
+# Г‘Г°ГҐГ¤Г­ГїГї ASK Г¶ГҐГ­Г 
 Prise.weight.ASK
 
-# Доход
+# Г„Г®ГµГ®Г¤
 PERCENT <- (Prise.weight.ASK-Prise.weight.BID)/Prise.weight.BID
 print("PERCENT")
 round(PERCENT*100,2)
