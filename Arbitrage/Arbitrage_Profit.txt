@@ -1,83 +1,94 @@
-##########  Рассчет дохода Арбитража в R ############
+##########  Рассчет дохода Арбитража  ############
 
 # Очистка переменных
 rm(list=ls())
 
 # Цена, по которой мы  можем купить BTC
-BID.price <- c(10.1,10.3,10.4,10.7,10.9,11.2,11.3)
-# Êîìèññèÿ íà BID è êóðñ ñ ó÷åòîì êîìèññèè
-a <- 0.00
-BID.price <- (1+a)*BID.price
-# Îáúåì (êóìóëÿòèâíûé) BTC â äîëëàõ, êîòîðûé ìû ìîæåì êóïèòü
-BID.volume <- c(200,500,600,800,1000,1100,1300)
-# Öåíà, ïî êîòîðîé ìû  ìîæåì ïðîäàòü BTC
-ASK.price <- c(10.8,10.6,10.4,10.3,10.2,9.9,9.7)
-# Êîìèññèÿ íà ASK è êóðñ ñ ó÷åòîì êîìèññèè
-b <- 0.00
-ASK.price <- (1-b)*ASK.price
-# Îáúåì (êóìóëÿòèâíûé) BTC â äîëëàðàõ, êîòîðûé ìû ìîæåì ïðîäàòü
-ASK.volume <- c(100,300,400,700,1000,1200,1500)
-# Ôîðìèðóåì ïàðû öåíà-îáúåì
-BID <- data.frame(BID.price,BID.volume)
-BID
-ASK <- data.frame(ASK.price,ASK.volume)
-ASK
+BUY.price <- c(10.1,10.3,10.4,10.7,10.9,11.2,11.3)
+# Комиссия на BUY и курс с учетом комиссии
+a <- 0.02
+BUY.price <- (1+a)*BUY.price
+# Объем (кумулятивный) BTC в доллах, который мы можем купить
+BUY.volume <- c(200,500,600,800,1000,1100,1300)
+# Цена, по которой мы  можем продать BTC
+SELL.price <- c(10.8,10.6,10.4,10.3,10.2,9.9,9.7)
+# Комиссия на SELL и курс с учетом комиссии
+b <- 0.01
+SELL.price <- (1-b)*SELL.price
+# Объем (кумулятивный) BTC в долларах, который мы можем продать
+SELL.volume <- c(400,600,1100,1400,1700,1900,2000)
+# Формируем пары цена-объем
+BUY <- data.frame(BUY.price,BUY.volume)
+BUY
+SELL <- data.frame(SELL.price,SELL.volume)
+SELL
 
-# Îïðåäåëÿåì - áóäåò ëè ñäåëêà
-BID.price.min <- min(BID$BID.price)
-ASK.price.max <- max(ASK$ASK.price)
-if (BID.price.min > ASK.price.max) print("NO DEAL!") else print("WE'll DEAL!")
-# Öåíà BID, äî êîòîðîé ìû ïîæåì ïîêóïàòü, åñëè áóäåò ñîîòâåòñòâóþùèé îáúåì 
-BID.price.max <- max(BID$BID.price)
-BID.price.limit <- min(BID.price.max,ASK.price.max)
-print("Limit good BID price")
-BID.price.limit
+# Определяем - будет ли сделка
+BUY.price.min <- min(BUY$BUY.price)
+SELL.price.max <- max(SELL$SELL.price)
+if (BUY.price.min >= SELL.price.max) stop("NO DEAL!") else print("WE'll DEAL!")
+# Цена BUY, до которой мы пожем покупать, если будет соответствующий объем 
+BUY.price.max <- max(BUY$BUY.price)
+BUY.price.limit <- min(BUY.price.max,SELL.price.max)
+#print("Limit good BUY price")
+#BUY.price.limit
 
-# Îñòàâëÿåì òîëüêî õîðîøèå îðäåðà
-BID.GOOD <- BID[BID$BID.price < BID.price.limit,]
-BID.GOOD
-ASK.GOOD <- ASK[ASK$ASK.price > BID.price.min,]
-ASK.GOOD
+# Оставляем только хорошие ордера
+BUY.GOOD <- BUY[BUY$BUY.price < BUY.price.limit,]
+#BUY.GOOD
+SELL.GOOD <- SELL[SELL$SELL.price > BUY.price.min,]
+#SELL.GOOD
 
-# Îïðåäåëÿåì ìàêñèìàëüíûé îáúåì ñäåëêè
-print("The maximum recommended volume")
-VOLUME.BEST <- min(max(BID.GOOD$BID.volume),max(ASK.GOOD$ASK.volume))
-VOLUME.BEST
-# Îáúåì â äîëëàðàõ, íà êîòîðûé ìû áóäåì ñîâåðøàòü ñäåëêó
-VOLUME.CURR <- 300
-VOLUME.CURR
+# Определяем максимальный объем сделки
+print("The maximum volume in $")
+VOLUME.limit.max <- min(max(BUY.GOOD$BUY.volume),max(SELL.GOOD$SELL.volume))
+VOLUME.limit.max
+print("OUR volume in $")
+VOLUME.limit.our <- 550
+VOLUME.limit.our
+VOLUME.limit <- min(VOLUME.limit.max,VOLUME.limit.our)
 
-# Íàõîäèì ñðåäíþþ BID öåíó ñ ó÷åòîì îáúåìîâ îðäåðîâ
+# Переменные для анализа
+VOLUME.CURR <- 0
+Profit.in.USD <-0
+Amount.in.USD <-0
+k.max <-20 # Кол-во точек для анализа
+
+for (k in 1:k.max) {
+VOLUME.CURR <- VOLUME.CURR+1/k.max*VOLUME.limit
+# Находим текущую среднюю BUY цену с учетом объемов ордеров
 i <- 1
-MINUS <- BID.GOOD$BID.volume[i]*BID.GOOD$BID.price[i]
-while (BID.GOOD$BID.volume[i] < VOLUME.CURR) {
+MINUS <- BUY.GOOD$BUY.volume[i]*BUY.GOOD$BUY.price[i]
+while (BUY.GOOD$BUY.volume[i] < VOLUME.CURR) {
   i <- i+1
-  MINUS <- MINUS+(BID.GOOD$BID.volume[i]-BID.GOOD$BID.volume[i-1])*BID.GOOD$BID.price[i]
+  MINUS <- MINUS+(BUY.GOOD$BUY.volume[i]-BUY.GOOD$BUY.volume[i-1])*BUY.GOOD$BUY.price[i]
   }
-if (BID.GOOD$BID.volume[i]>VOLUME.CURR) MINUS <- MINUS-(BID.GOOD$BID.volume[i]-VOLUME.CURR)*BID.GOOD$BID.price[i]
-Prise.weight.BID <- MINUS/VOLUME.CURR
-# Ñðåäíÿÿ BID öåíà
-Prise.weight.BID
+if (BUY.GOOD$BUY.volume[i]>VOLUME.CURR) MINUS <- MINUS-(BUY.GOOD$BUY.volume[i]-VOLUME.CURR)*BUY.GOOD$BUY.price[i]
+# Средняя текущая BUY цена
+Prise.weight.BUY <- MINUS/VOLUME.CURR
 
-# Íàõîäèì ñðåäíþþ ASK öåíó îáúåìîâ îðäåðîâ
+# Находим текущую среднюю SELL цену объемов ордеров
 j <- 1
-PLUS <- ASK.GOOD$ASK.volume[j]*ASK.GOOD$ASK.price[j]
-while (ASK.GOOD$ASK.volume[j] < VOLUME.CURR) {
+PLUS <- SELL.GOOD$SELL.volume[j]*SELL.GOOD$SELL.price[j]
+while (SELL.GOOD$SELL.volume[j] < VOLUME.CURR) {
   j <- j+1
-  PLUS <- PLUS+(ASK.GOOD$ASK.volume[j]-ASK.GOOD$ASK.volume[j-1])*ASK.GOOD$ASK.price[j]
+  PLUS <- PLUS+(SELL.GOOD$SELL.volume[j]-SELL.GOOD$SELL.volume[j-1])*SELL.GOOD$SELL.price[j]
 }
-if (ASK.GOOD$ASK.volume[j]>VOLUME.CURR) PLUS <- PLUS-(ASK.GOOD$ASK.volume[j]-VOLUME.CURR)*ASK.GOOD$ASK.price[j]
-Prise.weight.ASK <- PLUS/VOLUME.CURR
-# Ñðåäíÿÿ ASK öåíà
-Prise.weight.ASK
+if (SELL.GOOD$SELL.volume[j]>VOLUME.CURR) PLUS <- PLUS-(SELL.GOOD$SELL.volume[j]-VOLUME.CURR)*SELL.GOOD$SELL.price[j]
+# Средняя текущая SELL цена
+Prise.weight.SELL <- PLUS/VOLUME.CURR
 
-# Äîõîä
-PERCENT <- (Prise.weight.ASK-Prise.weight.BID)/Prise.weight.BID
-print("PERCENT")
-round(PERCENT*100,2)
+# Доход
+PERCENT <- (Prise.weight.SELL-Prise.weight.BUY)/Prise.weight.BUY
 PROFIT <- PERCENT*VOLUME.CURR
-print("WE CAN GET PROFIT")
-round(PROFIT,2)
+Profit.in.USD[k] <- PROFIT
+Amount.in.USD[k] <- VOLUME.CURR
+}
 
-######## THE END  ##############
+# Вывод результатов
+plot(Amount.in.USD,Profit.in.USD)
+print("THE MAXIMUM PROFIT AND AMOUNT")
+ALL.plot.data <- data.frame(Profit.in.USD,Amount.in.USD)
+BEST.plot.data <- ALL.plot.data[ALL.plot.data$Profit.in.USD == max(Profit.in.USD),]
+round(BEST.plot.data,2)
 
