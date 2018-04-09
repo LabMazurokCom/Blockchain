@@ -174,8 +174,7 @@
 </head>
 	<body onload="get_rates()">
 		<h1 id="percent_change"> </h1>
-		<table>
-		
+		<table>		
 		<tr>
 			<th width="24%" style = "color:green"> Exchange </th>
 			<th width="24%" style = "color:green"> Bid </th>
@@ -183,104 +182,105 @@
 			<th width="2%"> </th>
 			<th width="24%" style = "color:red"> Ask </th>
 			<th width="24%" style = "color:red"> Exchange </th>
-		</tr>
-		
+		</tr>	
 		<tr>
-			<td id="left0"> </td>
-			<td id="bid0"> </td>
-			<td id="leftmid0"> </td>
-			<td id="rightmid0"> </td>
-			<td id="ask0"> </td>
-			<td id="right0"> </td>
-		</tr>
-		<tr>
-			<td id="left1"> </td>
-			<td id="bid1"> </td>
-			<td id="leftmid1"> </td>
-			<td id="rightmid1"> </td>
-			<td id="ask1"> </td>
-			<td id="right1"> </td>
+			<td id="left0">&nbsp;</td>
+			<td id="bid0">&nbsp;</td>
+			<td id="leftmid0">&nbsp;</td>
+			<td id="rightmid0">&nbsp;</td>
+			<td id="ask0">&nbsp;</td>
+			<td id="right0">&nbsp;</td>
 		</tr>
 		<tr>
-			<td id="left2"> </td>
-			<td id="bid2"> </td>
-			<td id="leftmid2"> </td>
-			<td id="rightmid2"> </td>
-			<td id="ask2"> </td>
-			<td id="right2"> </td>
+			<td id="left1">&nbsp;</td>
+			<td id="bid1">&nbsp;</td>
+			<td id="leftmid1">&nbsp;</td>
+			<td id="rightmid1">&nbsp;</td>
+			<td id="ask1">&nbsp;</td>
+			<td id="right1">&nbsp;</td>
 		</tr>
 		<tr>
-			<td id="left3"> </td>
-			<td id="bid3"> </td>
-			<td id="leftmid3"> </td>
-			<td id="rightmid3"> </td>
-			<td id="ask3"> </td>
-			<td id="right3"> </td>
+			<td id="left2">&nbsp;</td>
+			<td id="bid2">&nbsp;</td>
+			<td id="leftmid2">&nbsp;</td>
+			<td id="rightmid2">&nbsp;</td>
+			<td id="ask2">&nbsp;</td>
+			<td id="right2">&nbsp;</td>
 		</tr>
 		<tr>
-			<td id="left4"> </td>
-			<td id="bid4"> </td>
-			<td id="leftmid4"> </td>
-			<td id="rightmid4"> </td>
-			<td id="ask4"> </td>
-			<td id="right4"> </td>
+			<td id="left3">&nbsp;</td>
+			<td id="bid3">&nbsp;</td>
+			<td id="leftmid3">&nbsp;</td>
+			<td id="rightmid3">&nbsp;</td>
+			<td id="ask3">&nbsp;</td>
+			<td id="right3">&nbsp;</td>
 		</tr>
 		<tr>
-			<td id="left5"> </td>
-			<td id="bid5"> </td>
-			<td id="leftmid5"> </td>
-			<td id="rightmid5"> </td>
-			<td id="ask5"> </td>
-			<td id="right5"> </td>
-        </tr>
-		<tr>
-			<td id="left6"> </td>
-			<td id="bid6"> </td>
-			<td id="leftmid6"> </td>
-			<td id="rightmid6"> </td>
-			<td id="ask6"> </td>
-			<td id="right6"> </td>
+			<td id="left4">&nbsp;</td>
+			<td id="bid4">&nbsp;</td>
+			<td id="leftmid4">&nbsp;</td>
+			<td id="rightmid4">&nbsp;</td>
+			<td id="ask4">&nbsp;</td>
+			<td id="right4">&nbsp;</td>
 		</tr>
 		<tr>
-			<td id="left7"> </td>
-			<td id="bid7"> </td>
-			<td id="leftmid7"> </td>
-			<td id="rightmid7"> </td>
-			<td id="ask7"> </td>
-			<td id="right7"> </td>
+			<td id="left5">&nbsp;</td>
+			<td id="bid5">&nbsp;</td>
+			<td id="leftmid5">&nbsp;</td>
+			<td id="rightmid5">&nbsp;</td>
+			<td id="ask5">&nbsp;</td>
+			<td id="right5">&nbsp;</td>
 		</tr>
 		<tr>
-			<td id="left8"> </td>
-			<td id="bid8"> </td>
-			<td id="leftmid8"> </td>
-			<td id="rightmid8"> </td>
-			<td id="ask8"> </td>
-			<td id="right8"> </td>
+			<td id="left6">&nbsp;</td>
+			<td id="bid6">&nbsp;</td>
+			<td id="leftmid6">&nbsp;</td>
+			<td id="rightmid6">&nbsp;</td>
+			<td id="ask6">&nbsp;</td>
+			<td id="right6">&nbsp;</td>
 		</tr>
 		<tr>
-			<td id="left9"> </td>
-			<td id="bid9"> </td>
-			<td id="leftmid9"> </td>
-			<td id="rightmid9"> </td>
-			<td id="ask9"> </td>
-			<td id="right9"> </td>
+			<td id="left7">&nbsp;</td>
+			<td id="bid7">&nbsp;</td>
+			<td id="leftmid7">&nbsp;</td>
+			<td id="rightmid7">&nbsp;</td>
+			<td id="ask7">&nbsp;</td>
+			<td id="right7">&nbsp;</td>
 		</tr>
 		<tr>
-			<td id="left10"> </td>
-			<td id="bid10"> </td>
-			<td id="leftmid10"> </td>
-			<td id="rightmid10"> </td>
-			<td id="ask10"> </td>
-			<td id="right10"> </td>
+			<td id="left8">&nbsp;</td>
+			<td id="bid8">&nbsp;</td>
+			<td id="leftmid8">&nbsp;</td>
+			<td id="rightmid8">&nbsp;</td>
+			<td id="ask8">&nbsp;</td>
+			<td id="right8">&nbsp;</td>
 		</tr>
 		<tr>
-			<td id="left11"> </td>
-			<td id="bid11"> </td>
-			<td id="leftmid11"> </td>
-			<td id="rightmid11"> </td>
-			<td id="ask11"> </td>
-			<td id="right11"> </td>
+			<td id="left9">&nbsp;</td>
+			<td id="bid9">&nbsp;</td>
+			<td id="leftmid9">&nbsp;</td>
+			<td id="rightmid9">&nbsp;</td>
+			<td id="ask9">&nbsp;</td>
+			<td id="right9">&nbsp;</td>
 		</tr>
+		<tr>
+			<td id="left10">&nbsp;</td>
+			<td id="bid10">&nbsp;</td>
+			<td id="leftmid10">&nbsp;</td>
+			<td id="rightmid10">&nbsp;</td>
+			<td id="ask10">&nbsp;</td>
+			<td id="right10">&nbsp;</td>
+		</tr>
+		<tr>
+			<td id="left11">&nbsp;</td>
+			<td id="bid11">&nbsp;</td>
+			<td id="leftmid11">&nbsp;</td>
+			<td id="rightmid11">&nbsp;</td>
+			<td id="ask11">&nbsp;</td>
+			<td id="right11">&nbsp;</td>
+		</tr>	
 		</table>
 	</body>
+	<button onclick="window.location.reload()"> Refresh Page </button>
+	<!-- <input type="button" value="Refresh Page" onClick="window.location.reload()"> -->
 </html>
