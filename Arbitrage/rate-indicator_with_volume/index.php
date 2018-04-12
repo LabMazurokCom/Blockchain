@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" type="text/css" href="mystyle.css">
     <title>Rate comparator</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 		<script>
 			function get_rates() {
 				var xhr = new XMLHttpRequest();
 				xhr.open('GET', 'order_books.php', true);
 				xhr.onload = function() {
-					console.log("in get_rates()")
-					var response_json = JSON.parse(this.responseText)
+					var response_json = JSON.parse(this.responseText);
 	                var ticker = response_json.ticker;
-	                var profit = response_json.profit;
-	                var volume = response_json.volume;
-	                console.log(ticker)
 	                a = [];
 	                for (var ix in ticker) {
 	                	if (ticker[ix].ask != 0 && ticker[ix].bid != 0) {
@@ -45,7 +42,6 @@
 	                var tmp;
 	                for (var ix in a) {
 	                	if (a[ix].bid == 0) {
-//	                		tmp = parseFloat(a[ix].ask);
 	                		document.getElementById("ask" + ix.toString()).innerHTML = a[ix].ask.toFixed(2);
 	                		document.getElementById("right" + ix.toString()).innerHTML = a[ix].exchange;
 	                		if (first_ask == 0) {
@@ -56,7 +52,6 @@
 	                		last_ask = a[ix].ask;
 	                	}
 	                	else {
-//	                		tmp = parseFloat(a[ix].bid);
 	                 		document.getElementById("bid" + ix.toString()).innerHTML = a[ix].bid.toFixed(2);
 	                		document.getElementById("left" + ix.toString()).innerHTML = a[ix].exchange;  
 	                		if (first_bid_ix == -1) {
@@ -69,12 +64,18 @@
 	                }
 
 	                if (last_ask < first_bid) {
-	                	var val = 100 * (first_bid - last_ask) / last_ask;
-	                	val = val.toFixed(2);
-		                document.getElementById("percentage_change").innerHTML = "Percentage change: " + val.toString() + "%";
-
+	                	var percentage_change = 100 * (first_bid - last_ask) / last_ask;
+	                	percentage_change = percentage_change.toFixed(2);
+		                document.getElementById("percentage_change").innerHTML = "Percentage change: " + percentage_change + "%";
+	                
+	                	var profit = response_json.profit;
 		                document.getElementById("profit").innerHTML = "Profit: " + parseFloat(profit).toFixed(2);
-						document.getElementById("volume").innerHTML = "Volume: " + parseFloat(volume).toFixed(8);
+
+		                var usd_amount = response_json.usd_amount;
+						document.getElementById("usd_amount").innerHTML = "Volume: " + parseFloat(usd_amount).toFixed(2);
+
+		                var trade_cnt = response_json.trade_cnt;
+						document.getElementById("trade_cnt").innerHTML = "Number of trades: " + trade_cnt;						
 		            }
 		            else {
 		            	document.getElementById("percentage_change").innerHTML = "No Arbitrage"; 
@@ -160,7 +161,17 @@
 	               	document.getElementById("ask" + last_ask_ix).style.borderBottomColor = "red"; 
 	                document.getElementById("right" + last_ask_ix).style.borderBottomStyle = "solid";
 	               	document.getElementById("right" + last_ask_ix).style.borderBottomWidth = "3px";
-	               	document.getElementById("right" + last_ask_ix).style.borderBottomColor = "red"; 	               	       
+	               	document.getElementById("right" + last_ask_ix).style.borderBottomColor = "red"; 
+
+
+	               	var trace = {
+						x: response_json.amount_points,
+						y: response_json.profit_points,
+						mode: 'lines+markers'
+					};
+					var data = [trace];
+					var layout = {};
+					Plotly.newPlot('plot', data, layout);	               	       
 				}
 				xhr.onerror = function() {
 				  console.log('Error ', this.status);
@@ -172,7 +183,8 @@
 	<body onload="get_rates()">
 		<h3 id="percentage_change"></h3>
 		<h3 id="profit"> </h3>
-		<h3 id="volume"> </h3>
+		<h3 id="usd_amount"> </h3>
+		<h3 id="trade_cnt"> </h3>
 		<table>		
 		<tr>
 			<th width="24%" style = "color:green"> Exchange </th>
@@ -278,7 +290,26 @@
 			<td id="ask11">&nbsp;</td>
 			<td id="right11">&nbsp;</td>
 		</tr>	
+		<tr>
+			<td id="left12">&nbsp;</td>
+			<td id="bid12">&nbsp;</td>
+			<td id="leftmid12">&nbsp;</td>
+			<td id="rightmid12">&nbsp;</td>
+			<td id="ask12">&nbsp;</td>
+			<td id="right12">&nbsp;</td>
+		</tr>	
+		<tr>
+			<td id="left13">&nbsp;</td>
+			<td id="bid13">&nbsp;</td>
+			<td id="leftmid13">&nbsp;</td>
+			<td id="rightmid13">&nbsp;</td>
+			<td id="ask13">&nbsp;</td>
+			<td id="right13">&nbsp;</td>
+		</tr>	
 		</table>
+		<div id="plot">
+			<!-- Plotly chart will be here -->
+		</div>
 	</body>
 	<button onclick="window.location.reload()"> Refresh Page </button>
 	<!-- <input type="button" value="Refresh Page" onClick="window.location.reload()"> -->

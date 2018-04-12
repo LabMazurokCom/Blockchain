@@ -2,7 +2,7 @@
 	// echoes {"ticker":[{exchange name, bid, ask}, {}, ..., {}], "profit": float, "volume": volume}
 	$options  = array('http' => array('user_agent' => 'curl/7.29.0'));
 	$context  = stream_context_create($options);
-//	echo '{ "ticker": [';
+	echo '{ "ticker": [';
 //	ini_set('default_socket_timeout', 10);
 
 	$bids = array();
@@ -18,7 +18,6 @@
 		$y = json_decode($x,true);
 
 		if (isset($y['bids']) && isset($y['asks'])) {
-			echo 'Binance<br/>';
 			/*
 			for($i = 0; $i < min($Limit, count($y['bids'])); $i++) {
 				array_push($bids, [$y['bids'][$i][0], $y['bids'][$i][1]]);				
@@ -196,18 +195,18 @@
 				foreach($y['ask'] as $cur_ask) {
 					array_push($asks, [$cur_ask[0], $cur_ask[1]]);
 				}
-				echo '{"exchange":"exmo (USD)", "bid":', $y['bid'][0][0], ', "ask":', $y['ask'][0][0], '}';
+				echo '{"exchange":"exmo (USD)", "bid":', $y['bid'][0][0], ', "ask":', $y['ask'][0][0], '},';
 			}
 			else {
-				echo '{"exchange":"exmo (USD)", "bid":0, "ask":0}';
+				echo '{"exchange":"exmo (USD)", "bid":0, "ask":0},';
 			}
 		}
 		else {
-			echo '{"exchange":"exmo (USD)", "bid":0, "ask":0}';
+			echo '{"exchange":"exmo (USD)", "bid":0, "ask":0},';
 		}
 	}
 	catch(Exception $e) {
-		echo '{"exchange":"exmo (USD)", "bid":0, "ask":0}';
+		echo '{"exchange":"exmo (USD)", "bid":0, "ask":0},';
 	}
 
 
@@ -246,29 +245,78 @@
 		echo '{"exchange":"exmo (USDT)", "bid":0, "ask":0}';
 	}
 
+
 	rsort($bids);
 	sort($asks);
+
+
+
+	$bx = 0;
+	$ax = 0;
+	$bid_count = count($bids);
+	$ask_count = count($asks);
+	$profit = 0;
+	$usd_amount = 0;
+	$trade_cnt = 0;
+	$profit_points = array();
+	$amount_points = array();
+	while ($bx < $bid_count  &&  $ax < $ask_count  &&  $bids[$bx][0] > $asks[$ax][0]) {
+		$bid_vol = $bids[$bx][1];
+		$ask_vol = $asks[$ax][1];
+		if ($bid_vol == 0) {
+			$bx++;
+			continue;
+		}
+		if ($ask_vol == 0) {
+			$ax++;
+			continue;
+		}
+		$m = min($bid_vol, $ask_vol);
+		$current_profit = ($bids[$bx][0] - $asks[$ax][0]) * $m;
+		$profit += $current_profit;
+		$usd_amount += $asks[$ax][0] * $m;
+		array_push($profit_points, $profit);
+		array_push($amount_points, $usd_amount);
+//		echo 'trade: ', $bids[$bx][0] - $asks[$ax][0], ' ', $m, ', profit = ', $current_profit, '    <br/>';
+		$bids[$bx][1] -= $m;
+		$asks[$ax][1] -= $m;
+		$trade_cnt += 1;
+	}
+
 
 	echo '], ';
-	$profit = 1000000;
 	echo '"profit":', $profit, ', ';
-	$volume = 1;
-	echo '"volume":', $volume, '}';
+	echo '"trade_cnt":', $trade_cnt, ', ';
+	echo '"usd_amount":', $usd_amount, ', ';
+	echo '"profit_points": [';
+	$n_prof = count($profit_points);
+	for ($i = 0; $i < $n_prof; $i++) {
+		echo $profit_points[$i];
+		if ($i < $n_prof - 1)
+			echo ', ';
+		else
+			echo '], ';
+	}
+	echo '"amount_points": [';
+	$n_amo = count($amount_points);
+	for ($i = 0; $i < $n_amo; $i++) {
+		echo $amount_points[$i];
+		if ($i < $n_amo - 1)
+			echo ', ';
+		else
+			echo ']';
+	}
+	echo '}';
 
-
-	echo '<br/><br/>';
-	for($i = 0; $i < min(count($bids), count($asks)); $i++)
-		echo $bids[$i][0], ' ', $bids[$i][1], ' ........ ', $asks[$i][0], ' ', $asks[$i][1], '<br/>';
 /*
 	echo '<br/><br/>';
-	echo 'BIDS ', count($bids), '<br/>';
-	rsort($bids);
-	foreach($bids as $cur_bid)
-		echo $cur_bid[0], ' ', $cur_bid[1], '<br/>';
-	echo '<br/><br/>';
-	echo 'ASKS', count($asks), '<br/>';
-	sort($asks);
-	foreach($asks as $cur_ask)
-		echo $cur_ask[0], ' ', $cur_ask[1], '<br/>';
+	for($i = 0; $i < min(count($bids), count($asks)); $i++) {
+		echo $i, '  ';
+		if ($bids[$i][0] > $asks[$i][0])
+			echo '<span style="color: green;">';
+		else
+			echo '<span style="color: red;">';
+		echo $bids[$i][0], ' ', $bids[$i][1], ' ........ ', $asks[$i][0], ' ', $asks[$i][1], '</span><br/>';
+	}
 */
 ?>
