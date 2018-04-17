@@ -13,15 +13,15 @@ def get_binance_order_book(bidfile, askfile, symbol='BTCUSDT', limit=50):
     info_path = '/api/v1/depth?symbol={0}&limit={1}'.format(symbol, limit)
     r = requests.get(main_path + info_path)
     data_json = r.json()
-    print(list(data_json.keys()))
-    print()
-    print(data_json)
-    bidfile.write('\t\t\tBinance\n')
+    #print(list(data_json.keys()))
+    #print()
+    #print(data_json)
+    #bidfile.write('\t\t\tBinance\n')
     for x in data_json['bids']:
-        bidfile.write('{},{}\n'.format(x[0], x[1]))
-    askfile.write('\t\t\tBinance\n')
+        bidfile.write('{},{},{},{}\n'.format(x[0], x[1], 'binance', 'usdt'))
+    #askfile.write('\t\t\tBinance\n')
     for x in data_json['asks']:
-        askfile.write('{},{}\n'.format(x[0], x[1]))
+        askfile.write('{},{},{},{}\n'.format(x[0], x[1], 'binance', 'usdt'))
 
 
 def get_bitstamp_order_book(bidfile, askfile, symbol='btcusd', limit=50):
@@ -38,17 +38,17 @@ def get_bitstamp_order_book(bidfile, askfile, symbol='btcusd', limit=50):
     #print(list(data_json.keys()))
     #print()
     #print(data_json)
-    bidfile.write('\t\t\tBitstamp\n')
+    #bidfile.write('\t\t\tBitstamp\n')
     bids = data_json['bids']
     for i in range(limit):
-        bidfile.write('{},{}\n'.format(bids[i][0], bids[i][1]))
-    askfile.write('\t\t\tBitstamp\n')
+        bidfile.write('{},{},{},{}\n'.format(bids[i][0], bids[i][1], 'bitstamp', 'usd'))
+    #askfile.write('\t\t\tBitstamp\n')
     asks = data_json['asks']
     for i in range(limit):
-        askfile.write('{},{}\n'.format(asks[i][0], asks[i][1]))
+        askfile.write('{},{},{},{}\n'.format(asks[i][0], asks[i][1], 'bitstamp', 'usd'))
 
 
-def get_cex_order_book(bidfile, askfile, symbol='BTC/USD', limit=1):
+def get_cex_order_book(bidfile, askfile, symbol='BTC/USD', limit=50):
     """
     doc:
         https://cex.io/rest-api#orderbook
@@ -61,14 +61,14 @@ def get_cex_order_book(bidfile, askfile, symbol='BTC/USD', limit=1):
     #print(list(data_json.keys()))
     #print()
     #print(data_json)
-    bidfile.write('\t\t\tCEX\n')
+    #bidfile.write('\t\t\tCEX\n')
     bids = data_json['bids']
     for i in range(limit):
-        bidfile.write('{},{}\n'.format(bids[i][0], bids[i][1]))
-    askfile.write('\t\t\tCEX\n')
+        bidfile.write('{},{},{},{}\n'.format(bids[i][0], bids[i][1], 'cex', 'usd'))
+    #askfile.write('\t\t\tCEX\n')
     asks = data_json['asks']
     for i in range(limit):
-        askfile.write('{},{}\n'.format(asks[i][0], asks[i][1]))
+        askfile.write('{},{},{},{}\n'.format(asks[i][0], asks[i][1], 'cex', 'usd'))
 
 
 def get_exmo_order_book(bidfile, askfile, symbol='BTC_USDT', limit=50):
@@ -85,12 +85,12 @@ def get_exmo_order_book(bidfile, askfile, symbol='BTC_USDT', limit=50):
     #print(list(data_json.keys()))
     #print()
     #print(data_json)
-    bidfile.write('\t\t\tExmo (USDT)\n')
+    #bidfile.write('\t\t\tExmo (USDT)\n')
     for x in data_json['bid']:
-        bidfile.write('{},{}\n'.format(x[0], x[1]))
-    askfile.write('\t\t\tExmo (USDT)\n')
+        bidfile.write('{},{},{},{}\n'.format(x[0], x[1], 'exmo', 'usdt'))
+    #askfile.write('\t\t\tExmo (USDT)\n')
     for x in data_json['ask']:
-        askfile.write('{},{}\n'.format(x[0], x[1]))
+        askfile.write('{},{},{},{}\n'.format(x[0], x[1], 'exmo', 'usdt'))
 
 
 def get_exmo_usd_order_book(bidfile, askfile, symbol='BTC_USD', limit=50):
@@ -107,12 +107,12 @@ def get_exmo_usd_order_book(bidfile, askfile, symbol='BTC_USD', limit=50):
     #print(list(data_json.keys()))
     #print()
     #print(data_json)
-    bidfile.write('\t\t\tExmo (USD)\n')
+    #bidfile.write('\t\t\tExmo (USD)\n')
     for x in data_json['bid']:
-        bidfile.write('{},{}\n'.format(x[0], x[1]))
-    askfile.write('\t\t\tExmo (USD)\n')
+        bidfile.write('{},{},{},{}\n'.format(x[0], x[1], 'exmo', 'usd'))
+    #askfile.write('\t\t\tExmo (USD)\n')
     for x in data_json['ask']:
-        askfile.write('{},{}\n'.format(x[0], x[1]))
+        askfile.write('{},{},{},{}\n'.format(x[0], x[1], 'exmo', 'usd'))
 
 
 def get_gdax_order_book(bidfile, askfile, symbol='BTC-USD', limit=2):
@@ -126,15 +126,15 @@ def get_gdax_order_book(bidfile, askfile, symbol='BTC-USD', limit=2):
     info_path = '/products/{}/book?level={}'.format(symbol, limit)
     r = requests.get(main_path + info_path)
     data_json = r.json()
-#    print(list(data_json.keys()))
-#    print()
-#    print(data_json)
-    bidfile.write('\t\t\tGDAX\n')
+    #print(list(data_json.keys()))
+    #print()
+    #print(data_json)
+    #bidfile.write('\t\t\tGDAX\n')
     for x in data_json['bids']:
-        bidfile.write('{},{}\n'.format(x[0], x[1]))
-    askfile.write('\t\t\tGDAX\n')
+        bidfile.write('{},{},{},{}\n'.format(x[0], x[1], 'gdax', 'usd'))
+    #askfile.write('\t\t\tGDAX\n')
     for x in data_json['asks']:
-        askfile.write('{},{}\n'.format(x[0], x[1]))
+        askfile.write('{},{},{},{}\n'.format(x[0], x[1], 'gdax', 'usd'))
 
 
 def get_kucoin_order_book(bidfile, askfile, symbol='BTC-USDT', limit=50):
@@ -150,12 +150,12 @@ def get_kucoin_order_book(bidfile, askfile, symbol='BTC-USDT', limit=50):
     #print(list(data_json.keys()))
     #print()
     #print(data_json)
-    bidfile.write('\t\t\tKuCoin\n')
+    #bidfile.write('\t\t\tKuCoin\n')
     for x in data_json['BUY']:
-        bidfile.write('{},{}\n'.format(x[0], x[1]))
-    askfile.write('\t\t\tKuCoin\n')
+        bidfile.write('{},{},{},{}\n'.format(x[0], x[1], 'kucoin', 'usdt'))
+    #askfile.write('\t\t\tKuCoin\n')
     for x in data_json['SELL']:
-        askfile.write('{},{}\n'.format(x[0], x[1]))
+        askfile.write('{},{},{},{}\n'.format(x[0], x[1], 'kucoin', 'usdt'))
 
 
 exchanges = ['binance', 'bitstamp', 'cex', 'exmo', 'exmo_usd', 'gdax', 'kucoin']
@@ -180,21 +180,13 @@ def get_order_book(bidfile, askfile, exchange, symbol=None, limit=None):
 
 with open('bid.csv', 'w') as bid_csv:
     with open('ask.csv', 'w') as ask_csv:
-        A = get_binance_order_book(bid_csv, ask_csv)
-        #print('\t\tExmo')
-        #get_exmo_order_book(bid_csv, ask_csv)
-        #print('\n\n\t\tExmo (USD)')
-        #get_exmo_usd_order_book(bid_csv, ask_csv)
-        '''
         global_start = time.time()
-        time_sum = 0.0
         for ex in exchanges:
             fun = funcs[ex]
-            start_time = time.time()
+            #start_time = time.time()
             try:
                 get_order_book(bid_csv, ask_csv, ex)
-                print(ex, time.time() - start_time)
+                #print(ex, time.time() - start_time)
             except:
                 pass
-        print(time.time() - global_start)
-        '''
+        print('Total time: {:.3f} sec'.format(time.time() - global_start))
