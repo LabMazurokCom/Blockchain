@@ -1,0 +1,24 @@
+{
+	"cex": {
+		"converter": {
+			"btc_usd": "BTC/USD",
+			"ltc_btc": "LTC/BTC"
+		},
+		"url": "https://cex.io/api/order_book/{}/?limit={}",
+		"path": {
+			"bids": ["bids"],
+			"asks": ["asks"]
+		}
+	},
+	"exmo": {
+		"converter": {
+			"btc_usd": "BTC_USD",
+			"ltc_usd": "LTC_USD"
+		},
+		"url": "https://api.exmo.com/v1/order_book/?pair={}",
+		"path": {
+			"bids": ["{}", "bid"],
+			"asks": ["{}", "ask"]
+		}
+	}
+}
