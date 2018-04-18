@@ -1,10 +1,30 @@
 {
+	"binance": {
+		"converter": {
+			"btc_usd": "BTCUSDT"
+		},
+		"url": "https://api.binance.com/api/v1/depth?symbol={}&limit={}",
+		"path": {
+			"bids": ["bids"],
+			"asks": ["asks"]
+		}
+	},
+	"bitstamp": {
+		"converter": {
+			"btc_usd": "btcusd"
+		},
+		"url": "https://www.bitstamp.net/api/v2/order_book/{}/",
+		"path": {
+			"bids": ["bids"],
+			"asks": ["asks"]
+		}
+	},
 	"cex": {
 		"converter": {
 			"btc_usd": "BTC/USD",
 			"ltc_btc": "LTC/BTC"
 		},
-		"url": "https://cex.io/api/order_book/{}/?limit={}",
+		"url": "https://cex.io/api/order_book/{}/?depth={}",
 		"path": {
 			"bids": ["bids"],
 			"asks": ["asks"]
@@ -15,10 +35,30 @@
 			"btc_usd": "BTC_USD",
 			"ltc_usd": "LTC_USD"
 		},
-		"url": "https://api.exmo.com/v1/order_book/?pair={}",
+		"url": "https://api.exmo.com/v1/order_book/?pair={}&limit={}",
 		"path": {
 			"bids": ["{}", "bid"],
 			"asks": ["{}", "ask"]
+		}
+	},
+	"gdax": {
+		"converter": {
+			"btc_usd": "BTC-USD"
+		},
+		"url": "https://api.gdax.com/products/{}/book?level=2",
+		"path": {
+			"bids": ["bids"],
+			"asks": ["asks"]
+		}
+	},
+	"kucoin": {
+		"converter": {
+			"btc_usd": "BTC-USDT"
+		},
+		"url": "https://api.kucoin.com/v1/open/orders?symbol={}&limit={}",
+		"path": {
+			"bids": ["data", "BUY"],
+			"asks": ["data", "SELL"]
 		}
 	}
 }
