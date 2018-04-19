@@ -1,0 +1,64 @@
+{
+	"binance": {
+		"converter": {
+			"btc_usd": "BTCUSDT"
+		},
+		"url": "http://127.0.0.1:5000/binance?symbol={}&limit={}",
+		"path": {
+			"bids": ["bids"],
+			"asks": ["asks"]
+		}
+	},
+	"bitstamp": {
+		"converter": {
+			"btc_usd": "btcusd"
+		},
+		"url": "http://127.0.0.1:5000/bitstamp?symbol={}",
+		"path": {
+			"bids": ["bids"],
+			"asks": ["asks"]
+		}
+	},
+	"cex": {
+		"converter": {
+			"btc_usd": "BTC/USD",
+			"ltc_btc": "LTC/BTC"
+		},
+		"url": "http://127.0.0.1:5000/cex?symbol={}&depth={}",
+		"path": {
+			"bids": ["bids"],
+			"asks": ["asks"]
+		}
+	},
+	"exmo": {
+		"converter": {
+			"btc_usd": "BTC_USD",
+			"ltc_usd": "LTC_USD"
+		},
+		"url": "http://127.0.0.1:5000/exmo?pair={}&limit={}",
+		"path": {
+			"bids": ["{}", "bid"],
+			"asks": ["{}", "ask"]
+		}
+	},
+	"gdax": {
+		"converter": {
+			"btc_usd": "BTC-USD"
+		},
+		"url": "http://127.0.0.1:5000/gdax?symbol={}&level=2",
+		"path": {
+			"bids": ["bids"],
+			"asks": ["asks"]
+		}
+	},
+	"kucoin": {
+		"converter": {
+			"btc_usd": "BTC-USDT"
+		},
+		"url": "http://127.0.0.1:5000/kucoin?symbol={}&limit={}",
+		"path": {
+			"bids": ["data", "BUY"],
+			"asks": ["data", "SELL"]
+		}
+	}
+}
