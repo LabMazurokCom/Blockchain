@@ -1,0 +1,16 @@
+symbol,from,to
+btcusd,btc,usd
+btceur,btc,eur
+eurusd,eur,usd
+xrpusd,xrp,usd
+xrpeur,xrp,eur
+xrpbtc,xrp,btc
+ltcusd,ltc,usd
+ltceur,ltc,eur
+ltcbtc,ltc,btc
+ethusd,eth,usd
+etheur,eth,eur
+ethbtc,eth,btc
+bchusd,bch,usd
+bcheur,bch,eur
+bchbtc,bch,btc
