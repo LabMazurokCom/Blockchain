@@ -23,7 +23,7 @@ for i in range(7):
             pass
 for s in range(1000):
     try:
-        #run_script()
+        run_script()
         for i in range(7):
             # DATA LOADING
             ask = pd.read_csv('ask.csv', header=None)
