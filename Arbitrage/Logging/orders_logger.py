@@ -1,10 +1,11 @@
+#!/usr/bin/python3
 """
         Calling examples:
     python orders_logger.py -h                                      # help
     python orders_logger.py btc_usd                                 # currency pair is the only required argument
     python orders_logger -c "my_new_config.json" btc_usd            # pass configuration file
     python orders_logger -l 10 btc_usd                              # pass number of top orders to be processed
-    python orders_logger.py -c "config.json" -l 10 tc_usd           # pass all available arguments
+    python orders_logger.py -c "config.json" -l 10 btc_usd           # pass all available arguments
 """
 
 
@@ -17,7 +18,7 @@ import time
 from pprint import pprint
 
 
-FETCH_TIMEOUT = 2   # number of seconds to wait
+FETCH_TIMEOUT = 5   # number of seconds to wait
 
 
 async def fetch(session, url, name):
@@ -27,11 +28,11 @@ async def fetch(session, url, name):
         with async_timeout.timeout(FETCH_TIMEOUT):
             async with session.get(url) as response:
                 response_json = await response.json(content_type=None)
-                print(name, '+ {:.4f}'.format(time.time() - start))
-                return name, response_json
+                return name, response_json, time.time() - start
+    except asyncio.TimeoutError:
+        return name, None, 'timeout'
     except:
-        print(name, '- -1')
-        return name, None
+        return name, None, 'json'
 
 
 async def collect_data(urls, names):
@@ -57,9 +58,12 @@ def process_responses(responses, conf, syms, limit):
         'orders': {'bids': {}, 'asks': {}},
         'trade_cnt': 0
     }
+    time_data = {}
+
     for response in responses:
         exch = response[0]
         data = response[1]
+        timestamp = response[2]
         if data is not None:
             try:
                 path = conf[exch]["path"]
@@ -83,16 +87,19 @@ def process_responses(responses, conf, syms, limit):
                 # add top bid and ask price to the ticker
                 tmp = {'ask': current_asks[0][0], 'bid': current_bids[0][0], 'exchange': exch}
                 d['ticker'].append(tmp)
+                time_data[exch] = timestamp
             except:  # Some error occurred while parsing json response for current exchange
                 tmp = {'ask': 0, 'bid': 0, 'exchange': exch}
                 d['ticker'].append(tmp)
+                time_data[exch] = 'fields'
         else:  # Some error occurred while making HTTP request for current exchange
             tmp = {'ask': 0, 'bid': 0, 'exchange': exch}
             d['ticker'].append(tmp)
+            time_data[exch] = timestamp
     if  len(bids) > 0  and  len(asks) > 0:
         bids.sort(key = lambda triple: triple[0], reverse = True)   # bids sorted in descending order by price
         asks.sort(key = lambda triple: triple[0])                   # asks sorted in ascending order by price
-    return bids, asks, d
+    return bids, asks, d, time_data
 
 
 def make_logging_entry(bids, asks, d):
@@ -130,7 +137,7 @@ def make_logging_entry(bids, asks, d):
         profit_points.append(profit)
         amount_points.append(amount)
         # print('trade:', bids[bx][0] - asks[ax][0], m, ' profit =', current_profit)
-        print('volume:', m, 'bid:', bids[bx][0], 'bid_exc:', bids[bx][2], 'ask:', asks[ax][0], 'ask_exc:', asks[ax][2])
+        # print('volume:', m, 'bid:', bids[bx][0], 'bid_exc:', bids[bx][2], 'ask:', asks[ax][0], 'ask_exc:', asks[ax][2])
         bid_exch = bids[bx][2]
         if bid_exch in bid_orders:
             bid_orders[bid_exch][0] = min(bid_orders[bid_exch][0], bids[bx][0])
@@ -171,42 +178,23 @@ def make_logging_entry(bids, asks, d):
     d['profit_points'] = profit_points
     d['orders']['bids'] = bid_orders
     d['orders']['asks'] = ask_orders
-    pprint(d)
-    # form list of orders and add to d
-    # return d
 
 
-def collector(conf, urls, names, syms, limit, log_file, last_file, tech_file):
-    print('#Start', time.time())
-    start = time.time()
+def collector(conf, urls, names, syms, limit, logfile, lastfile, techfile):
     loop = asyncio.get_event_loop()
     responses = loop.run_until_complete(collect_data(urls, names))
-    print('#Responses: {:.4f}'.format(time.time() - start))
-    start = time.time()
-    bids, asks, d = process_responses(responses, conf, syms, limit)
-    # print()
-    # pprint(bids)
-    # print()
-    # pprint(asks)
-    print('#Extracted and sorted top bids and top asks, filled the ticker: {:.4f}'.format(time.time() - start))
-    bids = [
-        [110, 1, 'b'], [100, 2, 'a'], [90, 1, 'b'], [80, 3, 'c'], [70, 3, 'a']
-    ]
-    asks = [
-        [75, 1, 'a'], [77, 1, 'x'], [79, 3, 'y'], [81, 5, 'z']
-    ]
-
+    timestamp = time.time()
+    bids, asks, d, time_data = process_responses(responses, conf, syms, limit)
     make_logging_entry(bids, asks, d)
-    '''
-    with open("log.txt", "w") as log_file, open("last.txt", "w") as last_file, open('test.txt', 'w') as f:
-        last_file.write('\nBids\n')
-        json.dump(bids, last_file, indent=4, sort_keys=True)
-        last_file.write('\nAsks\n')
-        json.dump(asks, last_file, indent=4, sort_keys=True)
-        last_file.write('\n')
-#        json.dump(d, last_file, indent=4, sort_keys=True)
-    # print('TOTAL: {:.4f}'.format(time.time() - start))
-    '''
+    d['timestamp'] = timestamp
+    time_data['timestamp'] = timestamp
+    with open(logfile, "a+") as log_file, open(lastfile, "w") as last_file, open(techfile, 'a+') as tech_file:
+        json.dump(d, log_file) #, indent=4, sort_keys=True)
+        print(file = log_file)
+        json.dump(d, last_file) #, indent=4, sort_keys=True)
+        print(file=last_file)
+        json.dump(time_data, tech_file) #, indent=4, sort_keys=True)
+        print(file=tech_file)
 
 
 if __name__ == "__main__":
@@ -224,7 +212,7 @@ if __name__ == "__main__":
                         help="how many top orders should be processed (default: 50)")
     parser.add_argument('symbol',
                         help="currency pair")
-    args = parser.parse_args(['-l', '5', '-c', 'orders_config.json', 'btc_usd'])
+    args = parser.parse_args() #(['-l', '5', '-c', 'orders_config.json', 'btc_usd'])
 
 
     # Access to arguments' values: args.config, args.limit, args.symbol
@@ -233,38 +221,31 @@ if __name__ == "__main__":
 
 
     try:
-        with open('log_' + symbol + '.txt', 'a') as log_file, \
-                open('last_' + symbol + '.txt', 'w') as last_file, \
-                open('tech_' + symbol + '.txt', 'a+') as tech_file:
-            conf = json.load(open(args.config))    # load configuration file
-            urls = []
-            names = []
-            syms = dict()
-            for exch in conf.keys():
-                try:    # get exchange's symbol for user's symbol
-                    sym = conf[exch]["converter"][symbol]
-                    syms[exch] = sym
-                    urls.append(conf[exch]["url"].format(sym, limit))
-                    names.append(exch)
-                except KeyError:
-                    pass
-            if len(names) == 0:
-                print("\tERROR")
-                print("No exchange supports given symbol")
-                exit(1)
-            print(urls)
-            N = 1
-            i = 0
-            T = 0
-            while i < N:
-                i += 1
-                if i % 10 == 0:
-                    print('{} / 50'.format(i))
-                start = time.time()
-                collector(conf, urls, names, syms, limit, log_file, last_file, tech_file)
-                T += time.time() - start
-                #print('{:.4f}'.format(time.time() - start))
-            print('{:.4f}'.format(T / N))
+        logfile = 'log_' + symbol + '.txt'
+        lastfile = 'last_' + symbol + '.txt'
+        techfile = 'tech_' + symbol + '.txt'
+        with open(logfile, 'w') as log_file, open(lastfile, 'w') as last_file, open(techfile, 'w') as tech_file:
+            pass
+        conf = json.load(open(args.config))    # load configuration file
+        urls = []
+        names = []
+        syms = dict()
+        for exch in conf.keys():
+            try:    # get exchange's symbol for user's symbol
+                sym = conf[exch]["converter"][symbol]
+                syms[exch] = sym
+                urls.append(conf[exch]["url"].format(sym, limit))
+                names.append(exch)
+            except KeyError:
+                pass
+        if len(names) == 0:
+            print("\tERROR")
+            print("No exchange supports given symbol")
+            exit(1)
+        #print('Start')
+        while True:
+            collector(conf, urls, names, syms, limit, logfile, lastfile, techfile)
+        #print('End')
     except FileNotFoundError as e:
         print("\t ERROR")
         print("No such file", args.config)
