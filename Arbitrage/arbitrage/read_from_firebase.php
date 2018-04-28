@@ -5,7 +5,7 @@
 
 	try {
 		$x = file_get_contents('https://arbitrage-logger.firebaseio.com/log_btc_usd.json?orderBy=%22$key%22&limitToLast=1', false, $context);
-		echo $x, '<br/><br/>';
+		echo $x;
 		// $y = json_decode($x, true);
 		// print_r($y);
 	}
