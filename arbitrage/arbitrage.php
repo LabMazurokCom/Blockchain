@@ -35,165 +35,7 @@
 		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 		<!-- <script type="text/javascript" src="js/smallCharts.js"></script> -->
 
-		<script type="text/javascript">
-
-		function readFromServer(address, callback) {
-
-			function reqListener () {
-				callback(this.responseText);
-			}
-			var xhr = new XMLHttpRequest();
-			xhr.addEventListener('load', reqListener);
-			xhr.open('GET', 'https://arbitrage-logger.firebaseio.com/log_btc_usd.json?orderBy=%22$key%22&limitToLast=1&print=pretty');
-			xhr.send();
-		}
-
-		function readTextFile(file, callback) {
-			var result = null;
-			var rawFile = new XMLHttpRequest();
-			rawFile.overrideMimeType("application/json");
-			rawFile.onreadystatechange = function() {
-					if (rawFile.readyState === 4 && rawFile.status == "200") {
-						callback(rawFile.responseText);
-					}
-			}
-			rawFile.open("GET", file, true);
-
-			rawFile.send(null);
-		}
-
-
-
-
-		function showticker(data) {
-			var maxbid = 0;
-			var minask = 29 * 1e13;
-			var max_bid_exchange = '';
-			var min_ask_exchange = '';
-			console.log(data['ticker'])
-			for(var i = 0 ; i < data['ticker'].length; i++) {
-				if(maxbid < data['ticker'][i]['bid']) {
-					maxbid = +data['ticker'][i]['bid'];
-					max_bid_exchange = data['ticker'][i]['exchange'];
-				}
-				if(minask > data['ticker'][i]['ask']) {
-					minask = +data['ticker'][i]['ask'];
-					min_ask_exchange = data['ticker'][i]['exchange'];
-				}
-			}
-			maxbid = maxbid.toFixed(2);
-			minask = minask.toFixed(2);
-			percent = ((maxbid-minask) / maxbid * 100).toFixed(2)
-			console.log(maxbid, minask, percent);
-			console.log(document.getElementById('max_bid').innerHTML)
-			document.getElementById('max_bid').innerHTML = maxbid;
-			document.getElementById('min_ask').innerHTML = minask;
-			document.getElementById('percent').innerHTML = percent;
-			document.getElementById('volume').innerHTML = data['amount'].toFixed(2);
-
-			document.getElementById('time').innerHTML = new Date().toString();
-
-			var ask_orders = '';
-			var bid_orders = '';
-			console.log(data['orders']);
-			var n = Object.keys(data['orders']['asks']).length;
-			var i = 0;
-			for(var exch in data['orders']['asks']) {
-				ask_orders += 'Buy ' + (+data['orders']['asks'][exch][1]).toFixed(8) + ' BTC for a price of ' + (+data['orders']['asks'][exch][0]).toFixed(2) + ' USD at ' + exch;
-
-				if(i < n - 1) ask_orders += '<br>';
-				i++;
-			}
-			var n = Object.keys(data['orders']['bids']).length;
-			var i = 0;
-			for(var exch in data['orders']['bids']) {
-				bid_orders += 'Sell ' + (+data['orders']['bids'][exch][1]).toFixed(8) + ' BTC for a price of ' + (+data['orders']['bids'][exch][0]).toFixed(2) + ' USD at ' + exch;
-				if(i < n - 1) bid_orders += '<br>';
-				i++;
-			}
-
-			console.log(ask_orders);
-			console.log(bid_orders);
-
-			document.getElementById('ask_col_p').innerHTML = ask_orders;
-			document.getElementById('bid_col_p').innerHTML = bid_orders;
-
-			document.getElementById('profit').innerHTML = data['profit'].toFixed(2);
-
-			var ask_col = document.getElementById('ask_col');
-			var bid_col = document.getElementById('bid_col');
-			console.log(ask_col, bid_col);
-
-			//
-			//Ploting
-			var myPlot = document.getElementById('plot');
-			x = data['amount_points'];
-			y = data['profit_points'];
-			console.log(x);
-			console.log('\n\n\n')
-			console.log(y);
-			console.log(data.optimal_point)
-			data = [
-				{x: x,
-				 y: y,
-				 type: 'scatter',
-				 mode: 'lines+markers',
-				},
-				{x: [data.optimal_point.amount],
-				 y: [data.optimal_point.profit],
-				 type: 'scatter',
-				 marker: {color: 'red', size: 10}
-				}
-			];
-			layout = {
-				title: 'Profit vs Amount',
-				autosize: true,
-				autoscale: true,
-				// width: 800,
-				// height: 500,
-				xaxis: {title: 'Amount, USD'},
-				yaxis: {title: 'Profit, USD'},
-				showlegend: false
-			};
-								/*
-								var trace = {
-					x: response_json.amount_points,
-					y: response_json.profit_points,
-					mode: 'lines+markers'
-				};
-				var data = [trace];
-				var layout = {
-					title: 'Profit to Amount',
-					autosize: false,
-					width: 800,
-					height: 500,
-					xaxis: {title: 'Amount, USD'},
-					yaxis: {title: 'Profit, USD'}
-				};
-				*/
-				Plotly.newPlot('plot', data, layout);
-				myPlot.on('plotly_click', function(){
-						alert('LIST OF ORDERS WILL BE FORMED HERE');
-				});
-
-		}
-
-		function update() {
-			file = './read_from_firebase.php';
-			address = 'https://arbitrage-logger.firebaseio.com/log_btc_usd.json?orderBy=%22$key%22&limitToLast=1'
-			try {
-				readFromServer(address, function(text){
-
-						var data = JSON.parse(text);
-						console.log(data);
-						showticker(data[Object.keys(data)[0]]);
-
-				});
-			}
-			catch(e) {
-				console.log('here we have failed');
-			}
-		}
+		<script type="text/javascript" src="main.js">
 
 
 		</script>
@@ -247,6 +89,11 @@
 								<h4 class="arbitrage-head">Maximum volume</h4>
 								<div class="arbitrage-price" id = 'volume'></div>
 							</div>
+							<div class="col-md-3">
+								<div class="container1" >
+									<img id="jpg-export"></img>
+								</div>
+							</div>
 						</div>
 					</div>
 
@@ -279,7 +126,7 @@
 		</div>
 	</div>
 
-		<div id = 'plot' style = 'width:50%; padding-left:50%; padding-top:0%' >
+		<div id = 'plot' style = 'display:none'>
 		</div>
 
 </html>
