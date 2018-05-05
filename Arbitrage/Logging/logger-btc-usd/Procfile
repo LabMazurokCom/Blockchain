@@ -1,0 +1,1 @@
+worker: python logger.py -l 50 btc_usd
