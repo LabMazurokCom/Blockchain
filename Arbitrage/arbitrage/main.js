@@ -65,9 +65,9 @@ function showticker(data) {
   var n = Object.keys(data['orders']['asks']).length;
   var i = 0;
   for (var exch in data['orders']['asks']) {
-    ask_orders += 'Buy ' + (+data['orders']['asks'][exch][1]).toFixed(8) +
+    ask_orders += '<div> Buy ' + (+data['orders']['asks'][exch][1]).toFixed(8) +
       ' BTC for a price of ' + (+data['orders']['asks'][exch][0]).toFixed(2) +
-      ' USD at ' + exch;
+      ' USD at ' + exch + '</div>';
 
     if (i < n - 1) ask_orders += '<br>';
     i++;
@@ -75,9 +75,9 @@ function showticker(data) {
   var n = Object.keys(data['orders']['bids']).length;
   var i = 0;
   for (var exch in data['orders']['bids']) {
-    bid_orders += 'Sell ' + (+data['orders']['bids'][exch][1]).toFixed(8) +
+    bid_orders += '<div> Sell ' + (+data['orders']['bids'][exch][1]).toFixed(8) +
       ' BTC for a price of ' + (+data['orders']['bids'][exch][0]).toFixed(2) +
-      ' USD at ' + exch;
+      ' USD at ' + exch + '</div>';
     if (i < n - 1) bid_orders += '<br>';
     i++;
   }
@@ -352,6 +352,7 @@ function showticker1(data) {
         width: 300
       }).then(
         function(url) {
+          console.log('url is ', url);
           img_jpg.attr("src", url);
         }
       )

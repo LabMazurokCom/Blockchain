@@ -34,15 +34,7 @@
 		<script src="https://www.gstatic.com/firebasejs/4.13.0/firebase.js"></script>
 		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 		<!-- <script type="text/javascript" src="js/smallCharts.js"></script> -->
-		<style media="screen">
-			div.container {
-				display: inline-block;
-			}
-			.rectangular {
-				-webkit-clip-path: inset(30px 10px 30px 10px);
-				clip-path: inset(30px 10px 30px 10px);
-			}
-		</style>
+
 		<script type="text/javascript" src="main.js"></script>
 
 
@@ -68,7 +60,7 @@
 
 			<td>
 					<!-- table with extra bids and asks -->
-				<table id = 'table0'>
+				<table id = 'table0' width = '200%'>
 					<tr >
 						<td colspan="5">
 							<div class="panel-heading">
@@ -83,26 +75,33 @@
 						<td style ='width:20%'><h4 class="arbitrage-head">Highest bid price</h4></td>
 						<td style ='width:20%'><h4 class="arbitrage-head">Lowest ask price</h4></td>
 						<td style ='width:20%'><h4 class="arbitrage-head">Percentage</h4></td>
-						<td style ='width:20%'><h4 class="arbitrage-head">Maximum volume</h4></td>
+						<td style ='width:20%' colspan= 2><h4 class="arbitrage-head">Maximum volume</h4></td>
 						<td style ='width:20%'><h4 class="arbitrage-head">Profit</h4></td>
 					</tr>
 					<tr>
 						<td style ='width:20%'><div class="arbitrage-price" id = 'max_bid'></div></td>
 						<td style ='width:20%'><div class="arbitrage-price" id = 'min_ask'></div></td>
 						<td style ='width:20%'><div class="arbitrage-price" id = 'percent'></div></td>
-						<td style ='width:20%'><div class="arbitrage-price" id = 'volume'></div></td>
+						<td style ='width:20%' colspan="2"><div class="arbitrage-price" id = 'volume'></div></td>
 						<td style ='width:20%'><div class="arbitrage-price" id = 'profit'></div></td>
 
-					</tr>`
-
+					</tr>
+					<!-- <tr>
+						<td colspan="3" id = 'ask_col' style = 'background-color:#ffe1e6;width:50%' class="arbitrage-info-text alert">
+							<p id = 'ask_col_p' style = 'text-align:left;font-size:150%'></p>
+						</td>
+						<td colspan="3" id = 'bid_col' style = 'width:50%' class="arbitrage-info-text alert">
+							<p id = 'bid_col_p' style = 'text-align:left;font-size:150%'> </p>
+						</td>
+					</tr> -->
 				</table>
 				<table id = 'table1'>
 					<tr>
 						<td id = 'ask_col' style = 'background-color:#ffe1e6;width:50%' class="arbitrage-info-text alert">
-							<p id = 'ask_col_p' style = 'text-align:left;font-size:60%'></p>
+							<p id = 'ask_col_p' style = 'text-align:left;font-size:150%'></p>
 						</td>
 						<td id = 'bid_col' style = 'width:50%' class="arbitrage-info-text alert">
-							<p id = 'bid_col_p' style = 'text-align:left;font-size:60%'> </p>
+							<p id = 'bid_col_p' style = 'text-align:left;font-size:150%'> </p>
 						</td>
 					</tr>
 				</table>
@@ -120,65 +119,6 @@
 		</table>
 
 		</div>
-		<div class="main main-content arbitrage arbitrage-container" style="padding-top: 40px;">
 
-		<table>
-
-			<tr>
-
-			<td>
-					<!-- table with extra bids and asks -->
-				<table name = 'table1'>
-					<tr >
-						<td colspan="5">
-							<div class="panel-heading">
-								<div class="table_title container cust_container">
-									<div> <span>BTC/USD</span> </div>
-									<div> <span id = 'time1'></span></div>
-								</div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td style ='width:20%'><h4 class="arbitrage-head">Highest bid price</h4></td>
-						<td style ='width:20%'><h4 class="arbitrage-head">Lowest ask price</h4></td>
-						<td style ='width:20%'><h4 class="arbitrage-head">Percentage</h4></td>
-						<td style ='width:20%'><h4 class="arbitrage-head">Maximum volume</h4></td>
-						<td style ='width:20%'><h4 class="arbitrage-head">Profit</h4></td>
-					</tr>
-					<tr>
-						<td style ='width:20%'><div class="arbitrage-price" id = 'max_bid1'></div></td>
-						<td style ='width:20%'><div class="arbitrage-price" id = 'min_ask1'></div></td>
-						<td style ='width:20%'><div class="arbitrage-price" id = 'percent1'></div></td>
-						<td style ='width:20%'><div class="arbitrage-price" id = 'volume1'></div></td>
-						<td style ='width:20%'><div class="arbitrage-price" id = 'profit1'></div></td>
-
-					</tr>`
-
-				</table>
-				<table style.width = table1.style.width>
-					<tr>
-						<td id = 'ask_col1' style = 'background-color:#ffe1e6;width:50%' class="arbitrage-info-text alert">
-							<p id = 'ask_col_p1' style = 'text-align:left;font-size:60%'></p>
-						</td>
-						<td id = 'bid_col1' style = 'width:50%' class="arbitrage-info-text alert">
-							<p id = 'bid_col_p1' style = 'text-align:left;font-size:60%'> </p>
-						</td>
-					</tr>
-				</table>
-
-					<!-- orders -->
-
-			</td>
-			<td>
-				<div class="container1" >
-					<img id="jpg-export1"></img>
-				</div>
-
-			</td>
-		</tr>
-		</table>
-
-		</div>
 		<div id = 'plot' style="display:none;"> </div>
 </html>
