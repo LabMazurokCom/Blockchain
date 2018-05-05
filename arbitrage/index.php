@@ -54,7 +54,6 @@
     <div id = 'exch6'></div>
     <div id = 'exch7'></div>
     <div id = 'exch8'></div>
-
     <div id = 'plot' style="display:none;"> </div>
 
 	</body>
