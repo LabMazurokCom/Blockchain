@@ -1,11 +1,10 @@
 const template =
   `
-<div class="main main-content arbitrage arbitrage-container" style="padding-top: 40px;">
-<table>
+<table style = 'width:100%'>
 <tr>
 <td>
     <!-- table with extra bids and asks -->
-  <table id = "table0{0}" width = '800px'>
+  <table id = "table0{0}" width = '100%'>
     <tr>
       <td colspan="5">
         <div class="panel-heading">
@@ -33,7 +32,7 @@ const template =
     </tr>
 
   </table>
-  <table id = "table1{0}" width = '800px'>
+  <table id = "table1{0}" width = '100%' class="tableDenis">
     <tr>
       <td id = "ask_col" style = "background-color:#ffe1e6;width:50%" class="arbitrage-info-text alert">
         <p id = "ask_col_p" style = "text-align:left;font-size:110%">{7}</p>
@@ -55,8 +54,7 @@ const template =
 </td>
 </tr>
 </table>
-
-</div>`
+`
 
 function genTable(obj) {
   return formatObj(template, obj);
@@ -144,11 +142,11 @@ function showticker(id, currency, data) {
     i++;
   }
 
-  console.log(ask_orders);
-  console.log(bid_orders);
+  // console.log(ask_orders);
+  // console.log(bid_orders);
 
   //create build vector
-  res_array = [
+  let res_array = [
     id,
     cur_time,
     maxbid,
@@ -162,24 +160,20 @@ function showticker(id, currency, data) {
     currency[1]
   ];
 
-  document.getElementById('exch' + id).innerHTML = genTable(res_array);
-
-  res_obj = {
-    'id': id,
-    'cur_time': cur_time,
-    'maxbid': maxbid,
-    'minask': minask,
-    'percent': percent,
-    'volume': volume,
-    'profit': profit,
-    'ask_orders': ask_orders,
-    'bid_orders': bid_orders
-  };
+  let plot = document.createElement('div');
+  // res_obj = {
+  //   'id': id,
+  //   'cur_time': cur_time,
+  //   'maxbid': maxbid,
+  //   'minask': minask,
+  //   'percent': percent,
+  //   'volume': volume,
+  //   'profit': profit,
+  //   'ask_orders': ask_orders,
+  //   'bid_orders': bid_orders
+  // };
   //Ploting
-  var d3 = Plotly.d3;
-  var img_jpg = d3.select("#jpg-export" + id);
 
-  var myPlot = document.getElementById("plot");
   x = data["amount_points"];
   y = data["profit_points"];
   // console.log(x);
@@ -234,7 +228,7 @@ function showticker(id, currency, data) {
   try {
     Plotly.deleteTraces(plot, [-2, -1]);
   } catch (e) {}
-  Plotly.plot("plot", data, layout).then(
+  Plotly.plot(plot, data, layout).then(
     function(gd) {
       return Plotly.toImage(gd, {
         format: "svg",
@@ -242,11 +236,14 @@ function showticker(id, currency, data) {
         width: 300
       }).then(
         function(url) {
-          img_jpg.attr("src", url);
+          let mainTable = document.getElementById('exch' + id);
+          mainTable.innerHTML = genTable(res_array);
+          console.log(mainTable);
+          let img_jpg = document.getElementById("jpg-export" + id);
+          img_jpg.src = url;
         }
       )
     });
-
 }
 
 function readFromServer(address, callback) {
