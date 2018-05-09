@@ -36,15 +36,14 @@
     <link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="./css/jquery.dataTables.min.css"/>
     <link rel="stylesheet" type="text/css" href="./css/jquery-ui.min.css"/>
-    <link rel="stylesheet" type="text/css" href="./css/informers.css/">
+    <link rel="stylesheet" type="text/css" href="./css/informers.css">
       <link rel="stylesheet" type="text/css" href="./css/denisStyles.css"/>
       <!-- <link rel="stylesheet" type="text/css" href="css/nv.d3.min.css" />		 -->
       <link rel="stylesheet" type="text/css" href="./css/responsive.css" />
       <link rel="stylesheet" type="text/css" href="./css/styles.css" />
       <!-- <link rel="stylesheet" type="text/css" href="css/form2.css" />		 -->
       <link rel="stylesheet" href="./css/font-awesome.min.css"/>
-      <link href="/css/fonts.googleapis.com.montserrat.100.900.css" rel="stylesheet"/>
-      <link rel="stylesheet" href="/css/hidden_panel.css">
+      <link rel="stylesheet" href="./css/hidden_panel.css">
       <!-- <script type="text/javascript" src="js/smallCharts.js">
     </script> -->
     <script type="text/javascript" src="generate.js">
@@ -52,7 +51,7 @@
   </head>
   <body onload = 'update();setInterval(update, 5000);' >
 
-    <!-- <input type="checkbox" id="hmt" class="hidden-menu-ticker">
+    <input type="checkbox" id="hmt" class="hidden-menu-ticker">
 
     <label class="btn-menu" for="hmt">
       <span class="first"></span>
@@ -60,12 +59,29 @@
       <span class="third"></span>
     </label>
 
-    <ul class="hidden-menu">
-      <li><a href="">Link 1</a></li>
-      <li><a href="">Link 2</a></li>
-      <li><a href="">Link 3</a></li>
-    </ul> -->
-    <!-- <div class="informer" style = 'width:200;height:300;background:red_bg'>      I am here and you can't do anything with it    </div> -->
+    <div class="hidden-menu">
+      <ul>
+        <li>
+          <input type="checkbox" id = 'check0' checked = true />
+          <label for="check0"> BTC/USD </label>
+        </li>
+        <li>
+         <input type="checkbox" id = 'check1' checked = true />
+         <label for="check0"> ETH/USD </label>
+        </li>
+        <li>
+          <input type="checkbox" id = 'check2' checked = true />
+          <label for="check0"> ETH/BTC </label>
+        </li>
+
+      </ul>
+
+      <ul>
+        <li> <a href="./visualize_ask_bid"> Bids and Asks for exchange </a> </li>
+        <li> <a href="./visualize_spred"> Spread for exchange </a></li>
+      </ul>
+    </div>
+
     <div class="main main-content arbitrage arbitrage-container" style="padding-top: 40px;">
       <div id = 'exch0'>
       </div>

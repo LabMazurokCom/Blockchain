@@ -259,6 +259,16 @@ function readFromServer(address, callback) {
 
 function update() {
 
+
+  let number_of_currencies = 3;
+  let currencies_mask = [];
+  for (let i = 0; i < number_of_currencies; i++) {
+    let ok = document.getElementById('check' + i).checked;
+    currencies_mask.push(ok);
+  }
+
+  console.log('that is currencies mask', currencies_mask);
+
   address = [
     'https://arbitrage-logger.firebaseio.com/log_btc_usd.json?orderBy=%22$key%22&limitToLast=1',
     'https://arbitrage-logger.firebaseio.com/log_eth_usd.json?orderBy=%22$key%22&limitToLast=1',
@@ -271,15 +281,24 @@ function update() {
     ['ETH', 'BTC']
   ];
 
+  let j = 0;
+  console.log(address.length)
   for (let i = 0; i < address.length; i++) {
+    if (!currencies_mask[i]) {
+      document.getElementById('exch' + i).innerHTML = '';
+      continue;
+    }
     try {
+      console.log('i am here');
       readFromServer(address[i], function(text) {
         var data = JSON.parse(text);
         console.log(data);
         showticker(i, currency[i], data[Object.keys(data)[0]]);
+        j++;
       });
     } catch (e) {
       console.log('here we have failed with exchange #' + i);
+      console.log(e);
     }
   }
 
