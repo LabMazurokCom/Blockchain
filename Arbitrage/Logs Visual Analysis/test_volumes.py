@@ -34,6 +34,9 @@ async def collect_data(urls, names):
 
 
 def process_responses(responses, conf, syms, limit, bid_orders, ask_orders, timestamp):
+    #print('\tNEW')
+    #print(bid_orders)
+    #print(ask_orders)
     bids = []
     asks = []
 
@@ -62,9 +65,13 @@ def process_responses(responses, conf, syms, limit, bid_orders, ask_orders, time
                 if exch in bid_orders:
                     bid_price = bid_orders[exch][0]
                     bid_volume = bid_orders[exch][1]
+                    bid_volume_left = bid_volume
+                    # print(exch, bid_price, bid_volume)
                 if exch in ask_orders:
                     ask_price = ask_orders[exch][0]
                     ask_volume = ask_orders[exch][1]
+                    ask_volume_left = ask_volume
+                    # print(exch, ask_price, ask_volume)
 
 
                 # add current orders to bids and asks arrays
@@ -81,7 +88,8 @@ def process_responses(responses, conf, syms, limit, bid_orders, ask_orders, time
                     bids.append([cur_bid_price, cur_bid_volume, exch])
                     if exch in bid_orders:
                         if cur_bid_price >= bid_price:
-                            bid_volume -= cur_bid_volume
+                            bid_volume_left -= cur_bid_volume
+
 
                 for i in range(min(limit, len(current_asks))):
                     if exch == 'bitfinex':
@@ -96,16 +104,14 @@ def process_responses(responses, conf, syms, limit, bid_orders, ask_orders, time
                     asks.append([cur_ask_price, cur_ask_volume, exch])
                     if exch in ask_orders:
                         if cur_ask_price <= ask_price:
-                            ask_volume -= cur_ask_volume
+                            ask_volume_left -= cur_ask_volume
 
                 if exch in bid_orders:
-                    print(exch, 'bid')
                     with open(exch + '_bid_vol.csv', 'a') as f:
-                        print('{},{}'.format(timestamp, max(0, bid_volume) / bid_volume)) #, file=f)
+                        print('{},{}'.format(timestamp, max(0, bid_volume_left) / bid_volume), file=f)
                 if exch in ask_orders:
-                    print(exch, 'ask')
                     with open(exch + '_ask_vol.csv', 'a') as f:
-                        print('{},{}'.format(timestamp, max(0, ask_volume) / ask_volume), file=f)
+                        print('{},{}'.format(timestamp, max(0, ask_volume_left) / ask_volume), file=f)
             except:  # Some error occurred while parsing json response for current exchange
                 pass
     if  len(bids) > 0  and  len(asks) > 0:
@@ -232,16 +238,16 @@ if __name__ == "__main__":
 
         bid_orders = []
         ask_orders = []
-        i = 0
+        #i = 0
         while True:
             try:
                 bid_orders, ask_orders = collector(conf, urls, names, syms, limit, bid_orders, ask_orders)
             except Exception as e:
                 print(e)
             time.sleep(3)
-            i += 1
-            if i == 3:
-                break
+            #i += 1
+            #if i == 3:
+            #   break
 
     except FileNotFoundError as e:
         print("\t ERROR")
