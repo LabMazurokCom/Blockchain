@@ -9,16 +9,32 @@ function plot_graph_spred(currency, exchange, graph_type, data) {
     for (let i = 0; i < data[key]['ticker'].length; i++) {
       if (data[key]['ticker'][i]['exchange'] === exchange &&
         data[key]['ticker'][i]['bid'] != 0) {
-        spred.push(parseFloat(data[key]['ticker'][i]['ask']) - parseFloat(data[key]['ticker'][i]['bid']));
+        spred.push(parseFloat(data[key]['ticker'][i]['ask']) -
+          parseFloat(data[key]['ticker'][i]['bid']));
         t.push(new Date(parseInt(key)));
       }
     }
   }
+  let value = spred;
+  let key = t;
 
+  if (graph_type == 'histogram') {
+    let d = {};
+    for (let i = 0; i < spred.length; i++) {
+      d[spred[i]] += 1;
+    }
+    key = Object.keys(d);
+    value = [];
+    for (let i = 0; i < key.length; i++) {
+      value.push(d[key[i]]);
+    }
+
+  }
   //Ploting
+
   data = [{
-    x: t,
-    y: spred,
+    x: key,
+    y: value,
     type: graph_type,
     mode: "lines+markers",
     marker: {
@@ -32,7 +48,7 @@ function plot_graph_spred(currency, exchange, graph_type, data) {
     // width: 800,
     // height: 800,
     xaxis: {
-      title: "Time, sec",
+      title: (graph_type == 'histogram' ? "Spred, " + currency : "Time, sec"),
       titlefont: {
         size: 10
       },
@@ -41,7 +57,7 @@ function plot_graph_spred(currency, exchange, graph_type, data) {
       }
     },
     yaxis: {
-      title: "Value, " + currency,
+      title: "Value, " + (graph_type == 'histogram' ? "" : currency),
       titlefont: {
         size: 10
       },
@@ -49,7 +65,7 @@ function plot_graph_spred(currency, exchange, graph_type, data) {
         size: 10
       }
     },
-    showlegend: true
+    showlegend: false
   };
 
   Plotly.newPlot('plot', data, layout);
