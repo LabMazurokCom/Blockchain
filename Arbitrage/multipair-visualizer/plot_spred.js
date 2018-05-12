@@ -91,7 +91,7 @@ function update() {
   let num = parseInt(document.getElementById('number_of_items').value);
   let type = document.getElementById('type').value;
 
-  begin_address = 'https://arbitrage-logger.firebaseio.com/log_'
+  begin_address = 'https://test-logger-96bb2.firebaseio.com/log_'
   middle_address = '.json?orderBy=%22$key%22&limitToLast='
   curr_array = {
     "BTC/USD": 'btc_usd',

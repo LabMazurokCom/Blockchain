@@ -71,7 +71,7 @@
         </li>
         <li>
           <input type="checkbox" id = 'check2' checked = true />
-          <label for="check0"> ETH/BTC </label>
+          <label for="check0"> BTC/USDT </label>
         </li>
 
       </ul>

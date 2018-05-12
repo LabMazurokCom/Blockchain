@@ -59,7 +59,7 @@ function plot_graph_askbid(currency, exchange, data) {
         size: 10
       }
     },
-    showlegend: true
+    showlegend: false
   };
 
   Plotly.newPlot('plot', data, layout);
@@ -82,7 +82,7 @@ function update() {
   let currencies = document.getElementById('currencies').value;
   let exchange = document.getElementById('exchange').value;
   let num = parseInt(document.getElementById('number_of_items').value);
-  begin_address = 'https://arbitrage-logger.firebaseio.com/log_'
+  begin_address = 'https://test-logger-96bb2.firebaseio.com/log_'
   middle_address = '.json?orderBy=%22$key%22&limitToLast='
   curr_array = {
     "BTC/USD": 'btc_usd',

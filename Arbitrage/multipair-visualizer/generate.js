@@ -23,8 +23,8 @@ const template =
       <td style ="width:20%"><h4 class="arbitrage-head">Profit</h4></td>
     </tr>
     <tr>
-      <td style ="width:20%"><div class="arbitrage-price" id = "max_bid{0}">{2}</div></td>
-      <td style ="width:20%"><div class="arbitrage-price" id = "min_ask{0}">{3}</div></td>
+      <td style ="width:20%"><div class="arbitrage-price" id = "max_bid{0}">{2} on {11}</div></td>
+      <td style ="width:20%"><div class="arbitrage-price" id = "min_ask{0}">{3} on {12}</div></td>
       <td style ="width:20%"><div class="arbitrage-price" id = "percent{0}">{4}</div></td>
       <td style ="width:20%"><div class="arbitrage-price" id = "volume{0}">{5}</div></td>
       <td style ="width:20%"><div class="arbitrage-price" id = "profit{0}">{6}</div></td>
@@ -103,9 +103,9 @@ function showticker(id, currency, data) {
 
   maxbid = fixMode(currency[1], maxbid);
   minask = fixMode(currency[1], minask);
-  percent = ((maxbid - minask) / maxbid * 100).toFixed(2);
-  volume = fixMode(currency[1], data["amount"]);
-  profit = fixMode(currency[1], data['profit']);
+  let percent = ((maxbid - minask) / maxbid * 100).toFixed(2);
+  let volume = fixMode(currency[1], data['optimal_point']['amount']);
+  let profit = fixMode(currency[1], data['optimal_point']['profit']);
 
   var ask_orders = "";
   var bid_orders = "";
@@ -113,13 +113,15 @@ function showticker(id, currency, data) {
   var n = Object.keys(data["orders"]["asks"]).length;
   var i = 0;
   for (var exch in data["orders"]["asks"]) {
-    ask_orders += "Buy " + fixMode(currency[0], +data["orders"]["asks"][exch][1]) +
+    ask_orders += "Buy " + fixMode(currency[0], +data["orders"]["asks"][exch]
+        [1]) +
       ' ' +
-      currency[0] + " for a price of " + fixMode(currency[1], +data["orders"][
-        "asks"
-      ][
-        exch
-      ][0]) + ' ' +
+      currency[0] + " for a price of " + fixMode(currency[1], +data["orders"]
+        [
+          "asks"
+        ][
+          exch
+        ][0]) + ' ' +
       currency[1] + " at " + exch;
 
     if (i < n - 1) ask_orders += "<br>";
@@ -129,21 +131,22 @@ function showticker(id, currency, data) {
   var n = Object.keys(data["orders"]["bids"]).length;
   var i = 0;
   for (var exch in data["orders"]["bids"]) {
-    bid_orders += "Sell " + fixMode(currency[0], +data["orders"]["bids"][exch][
-        1
-      ]) + ' ' +
-      currency[0] + " for a price of " + fixMode(currency[1], +data["orders"][
-        "bids"
-      ][
-        exch
-      ][0]) + ' ' +
+    bid_orders += "Sell " + fixMode(currency[0], +data["orders"]["bids"][exch]
+        [
+          1
+        ]) + ' ' +
+      currency[0] + " for a price of " + fixMode(currency[1], +data["orders"]
+        [
+          "bids"
+        ][
+          exch
+        ][0]) + ' ' +
       currency[1] + " at " + exch;
     if (i < n - 1) bid_orders += "<br>";
     i++;
   }
 
-  // console.log(ask_orders);
-  // console.log(bid_orders);
+  console.log(max_bid_exchange, min_ask_exchange);
 
   //create build vector
   let res_array = [
@@ -157,7 +160,9 @@ function showticker(id, currency, data) {
     ask_orders,
     bid_orders,
     currency[0],
-    currency[1]
+    currency[1],
+    max_bid_exchange,
+    min_ask_exchange
   ];
 
   let plot = document.createElement('div');
@@ -270,15 +275,15 @@ function update() {
   console.log('that is currencies mask', currencies_mask);
 
   address = [
-    'https://arbitrage-logger.firebaseio.com/log_btc_usd.json?orderBy=%22$key%22&limitToLast=1',
-    'https://arbitrage-logger.firebaseio.com/log_eth_usd.json?orderBy=%22$key%22&limitToLast=1',
-    'https://arbitrage-logger.firebaseio.com/log_eth_btc.json?orderBy=%22$key%22&limitToLast=1'
+    'https://test-logger-96bb2.firebaseio.com/log_btc_usd.json?orderBy=%22$key%22&limitToLast=1',
+    'https://test-logger-96bb2.firebaseio.com/log_eth_usd.json?orderBy=%22$key%22&limitToLast=1',
+    'https://test-logger-96bb2.firebaseio.com/log_btc_usdt.json?orderBy=%22$key%22&limitToLast=1'
   ];
 
   currency = [
     ['BTC', 'USD'],
     ['ETH', 'USD'],
-    ['ETH', 'BTC']
+    ['BTC', 'USDT']
   ];
 
   let j = 0;
