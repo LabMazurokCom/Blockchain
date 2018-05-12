@@ -1,0 +1,15 @@
+body {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+}
+h1 {
+	font-size: 120pt;
+	margin: 10px;
+}
+img {
+	margin: 4px;
+}
+table, th {
+	//background-color: #3366CC;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
