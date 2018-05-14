@@ -287,10 +287,14 @@ a:hover, a:focus {
 /* ==========================================================================
    Main styles
    ========================================================================== */
+.carousel-image {
+  margin:auto;
+}
+
 header {
-  background: url(../img/header-bg.jpg) no-repeat center center;
+  /* background: url(../img/header-bg.jpg) no-repeat center center; */
   width: 100%;
-  padding: 20px 10px 60px 10px;
+  /* padding: 0px 0px 60px 0px; */
   height: 100vh;
   overflow: hidden;
   background-size: cover;
@@ -483,7 +487,7 @@ footer {
 }
 .pricing-table.active {
   box-shadow: 0px 0px 12px rgba(41,46,50,0.6);
-  position: absolute;
+  position: relative;
   margin: auto;
   z-index: 200;
   border-top-left-radius: 10px;

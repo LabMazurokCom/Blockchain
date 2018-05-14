@@ -1,6 +1,5 @@
 const template =
   `
-  <div class="col-sm-4 pricing-container wow fadeInUp" data-wow-delay="0.4s">
     <ul class="list-unstyled pricing-table active text-center">
       <li class="headline"><h5 class="white">{currency.first}/{currency.second}</h5></li>
       <li class="price"><div class="amount">{profit} {currency.second}</div></li>
@@ -9,19 +8,16 @@ const template =
       <li class="features">{bid_orders}</li>
       <li class="features last btn btn-secondary btn-wide"><a href="#">Get Started</a></li>
     </ul>
-  </div>
 `
 
 const template_err =
   `
-  <div class="col-sm-4 pricing-container wow fadeInUp" data-wow-delay="0.4s">
     <ul class="list-unstyled pricing-table active text-center">
       <li class="headline"><h5 class="white">{currency.first}/{currency.second}</h5></li>
       <li class="info">No arbitrage</li>
 
 
     </ul>
-  </div>
 `
 
 function genTable(obj) {
