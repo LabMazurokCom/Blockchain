@@ -3,7 +3,7 @@ const template =
     <ul class="list-unstyled pricing-table active text-center">
       <li class="headline"><h5 class="white">{currency.first}/{currency.second}</h5></li>
       <li class="price"><div class="amount">{profit} {currency.second}</div></li>
-      <li class="info"> <img id="jpg-export{id}"></img></li>
+      <li class="info"> <img id="jpg-export{id}" style="width:100%"></img></li>
       <li class="features">{ask_orders}</li>
       <li class="features">{bid_orders}</li>
       <li class="features last btn btn-secondary btn-wide"><a href="#">Get Started</a></li>
