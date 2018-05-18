@@ -275,9 +275,9 @@ function update() {
   console.log('that is currencies mask', currencies_mask);
 
   address = [
-    'https://test-logger-96bb2.firebaseio.com/log_btc_usd.json?orderBy=%22$key%22&limitToLast=1',
-    'https://test-logger-96bb2.firebaseio.com/log_eth_usd.json?orderBy=%22$key%22&limitToLast=1',
-    'https://test-logger-96bb2.firebaseio.com/log_btc_usdt.json?orderBy=%22$key%22&limitToLast=1'
+    'https://arb-log.firebaseio.com/log_btc_usd.json?orderBy=%22$key%22&limitToLast=1',
+    'https://arb-log.firebaseio.com/log_eth_usd.json?orderBy=%22$key%22&limitToLast=1',
+    'https://arb-log.firebaseio.com/log_ltc_eth.json?orderBy=%22$key%22&limitToLast=1'
   ];
 
   currency = [

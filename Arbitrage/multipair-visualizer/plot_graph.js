@@ -76,25 +76,34 @@ function readFromServer(address, callback) {
   xhr.send();
 }
 
+let currencies = 'None'
+let exchange = 'None'
+let true_num = 'None'
+let ok = 'None'
 
-function update() {
+let begin_address = 'https://arb-log.firebaseio.com/log_';
+let middle_address = '.json?orderBy=%22$key%22&limitToLast=';
+let curr_array = {
+  "BTC/USD": 'btc_usd',
+  "ETH/USD": 'eth_usd',
+  "ETH/BTC": 'eth_btc'
+};
+
+let data = {};
+
+function update(currencies, exchange, num) {
   flag_was_submit = true;
-  let currencies = document.getElementById('currencies').value;
-  let exchange = document.getElementById('exchange').value;
-  let num = parseInt(document.getElementById('number_of_items').value);
-  begin_address = 'https://test-logger-96bb2.firebaseio.com/log_'
-  middle_address = '.json?orderBy=%22$key%22&limitToLast='
-  curr_array = {
-    "BTC/USD": 'btc_usd',
-    "ETH/USD": 'eth_usd',
-    "ETH/BTC": 'eth_btc'
-  };
-
   address = begin_address + curr_array[currencies] + middle_address + num;
   console.log(address);
   try {
     readFromServer(address, function(text) {
-      var data = JSON.parse(text);
+      data = Object.assign(data, JSON.parse(text));
+      let keys = Object.keys(data);
+      keys.sort();
+      let n = keys.length - true_num;
+      for (let i = 0; i < n; i++) {
+        delete data[keys[i]];
+      }
       console.log(data);
       plot_graph_askbid(currencies.split('/')[1], exchange, data);
     });
@@ -104,8 +113,41 @@ function update() {
 }
 
 function meta_update() {
-  let ok = document.getElementById('fixed_checkbox').checked;
+  let cur_ok = document.getElementById('fixed_checkbox').checked;
+  let cur_currencies = document.getElementById('currencies').value;
+  let cur_exchange = document.getElementById('exchange').value;
+  let cur_num = parseInt(document.getElementById('number_of_items').value);
+
+  let something_changed = ok != cur_ok |
+    currencies != cur_currencies |
+    cur_exchange != exchange;
+
+  let set_num = 1;
+  if (something_changed) {
+    ok = cur_ok;
+    currencies = cur_currencies;
+    exchange = cur_exchange;
+    true_num = cur_num;
+    set_num = cur_num;
+  } else if (true_num == cur_num) {
+    set_num = cur_num;
+  } else {
+    true_num = cur_num;
+    if (true_num > curnum) {
+      let keys = Object.keys(data);
+      keys.sort();
+      let n = true_num - cur_num + 1;
+      for (let i = 0; i < n; i++) {
+        delete data[keys[i]];
+      }
+      true_num = cur_num;
+      set_num = 1;
+    } else {
+      set_num = cur_num;
+    }
+
+  }
   if (!ok && flag_was_submit) {
-    update();
+    update(currencies, exchange, set_num);
   }
 }
