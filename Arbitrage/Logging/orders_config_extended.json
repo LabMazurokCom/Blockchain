@@ -311,6 +311,10 @@
                 "bids"
             ]
         },
+        "fields": {
+            "price": 0,
+            "volume": 1
+        },
         "url": "https://api.binance.com/api/v1/depth?symbol={}&limit={}"
     },
     "bitfinex": {
@@ -504,6 +508,10 @@
                 "bids"
             ]
         },
+        "fields": {
+            "price": "price",
+            "volume": "amount"
+        },
         "url": "https://api.bitfinex.com/v1/book/{0}?limit_bids={1}&limit_asks={1}"
     },
     "bitstamp": {
@@ -531,6 +539,10 @@
             "bids": [
                 "bids"
             ]
+        },
+        "fields": {
+            "price": 0,
+            "volume": 1
         },
         "url": "https://www.bitstamp.net/api/v2/order_book/{}/"
     },
@@ -1097,6 +1109,10 @@
                 "buy"
             ]
         },
+        "fields": {
+            "price": "Rate",
+            "volume": "Quantity"
+        },
         "url": "https://bittrex.com/api/v1.1/public/getorderbook?market={}&type=both"
     },
     "cex": {
@@ -1139,6 +1155,10 @@
             "bids": [
                 "bids"
             ]
+        },
+        "fields": {
+            "price": 0,
+            "volume": 1
         },
         "url": "https://cex.io/api/order_book/{}/?depth={}"
     },
@@ -2882,6 +2902,10 @@
                 "Buy"
             ]
         },
+        "fields": {
+            "price": "Price",
+            "volume": "Volume"
+        },
         "url": "https://www.cryptopia.co.nz/api/GetMarketOrders/{}/{}"
     },
     "exmo": {
@@ -2943,6 +2967,10 @@
                 "bid"
             ]
         },
+        "fields": {
+            "price": 0,
+            "volume": 1
+        },
         "url": "https://api.exmo.com/v1/order_book/?pair={}&limit={}"
     },
     "gdax": {
@@ -2967,6 +2995,10 @@
             "bids": [
                 "bids"
             ]
+        },
+        "fields": {
+            "price": 0,
+            "volume": 1
         },
         "url": "https://api.gdax.com/products/{}/book?level=2"
     },
@@ -3041,6 +3073,10 @@
                 "{}",
                 "bids"
             ]
+        },
+        "fields": {
+            "price": 0,
+            "volume": 1
         },
         "url": "https://api.kraken.com/0/public/Depth?pair={}&count={}"
     },
@@ -3356,6 +3392,10 @@
                 "BUY"
             ]
         },
+        "fields": {
+            "price": 0,
+            "volume": 1
+        },
         "url": "https://api.kucoin.com/v1/open/orders?symbol={}&limit={}"
     },
     "poloniex": {
@@ -3568,6 +3608,10 @@
             "bids": [
                 "bids"
             ]
+        },
+        "fields": {
+            "price": 0,
+            "volume": 1
         },
         "url": "https://poloniex.com/public?command=returnOrderBook&currencyPair={}&depth={}"
     }
