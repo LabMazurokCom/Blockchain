@@ -70,6 +70,8 @@ def process_responses(responses, conf, syms, limit):
         timestamp = response[2]
         if data is not None:
             try:
+                price_ix = conf[exch]['fields']['price']
+                volume_ix = conf[exch]['fields']['volume']
                 path = conf[exch]["path"]
                 sym = syms[exch]
                 # extract orders for current exchange
@@ -84,6 +86,7 @@ def process_responses(responses, conf, syms, limit):
                         x = x.format(sym)
                     current_asks = current_asks[x]
                 # add current orders to bids and asks arrays
+                '''
                 if exch == 'bitfinex':
                     for i in range(min(limit, len(current_bids))):
                         bids.append([float(current_bids[i]['price']), float(current_bids[i]['amount']), exch])
@@ -98,13 +101,21 @@ def process_responses(responses, conf, syms, limit):
                         asks.append([float(current_asks[i]['Rate']), float(current_asks[i]['Quantity']), exch])
                     tmp = {'ask': current_asks[0]['Rate'], 'bid': current_bids[0]['Rate'], 'exchange': exch}
                     d['ticker'].append(tmp)
-                else:
+                elif exch == 'cryptopia':
                     for i in range(min(limit, len(current_bids))):
-                        bids.append([float(current_bids[i][0]), float(current_bids[i][1]), exch])
+                        bids.append([float(current_bids[i]['Price']), float(current_bids[i]['Volume']), exch])
                     for i in range(min(limit, len(current_asks))):
-                        asks.append([float(current_asks[i][0]), float(current_asks[i][1]), exch])
-                    tmp = {'ask': current_asks[0][0], 'bid': current_bids[0][0], 'exchange': exch}
+                        asks.append([float(current_asks[i]['Price']), float(current_asks[i]['Volume']), exch])
+                    tmp = {'ask': current_asks[0]['Price'], 'bid': current_bids[0]['Price'], 'exchange': exch}
                     d['ticker'].append(tmp)
+                else:
+                '''
+                for i in range(min(limit, len(current_bids))):
+                    bids.append([float(current_bids[i][price_ix]), float(current_bids[i][volume_ix]), exch])
+                for i in range(min(limit, len(current_asks))):
+                    asks.append([float(current_asks[i][price_ix]), float(current_asks[i][volume_ix]), exch])
+                tmp = {'ask': current_asks[0][price_ix], 'bid': current_bids[0][price_ix], 'exchange': exch}
+                d['ticker'].append(tmp)
                 time_data[exch] = timestamp
             except:  # Some error occurred while parsing json response for current exchange
                 tmp = {'ask': 0, 'bid': 0, 'exchange': exch}
@@ -252,10 +263,10 @@ if __name__ == "__main__":
             exit(1)
 
         config = {
-            "apiKey": "AIzaSyBwWAi7siuckIiYrcVz7kN5e17NcIlkhG0",
-            "authDomain": "arbitrage-logger.firebaseapp.com",
-            "databaseURL": "https://arbitrage-logger.firebaseio.com",
-            "storageBucket": "arbitrage-logger.appspot.com",
+            "apiKey": "AIzaSyBbUk_Lo0mDuCvAiocniFGCJCsIlwd6Kew",
+            "authDomain": "arb-log.firebaseapp.com",
+            "databaseURL": "https://arb-log.firebaseio.com",
+            "storageBucket": "arb-log.appspot.com",
             "serviceAccount": "firebase_config.json"
         }
         logfile = 'log_' + symbol
