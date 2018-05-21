@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import time
 import urllib.parse
+import requests
 
 class EXMO(Exchange):
 
@@ -39,7 +40,7 @@ class EXMO(Exchange):
             data["price"] = price
             data["type"] = type
         else:
-            data["price"] = 0
+            data["price"] = '0'
             data["type"] = 'market_' + type
         data = urllib.parse.urlencode(data)
 
@@ -56,21 +57,23 @@ class EXMO(Exchange):
         data["order_id"] = order_id
         data = urllib.parse.urlencode(data)
 
-        headers = self._get_headers()
+        headers = self._get_headers(data)
 
-        url = self.endpoint + 'v1/order_cancel'
+        url = self.endpoint + '/v1/order_cancel'
 
         return url, headers, data
 
 
-    def get_order_status(self, order_id):
+    def get_order_status(self, order_id=''):
 
-        #??????????????????????????????
+        data = self._get_data()
+        data = urllib.parse.urlencode(data)
 
-        #No such option. But we can receive the full list of open orders
-        #or the full list of trades.
+        headers = self._get_headers(data)
 
-        return "TODO"
+        url = self.endpoint + '/v1/user_open_orders'
+
+        return url, headers, data
 
 
     def get_balance(self, currency=''):
@@ -85,8 +88,10 @@ class EXMO(Exchange):
         return url, headers, data
 
 
-    def get_min_lot(self):
+    def get_min_lot(self, pair):
 
-        #????????????????????????????????
+        r = requests.get(self.endpoint + '/v1/pair_settings').json()
+        minlot1 = r[pair]["min_quantity"]
+        minlot2 = r[pair]["min_amount"]
 
-        return "TODO"
+        return minlot1, minlot2

@@ -2,6 +2,8 @@ from exchange import Exchange
 import time
 import hmac
 import hashlib
+import requests
+
 
 class CEX(Exchange):
 
@@ -91,8 +93,21 @@ class CEX(Exchange):
         return url, headers, data
 
 
-    def get_min_lot(self):
+    def get_min_lot(self, pair):
 
-        #????????????????????????????????
+        r = requests.get(self.endpoint + '/currency_limits').json()
+        pos = pair.find('/')
+        sym1 = pair[:pos]
+        sym2 = pair[pos+1:]
 
-        return "TODO"
+        minlot1 = 0
+        minlot2 = 0
+
+        for x in r["data"]["pairs"]:
+            if x["symbol1"] == sym1 and x["symbol2"] == sym2:
+                minlot1 = x["minLotSize"]
+                minlot2 = x["minLotSizeS2"]
+                break
+
+        return minlot1, minlot2
+

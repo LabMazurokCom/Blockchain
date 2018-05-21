@@ -8,13 +8,13 @@ import hmac
 
 class Cryptopia(Exchange):
 
-    def _get_headers(self, req):
+    def _get_headers(self, req, dt={}):
 
         url = self.endpoint + req
 
         nonce = str(int(time.time()))
 
-        data = json.dumps({}).encode('utf-8')
+        data = json.dumps(dt).encode('utf-8')
 
         m = hashlib.md5()
         m.update(data)
@@ -34,9 +34,9 @@ class Cryptopia(Exchange):
         return headers
 
 
-    def _get_data(self, req):
+    def _get_data(self, dt={}):
 
-        data = json.dumps({}).encode('utf-8')
+        data = json.dumps(dt).encode('utf-8')
 
         return data
 
@@ -45,16 +45,19 @@ class Cryptopia(Exchange):
         req = '/Api/SubmitTrade'
         url = self.endpoint + req
 
-        data = self._get_data(req)
-
-        headers = self._get_headers(req)
-        headers['Market'] = pair
-        headers['Type'] = type
-        if(order_type == 'market'):
-            headers['Rate'] = price
+        dt = {
+            'Market': pair,
+            'Type': type,
+            'Amount': amount
+        }
+        if (order_type == 'market'):
+            dt['Rate'] = price
         else:
-            headers['Rate'] = '0'                     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        headers['Amount'] = amount
+            dt['Rate'] = '0'                # !!!!!!!!!!!!!!!!!!!!!!!!!
+
+        data = self._get_data(dt)
+
+        headers = self._get_headers(req, dt)
 
         return url, headers, data
 
@@ -63,10 +66,14 @@ class Cryptopia(Exchange):
         req = '/Api/CancelTrade'
         url = self.endpoint + req
 
-        headers = self._get_headers(req)
+        dt = {
+            'OrderId': order_id
+        }
 
-        data = self._get_data(req)
-        data['OrderId'] = order_id
+        headers = self._get_headers(req, dt)
+
+        data = self._get_data(dt)
+        # data['OrderId'] = order_id
 
         return url, headers, data
 
@@ -74,7 +81,7 @@ class Cryptopia(Exchange):
     def get_order_status(self, order_id):
 
         # NO SUCH OPTION
-        # WHOLE TRADE HISTORY CAN BE TAKEN FROM THIS https://www.cryptopia.co.nz/api/GetTradeHistory
+        # WHOLE TRADE HISTORY CAN BE TAKEN FROM HERE https://www.cryptopia.co.nz/api/GetTradeHistory
         # LIST OF TRANSACTIONS CAN BE TAKEN FROM HERE https://www.cryptopia.co.nz/api/GetTransactions
         # LIST OF OPEN ORDERS https://www.cryptopia.co.nz/api/GetOpenOrders
 
@@ -85,12 +92,13 @@ class Cryptopia(Exchange):
         req = '/Api/GetBalance'
         url = self.endpoint + req
 
-        headers = self._get_headers(req)
-
-        data = self._get_data(req)
-
+        dt = {}
         if currency != '':
-            data['Currency'] = currency
+            dt['Currency'] = currency
+
+        headers = self._get_headers(req, dt)
+
+        data = self._get_data(dt)
 
         return url, headers, data
 
