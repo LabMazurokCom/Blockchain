@@ -1,0 +1,19 @@
+{
+  "TEMPLATE": [
+    "<ul class='list-unstyled pricing-table active text-center'>",
+    "<li class='headline'><h5 class='white'>{currency.first}/{currency.second}</h5></li>",
+    "<li class='price'><div class='amount'>{profit} {currency.second}</div></li>",
+    "<li class='info'> <img id='jpg-export{id}' style='width:100%'></img></li>",
+    "<li class='features'>{askOrders}</li>",
+    "<li class='features'>{bidOrders}</li>",
+    "<li class='features last btn btn-secondary btn-wide'><a href='#'>Get Started</a></li>",
+    "</ul>"
+  ],
+
+  "TEMPLATE_ERR": [
+    "<ul class='list-unstyled pricing-table active text-center'>",
+    "<li class='headline'><h5 class='white'>{currency.first}/{currency.second}</h5></li>",
+    "<li class='info'>No arbitrage</li>",
+    "</ul>"
+  ]
+}

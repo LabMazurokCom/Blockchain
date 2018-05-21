@@ -231,13 +231,7 @@ a:hover, a:focus {
 /* ==========================================================================
    Nav Styles
    ========================================================================== */
-.myvideo {
-  position: inherit;
-  right: 0;
-  bottom: 0;
-  min-width: 100%;
-  min-height: 100%;
-}
+
 .navbar {
     border: 0px solid rgba(0, 0, 0, 0);
     background: #70cbce;
@@ -287,9 +281,14 @@ a:hover, a:focus {
 /* ==========================================================================
    Main styles
    ========================================================================== */
-.carousel-image {
-  margin:auto;
-}
+ .myvideo {
+   position: inherit;
+   right: 0;
+   bottom: 0;
+   min-width: 100%;
+   min-height: 100%;
+ }
+
 
 header {
   /* background: url(../img/header-bg.jpg) no-repeat center center; */

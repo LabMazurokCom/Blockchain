@@ -1,0 +1,15 @@
+{
+  "address": [
+    "https://arb-log.firebaseio.com/log_btc_usd.json?orderBy=%22$key%22&limitToLast=1",
+    "https://arb-log.firebaseio.com/log_eth_usd.json?orderBy=%22$key%22&limitToLast=1",
+    "https://arb-log.firebaseio.com/log_xrp_usd.json?orderBy=%22$key%22&limitToLast=1"
+  ],
+  "cripto_currencies": [
+    "BTC", "ETH"
+  ],
+  "currencies": [
+    ["BTC", "USD"],
+    ["ETH", "USD"],
+    ["XRP", "USD"]
+  ]
+}
