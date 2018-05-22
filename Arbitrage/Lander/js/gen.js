@@ -223,8 +223,6 @@ function formatObj(str, dict) {
   return res;
 }
 
-
-
 function fixMode(currency, value) {
   if (CRIPTO_CURRENCIES.indexOf(currency) != -1) {
     return value.toFixed(8);

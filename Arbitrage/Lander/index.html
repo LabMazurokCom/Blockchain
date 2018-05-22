@@ -26,6 +26,11 @@
   </script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js">
   </script>
+  <script type="text/javascript">
+    function sendMail() {
+      window.open('mailto:lab@mazurok.com');
+    }
+  </script>
 
 </head>
 
@@ -97,7 +102,7 @@
         </div>
       </div>
 
-      <video class = 'myvideo' muted autoplay loop poster="header-bg.jpg" id="bgvid">
+      <video class = 'myvideo' muted autoplay loop poster="img/background-image.jpg" id="bgvid">
         <source src="video.mp4" type="video/mp4">
       </video>
 
@@ -156,7 +161,7 @@
           </div>
           <div class="w3-col l3 m6 w3-margin-bottom">
             <div class="w3-card">
-              <img src="./img/stuf/image3-1.jpg" alt="Yevgen" style="width:100%">
+              <img src="./img/stuf/image3.jpg" alt="Yevgen" style="width:100%">
               <div class="w3-container">
                 <h3>Yevhen Leonchyk</h3>
                 <p class="w3-opacity">Senior Data Scientist</p>
@@ -177,7 +182,7 @@
           </div>
           <div class="w3-col l3 m6 w3-margin-bottom">
             <div class="w3-card">
-              <img src="./img/stuf/image5-1.jpg" alt="Valery" style="width:100%">
+              <img src="./img/stuf/image5.jpg" alt="Valery" style="width:100%">
               <div class="w3-container">
                 <h3>Valery Penko</h3>
                 <p class="w3-opacity">Blockchain Researcher</p>
@@ -246,7 +251,7 @@
           </div>
           <div class="w3-col l3 m6 w3-margin-bottom">
             <div class="w3-card">
-              <img src="./img/stuf/image4.jpg" alt="Igor" style="width:100%">
+              <img src="./img/stuf/image4-1.jpg" alt="Igor" style="width:100%">
               <div class="w3-container">
                 <h3>Igor Vustianiuk</h3>
                 <p class="w3-opacity">Data Scientist</p>
@@ -299,7 +304,7 @@
           </div>
           <div class="w3-col l3 m6 w3-margin-bottom">
             <div class="w3-card">
-              <img src="./img/stuf/image7.jpg" alt="Elena" style="width:100%">
+              <img src="./img/stuf/image7-1.jpg" alt="Elena" style="width:100%">
               <div class="w3-container">
                 <h3>Elena Naumova</h3>
                 <p class="w3-opacity">Software Engineer</p>
@@ -374,7 +379,7 @@
 
             <div class="row">
               <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-                <form role="form">
+                <form id = 'submitted' role="form" action = "feedback.php" method = 'POST'>
                   <div class="form-group">
                     <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter Email">
                   </div>
