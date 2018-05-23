@@ -20,9 +20,11 @@ import json
 import pyrebase
 import time
 from pprint import pprint
+from collections import deque
 
 
 FETCH_TIMEOUT = 5   # number of seconds to wait
+MAX_ENTRIES = 200     # maximum allowed number of entries in DB
 
 
 async def fetch(session, url, name):
@@ -86,30 +88,6 @@ def process_responses(responses, conf, syms, limit):
                         x = x.format(sym)
                     current_asks = current_asks[x]
                 # add current orders to bids and asks arrays
-                '''
-                if exch == 'bitfinex':
-                    for i in range(min(limit, len(current_bids))):
-                        bids.append([float(current_bids[i]['price']), float(current_bids[i]['amount']), exch])
-                    for i in range(min(limit, len(current_asks))):
-                        asks.append([float(current_asks[i]['price']), float(current_asks[i]['amount']), exch])
-                    tmp = {'ask': current_asks[0]['price'], 'bid': current_bids[0]['price'], 'exchange': exch}
-                    d['ticker'].append(tmp)
-                elif exch == 'bittrex':
-                    for i in range(min(limit, len(current_bids))):
-                        bids.append([float(current_bids[i]['Rate']), float(current_bids[i]['Quantity']), exch])
-                    for i in range(min(limit, len(current_asks))):
-                        asks.append([float(current_asks[i]['Rate']), float(current_asks[i]['Quantity']), exch])
-                    tmp = {'ask': current_asks[0]['Rate'], 'bid': current_bids[0]['Rate'], 'exchange': exch}
-                    d['ticker'].append(tmp)
-                elif exch == 'cryptopia':
-                    for i in range(min(limit, len(current_bids))):
-                        bids.append([float(current_bids[i]['Price']), float(current_bids[i]['Volume']), exch])
-                    for i in range(min(limit, len(current_asks))):
-                        asks.append([float(current_asks[i]['Price']), float(current_asks[i]['Volume']), exch])
-                    tmp = {'ask': current_asks[0]['Price'], 'bid': current_bids[0]['Price'], 'exchange': exch}
-                    d['ticker'].append(tmp)
-                else:
-                '''
                 for i in range(min(limit, len(current_bids))):
                     bids.append([float(current_bids[i][price_ix]), float(current_bids[i][volume_ix]), exch])
                 for i in range(min(limit, len(current_asks))):
@@ -210,15 +188,15 @@ def make_logging_entry(bids, asks, d):
     d['orders']['asks'] = ask_orders
 
 
-def collector(conf, urls, names, syms, limit, logfile, lastfile, techfile, db):
+def collector(conf, urls, names, syms, limit, logfile, techfile, db):
     loop = asyncio.get_event_loop()
     responses = loop.run_until_complete(collect_data(urls, names))
     timestamp = int(time.time() * 1000)
     bids, asks, d, time_data = process_responses(responses, conf, syms, limit)
     make_logging_entry(bids, asks, d)
     db.child(logfile).child(timestamp).set(d)
-    # db.child(lastfile).child(timestamp).set(d)
     db.child(techfile).child(timestamp).set(time_data)
+    return timestamp
 
 
 if __name__ == "__main__":
@@ -236,7 +214,7 @@ if __name__ == "__main__":
                         help="how many top orders should be processed (default: 50)")
     parser.add_argument('symbol',
                         help="currency pair")
-    args = parser.parse_args() #(['-l', '5', '-c', 'orders_config.json', 'btc_usd'])
+    args = parser.parse_args() #(['-l', '5', '-c', 'orders_config.json', 'eos_btc'])
 
 
     # Access to arguments' values: args.config, args.limit, args.symbol
@@ -261,7 +239,7 @@ if __name__ == "__main__":
             print("\tERROR")
             print("No exchange supports given symbol")
             exit(1)
-
+        
         config = {
             "apiKey": "AIzaSyBbUk_Lo0mDuCvAiocniFGCJCsIlwd6Kew",
             "authDomain": "arb-log.firebaseapp.com",
@@ -269,20 +247,34 @@ if __name__ == "__main__":
             "storageBucket": "arb-log.appspot.com",
             "serviceAccount": "firebase_config.json"
         }
+        '''
+        config = {
+            "apiKey": "AIzaSyBqm0oupQb8NFPBCtPv1ZR5exdEsZ9wcyI",
+            "authDomain": "test-36f7a.firebaseapp.com",
+            "databaseURL": "https://test-36f7a.firebaseio.com",
+            "storageBucket": "test-36f7a.appspot.com",
+            "serviceAccount": "test_firebase_config.json"
+        }
+        '''
         logfile = 'log_' + symbol
-        lastfile = 'last_' + symbol
         techfile = 'tech_' + symbol
         firebase = pyrebase.initialize_app(config)
         db = firebase.database()
-        # db.child(logfile).remove()
-        # db.child(lastfile).remove()
-        # db.child(techfile).remove()
+        db.child(logfile).remove()
+        db.child(techfile).remove()
 
+
+        last_keys = deque()
         while True:
             try:
                 firebase = pyrebase.initialize_app(config)
                 db = firebase.database()
-                collector(conf, urls, names, syms, limit, logfile, lastfile, techfile, db)
+                ts = collector(conf, urls, names, syms, limit, logfile, techfile, db)
+                last_keys.append(ts)
+                if len(last_keys) == MAX_ENTRIES + 1:
+                    first_key = last_keys.popleft()
+                    db.child(logfile).child(first_key).remove()
+                    db.child(techfile).child(first_key).remove()
             except Exception as e:
                 timestamp = int(time.time())
                 db.child(techfile).child(timestamp).set({'error': str(e)})
