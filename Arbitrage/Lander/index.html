@@ -26,12 +26,6 @@
   </script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js">
   </script>
-  <script type="text/javascript">
-    function sendMail() {
-      window.open('mailto:lab@mazurok.com');
-    }
-  </script>
-
 </head>
 
 <body onload = "init()">
@@ -155,7 +149,7 @@
                   <li> <p>Computer vision and augmented reality technology</p> </li>
                   <li> <p>DLT and blockchain architecture solutions</p> </li>
                 </ul>
-              <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i> <a href="mailto:igor@mazurok.com">Contact</a></button></p>
+              <p><button class="w3-button w3-light-grey w3-block" onclick = "document.getElementById('subject').value ='For Igor Mazurok'"><i class="fa fa-envelope"></i> <a href="#contact_us">Contact</a></button></p>
               </div>
             </div>
           </div>
@@ -176,7 +170,7 @@
                   <li> <p>Mathematical modeling of distributed economic systems</p> </li>
                   <li> <p>Complex systems computational modeling</p> </li>
                 </ul>
-                <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i><a href="mailto:lab@mazurok.com">Contact</a></button></p>
+                <p><button class="w3-button w3-light-grey w3-block" onclick = "document.getElementById('subject').value ='For Yevhen Leonchyk'"><i class="fa fa-envelope"></i><a href="#contact_us">Contact</a></button></p>
               </div>
             </div>
           </div>
@@ -199,7 +193,7 @@
                   <li> <p>Artificial Intellect and Big data analysis</p> </li>
                   <li> <p>Program Engineering and architecture solutions</p> </li>
                 </ul>
-                <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i><a href="mailto:lab@mazurok.com">Contact</a></button></p>
+                <p><button class="w3-button w3-light-grey w3-block" onclick = "document.getElementById('subject').value ='For Valery Penko'"><i class="fa fa-envelope"></i><a href="#contact_us">Contact</a></button></p>
               </div>
             </div>
           </div>
@@ -221,12 +215,10 @@
                   <li> <p>Cryptography and cryptanalysis research</p> </li>
 
                 </ul>
-                <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i><a href="mailto:lab@mazurok.com">Contact</a></button></p>
+                <p><button class="w3-button w3-light-grey w3-block" onclick = "document.getElementById('subject').value ='For Olga Savastru'"><i class="fa fa-envelope"></i><a href="#contact_us">Contact</a></button></p>
               </div>
             </div>
           </div>
-
-
       </div>
       <div class="w3-container" style="padding:128px 16px" id="team">
         <h3 class="w3-center">Developers team</h3>
@@ -245,7 +237,7 @@
                   <li> <p>Participant of the semifinals of the world SEERC - ACM ICPC 2017</p> </li>
                   <li> <p>Participant of KPI Open 2015-2017</p> </li>
                 </ul>
-                <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i><a href="mailto:onu.rabid.pandas@gmail.com">Contact</a></button></p>
+                <p><button class="w3-button w3-light-grey w3-block" onclick = "document.getElementById('subject').value ='For Rabid Pandas'"><i class="fa fa-envelope"></i><a href="#contact_us">Contact</a></button></p>
               </div>
             </div>
           </div>
@@ -271,7 +263,7 @@
                   <li> <p>Machine learning</p> </li>
                   <li> <p>Applications of blockchain technologies</p> </li>
                 </ul>
-                <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i><a href="mailto:lab@mazurok.com">Contact</a></button></p>
+                <p><button class="w3-button w3-light-grey w3-block" onclick = "document.getElementById('subject').value ='For Igor Vustianiuk'"><i class="fa fa-envelope"></i><a href="#contact_us">Contact</a></button></p>
               </div>
             </div>
           </div>
@@ -298,7 +290,7 @@
                   <li> <p>Differential games</p> </li>
                   <li> <p>Applications of blockchain technologies</p> </li>
                 </ul>
-                <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i><a href="mailto:lab@mazurok.com">Contact</a></button></p>
+                <p><button class="w3-button w3-light-grey w3-block" onclick = "document.getElementById('subject').value = 'For Denis Kartashov';"><i class="fa fa-envelope"></i><a href="#contact_us">Contact</a></button></p>
               </div>
             </div>
           </div>
@@ -325,7 +317,7 @@
                   <li> <p>Machine learning</p> </li>
                   <li> <p>Applications of blockchain technologies</p> </li>
                 </ul>
-                <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i><a href="mailto:lab@mazurok.com">Contact</a></button></p>
+                <p><button class="w3-button w3-light-grey w3-block" onclick = "document.getElementById('subject').value ='For Elena Naumova'"><i class="fa fa-envelope"></i><a href="#contact_us">Contact</a></button></p>
               </div>
             </div>
           </div>
@@ -379,9 +371,11 @@
 
             <div class="row">
               <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-                <form id = 'submitted' role="form" action = "feedback.php" method = 'POST'>
+                <form id = 'feedback' action = "feedback.php" method = "POST">
                   <div class="form-group">
-                    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter Email">
+                    <input type="text" name="subject" id="subject" value="Please, contact me" style = 'display:none'>
+                    <input type="email" class="form-control" name="email" placeholder="Enter Email"/>
+                    <textarea name = 'message' class="form-control" placeholder="We are waiting for your message"></textarea>
                   </div>
                   <button type="submit" class="btn btn-primary btn-lg">Contact us</button>
                 </form>
@@ -400,14 +394,14 @@
         <div class="row margin-30 news-container">
           <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 wow fadeInLeft" data-wow-delay="0.8s">
             <a href="#" target="_blank">
-            <img class="news-img pull-left" src="img/press-01.jpg" alt="Tech Crunch">
+            <img class="news-img pull-left" src="img/press-01.jpg" alt="Tech Crunch" style = 'width:100%; height:100%; max-width: 170px; max-height: 170px'>
             <p class="black">...<br />
             <small><em>Tech Crunch - January 15, 2015</em></small></p>
             </a>
           </div>
         </div>
 
-        <div class="row margin-30 news-container">
+        <!-- <div class="row margin-30 news-container">
           <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 wow fadeInLeft" data-wow-delay="1.2s">
             <a href="#" target="_blank">
             <img class="news-img pull-left" src="img/press-02.jpg" alt="Forbes">
@@ -415,7 +409,7 @@
             <small><em>Forbes - Feb 25, 2015</em></small></p>
             </a>
           </div>
-        </div>
+        </div> -->
 
       </div>
     </section>
