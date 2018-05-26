@@ -16,7 +16,6 @@ import aiohttp
 import asyncio
 import async_timeout
 import json
-import pyrebase
 import time
 
 
