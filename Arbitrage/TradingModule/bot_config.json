@@ -1,0 +1,15 @@
+{
+  "limit": 50,
+  "config_file": "orders_config.json",
+  "symbols": [
+    "bch_btc",
+    "bch_usd",
+    "dash_btc",
+    "eth_btc",
+    "btc_usd",
+    "xrp_btc",
+    "dash_usd",
+    "eth_usd",
+    "xrp_usd"
+  ]
+}
