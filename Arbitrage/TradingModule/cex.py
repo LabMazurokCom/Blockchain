@@ -3,6 +3,7 @@ import time
 import hmac
 import hashlib
 import requests
+import json
 
 
 class CEX(Exchange):
@@ -91,6 +92,11 @@ class CEX(Exchange):
         url = self.endpoint + '/balance/'
 
         return url, headers, data
+
+    def get_balance_from_response(self, response, currency):
+
+        r = json.loads(response)
+        return r[currency]["available"]
 
 
     def get_min_lot(self, pair):

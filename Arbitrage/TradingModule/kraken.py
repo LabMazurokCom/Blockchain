@@ -4,8 +4,30 @@ import hmac
 import time
 import urllib.parse
 import base64
+import requests
+import json
 
 class Kraken(Exchange):
+
+    cur_limits = {
+        "rep": 0.3,
+        "btc": 0.002,
+        "bch": 0.002,
+        "dash": 0.03,
+        "doge": 3000,
+        "eos": 3,
+        "eth": 0.02,
+        "etc": 0.3,
+        "gno": 0.03,
+        "icn": 2,
+        "ltc": 0.1,
+        "mln": 0.1,
+        "xmr": 0.1,
+        "xrp": 30,
+        "xlm": 30,
+        "zec": 0.03,
+        "usdt": 5
+    }
 
     def _get_headers(self, data, req):
 
@@ -90,9 +112,17 @@ class Kraken(Exchange):
 
         return url, headers, data
 
+    def get_balance_from_response(self, response, currency): # CHECK!
 
-    def get_min_lot(self):
+        r = json.loads(response)
+        if currency in r.keys():
+            return r[currency]
+        else:
+            return 0
 
-        #????????????????????????????????
+    def get_min_lot(self, pair=''):
 
-        return "TODO"
+        pos = pair.find('_')
+        cur1 = pair[:pos]
+        cur2 = pair[pos + 1:]
+        return self.cur_limits[cur1], 0

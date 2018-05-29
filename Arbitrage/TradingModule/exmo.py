@@ -4,6 +4,7 @@ import hmac
 import time
 import urllib.parse
 import requests
+import json
 
 class EXMO(Exchange):
 
@@ -86,6 +87,11 @@ class EXMO(Exchange):
         url = self.endpoint + '/v1/user_info'
 
         return url, headers, data
+
+    def get_balance_from_response(self, response, currency):
+
+        r = json.loads(response)
+        return r["balances"][currency]
 
 
     def get_min_lot(self, pair):
