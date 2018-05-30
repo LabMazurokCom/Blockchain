@@ -1,7 +1,6 @@
 from cex import CEX
 from exmo import EXMO
 from kraken import Kraken
-import configs as cf
 import json
 import aiohttp
 import asyncio
@@ -13,15 +12,16 @@ exchs = []
 responses = []
 
 
-def init(pairs):
-    cex = CEX(cf.cex_endpoint, cf.cex_api_key, cf.cex_api_secret, cf.cex_id)
-    exmo = EXMO(cf.exmo_endpoint, cf.exmo_api_key, cf.exmo_api_secret)
-    kraken = Kraken(cf.kraken_endpoint, cf.kraken_api_key, cf.kraken_api_secret)
+def init(pairs, conffile, exchsfile):
+    cf = json.load(open(exchsfile))
+    cex = CEX(cf['cex_endpoint'], cf['cex_api_key'], cf['cex_api_secret'], cf['cex_id'])
+    exmo = EXMO(cf['exmo_endpoint'], cf['exmo_api_key'], cf['exmo_api_secret'])
+    kraken = Kraken(cf['kraken_endpoint'], cf['kraken_api_key'], cf['kraken_api_secret'])
 
     global exchs
     exchs = [cex, exmo, kraken]
 
-    with open('orders_config.json', 'r') as fp:
+    with open(conffile, 'r') as fp:
         ocf = json.load(fp)
 
         for e in exchs:
@@ -56,7 +56,7 @@ async def get_bal():
         responses = await asyncio.gather(*tasks)
 
 
-def get_balances(pairs):
+def get_balances(pairs, conffile):
 
     currencies = set()
     for x in pairs:
@@ -68,11 +68,12 @@ def get_balances(pairs):
     future = asyncio.ensure_future(get_bal())
     loop.run_until_complete(future)
 
-    for e in exchs:
-        balances[e.__class__.__name__.lower()] = {}
-
-    with open('orders_config.json', 'r') as fp:
+    with open(conffile, 'r') as fp:
         ocf = json.load(fp)
+        for e in ocf.keys():
+            balances[e] = {}
+            for c in currencies:
+                balances[e][c] = 0.0
         for r, e in zip(responses, exchs):
             ename = e.__class__.__name__.lower()
             for c in currencies:
@@ -80,8 +81,3 @@ def get_balances(pairs):
                     balances[ename][c] = float(e.get_balance_from_response(r, ocf[ename]['currency_converter'][c]))
 
     return balances
-
-
-print(init(['btc_usd']))
-print(get_balances(['btc_usd']))
-

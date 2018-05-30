@@ -1,37 +1,33 @@
-import aiohttp
-import asyncio
-from cex import CEX
-from exmo import EXMO
-from kraken import Kraken
-import time
-import configs as cf
+import initialization as ini
+import exchs_data
+import matching
+import json
+import random
+from pprint import pprint
 
-cex = CEX(cf.cex_endpoint, cf.cex_api_key, cf.cex_api_secret, cf.cex_id)
-exmo = EXMO(cf.exmo_endpoint, cf.exmo_api_key, cf.exmo_api_secret)
-kraken = Kraken(cf.kraken_endpoint, cf.kraken_api_key, cf.kraken_api_secret)
+botconf = json.load(open('bot_config.json'))
 
-exchs = [cex, exmo, kraken]
+pairs = botconf['symbols']
+limit = botconf['limit']
+conffile = botconf['config_file']
+exchsfile = botconf['exchs_credentials']
 
-async def fetch(url, session, headers, data):
-    async with session.post(url, headers=headers, data=data) as response:
-        return await response.text()
+exchs, minvolumes = ini.init(pairs, conffile, exchsfile)
 
-async def run():
-    tasks = []
-    start = time.time()
-    async with aiohttp.ClientSession() as session:
-        for e in exchs:
-            url, headers, data = e.get_balance()
-            task = asyncio.ensure_future(fetch(url, session, headers, data))
-            tasks.append(task)
+while True:
 
-        responses = await asyncio.gather(*tasks)
-        print(time.time() - start)
-        for x in responses:
-            print(x)
+    balances = ini.get_balances(pairs, conffile)
+    order_books = exchs_data.get_order_books(pairs, limit, conffile)
+    for key in balances.keys():
+        for kkey in balances[key].keys():
+            balances[key][kkey] = random.randint(0, 10000)
+    pprint(balances)
+    our_orders = matching.get_arb_opp(order_books, balances)
+    pprint(our_orders)
+
+    break
 
 
-loop = asyncio.get_event_loop()
-future = asyncio.ensure_future(run())
-loop.run_until_complete(future)
-#loop.run_until_complete(run())
+
+
+

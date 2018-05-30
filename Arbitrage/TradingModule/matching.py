@@ -49,7 +49,7 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
         currencies = pair.split('_')
         base_cur = currencies[0]  # base currency of current pair (BTC for BTC/USD)
         quote_cur = currencies[1] # quote currency of current pair (USD for BTC/USD)
-        print(pair, base_cur, quote_cur)
+        # print(pair, base_cur, quote_cur)
 
         ax = 0
         bx = 0
@@ -68,7 +68,7 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
         ok = True
 
         while bx < bid_count and ax < ask_count and bids[bx][0] > asks[ax][0]:
-            print()
+            # print()
             ask_price = asks[ax][0]
             bid_price = bids[bx][0]
 
@@ -131,16 +131,16 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
             prev_quote_amount = quote_amount
             prev_profit = profit
 
-
-        our_orders['required_base_amount'] = base_amount
-        our_orders['required_quote_amount'] = quote_amount
-        our_orders['profit'] = profit
-        our_orders['asks'] = ask_orders
-        our_orders['bids'] = bid_orders
+        our_orders[pair] = {}
+        our_orders[pair]['required_base_amount'] = base_amount
+        our_orders[pair]['required_quote_amount'] = quote_amount
+        our_orders[pair]['profit'] = profit
+        our_orders[pair]['asks'] = ask_orders
+        our_orders[pair]['bids'] = bid_orders
         # print(base_amount, quote_amount, profit)
         # print(ask_orders)
         # print(bid_orders)
-        return our_orders
+    return our_orders
 
 '''
 order_books = {
@@ -154,5 +154,5 @@ order_books = {
 
 current_balances = {'a': {'btc': 1.1, 'usd': 10}, 'b': {'btc': 1, 'usd': 18}}
 
-get_arb_opp(order_books, current_balances)
+print(get_arb_opp(order_books, current_balances))
 '''

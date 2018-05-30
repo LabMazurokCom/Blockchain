@@ -1,6 +1,7 @@
 {
   "limit": 50,
   "config_file": "orders_config.json",
+  "exchs_credentials": "exchs_credentials.json",
   "symbols": [
     "bch_btc",
     "bch_usd",
