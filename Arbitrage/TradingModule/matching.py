@@ -140,6 +140,7 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
         # print(base_amount, quote_amount, profit)
         # print(ask_orders)
         # print(bid_orders)
+        return our_orders
 
 '''
 order_books = {
