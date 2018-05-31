@@ -80,7 +80,17 @@ class CEX(Exchange):
 
         url = self.endpoint + '/get_order/'
 
-        return url, headers, data
+        r = requests.post(url, headers=headers, data=data)
+        ans = json.loads(r.text)
+
+        was = ans["amount"]
+        remains = ans["pending"]
+        if ans["status"] == 'd':
+            status = 'done'
+        elif ans["status"] == 'a':
+            status = 'active'
+
+        return status, was, remains
 
 
     def get_balance(self, currency=''):

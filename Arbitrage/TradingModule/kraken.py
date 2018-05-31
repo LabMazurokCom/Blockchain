@@ -90,14 +90,17 @@ class Kraken(Exchange):
         return url, headers, data
 
 
-    def get_order_status(self, order_id):
+    def get_order_status(self, order_id=''):
 
-        # ??????????????????????????????
+        req = '/0/private/OpenOrders'
 
-        # No such option. But we can receive the full list of open orders
-        # or the full list of trades.
+        data = self._get_data()
 
-        return "TODO"
+        headers = self._get_headers(data, req)
+
+        url = self.endpoint + req
+
+        return url, headers, data
 
 
     def get_balance(self, currency=''):
@@ -112,11 +115,11 @@ class Kraken(Exchange):
 
         return url, headers, data
 
-    def get_balance_from_response(self, response, currency): # CHECK!
+    def get_balance_from_response(self, response, currency):
 
         r = json.loads(response)
-        if currency in r.keys():
-            return r[currency]
+        if currency in r['result'].keys():
+            return r['result'][currency]
         else:
             return 0
 
