@@ -39,14 +39,18 @@ with open('responses.txt', 'a') as respfile:
     while True:
 
         balances = ini.get_balances(pairs, conffile)
+        print(balances)
         total_balance = {cur: 0 for cur in currency_list}
         for cur in currency_list:
             for exch in balances.keys():
                 total_balance[cur] += balances[exch][cur]
         order_books = exchs_data.get_order_books(pairs, limit, conffile)
         our_orders = matching.get_arb_opp(order_books, balances)
-        #pprint(our_orders)
-        best, orders = get_best(our_orders)
+        pprint(our_orders)
+        best, orders = get_best(our_orders, total_balance)
+        print(best, orders)
+        best = 'btc_usd'
+        orders = {'required_base_amount': 0.01788522, 'required_quote_amount': 132.7579803399024, 'profit': 1.051173937182616, 'buy': {'exmo': [7409, 0.002]}, 'sell': {'cex': [7489, 0.002]}}
         req, res = trading.make_all_orders(best, orders, exchs, conffile)
         print(req, file=respfile)
         print(res, end='\n\n', file=respfile)
@@ -54,3 +58,5 @@ with open('responses.txt', 'a') as respfile:
         print()
         pprint(res)
         break
+
+

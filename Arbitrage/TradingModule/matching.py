@@ -1,5 +1,6 @@
 import copy
 
+
 # order_books = {
 #     'btc_usd': {
 #         'orders': {
@@ -48,7 +49,7 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
     for pair in order_books.keys():
         currencies = pair.split('_')
         base_cur = currencies[0]  # base currency of current pair (BTC for BTC/USD)
-        quote_cur = currencies[1] # quote currency of current pair (USD for BTC/USD)
+        quote_cur = currencies[1]  # quote currency of current pair (USD for BTC/USD)
         # print(pair, base_cur, quote_cur)
 
         ax = 0
@@ -59,12 +60,12 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
         bid_count = len(bids)
 
         profit = 0
-        base_amount = 0   # required amount of base currency
+        base_amount = 0  # required amount of base currency
         quote_amount = 0  # required amount of quote currency
 
-        num = 0           # number of current micro-trade
-        bid_orders = {}   # all bid_orders for current pair
-        ask_orders = {}   # all ask_orders for current pair
+        num = 0  # number of current micro-trade
+        sell_orders = {}  # all sell_orders for current pair
+        buy_orders = {}  # all buy_orders for current pair
         ok = True
 
         while bx < bid_count and ax < ask_count and bids[bx][0] > asks[ax][0]:
@@ -93,8 +94,8 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
                 bx += 1
                 continue
 
-            m = min(ask_vol, bid_vol, ask_bal, bid_bal)        # current micro-trade volume
-            current_profit = (bid_price - ask_price) * m   # current micro-trade profit
+            m = min(ask_vol, bid_vol, ask_bal, bid_bal)  # current micro-trade volume
+            current_profit = (bid_price - ask_price) * m  # current micro-trade profit
             profit += current_profit
             base_amount += m
             quote_amount += ask_price * m
@@ -117,17 +118,17 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
                 if not ok:
                     break
 
-            if bid_exch in bid_orders:
-                bid_orders[bid_exch][0] = min(bid_orders[bid_exch][0], bid_price)
-                bid_orders[bid_exch][1] += m
+            if bid_exch in sell_orders:
+                sell_orders[bid_exch][0] = min(sell_orders[bid_exch][0], bid_price)
+                sell_orders[bid_exch][1] += m
             else:
-                bid_orders[bid_exch] = [bid_price, m]
-            
-            if ask_exch in ask_orders:
-                ask_orders[ask_exch][0] = max(ask_orders[ask_exch][0], ask_price)
-                ask_orders[ask_exch][1] += m
+                sell_orders[bid_exch] = [bid_price, m]
+
+            if ask_exch in buy_orders:
+                buy_orders[ask_exch][0] = max(buy_orders[ask_exch][0], ask_price)
+                buy_orders[ask_exch][1] += m
             else:
-                ask_orders[ask_exch] = [ask_price, m]
+                buy_orders[ask_exch] = [ask_price, m]
             prev_quote_amount = quote_amount
             prev_profit = profit
 
@@ -135,12 +136,13 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
         our_orders[pair]['required_base_amount'] = base_amount
         our_orders[pair]['required_quote_amount'] = quote_amount
         our_orders[pair]['profit'] = profit
-        our_orders[pair]['asks'] = ask_orders
-        our_orders[pair]['bids'] = bid_orders
+        our_orders[pair]['buy'] = buy_orders
+        our_orders[pair]['sell'] = sell_orders
         # print(base_amount, quote_amount, profit)
-        # print(ask_orders)
-        # print(bid_orders)
+        # print(buy_orders)
+        # print(sell_orders)
     return our_orders
+
 
 '''
 order_books = {
@@ -151,8 +153,6 @@ order_books = {
         }
     }
 }
-
 current_balances = {'a': {'btc': 1.1, 'usd': 10}, 'b': {'btc': 1, 'usd': 18}}
-
 print(get_arb_opp(order_books, current_balances))
 '''

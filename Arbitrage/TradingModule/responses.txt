@@ -1,0 +1,24 @@
+[{'key': 'keuDZ6vjTane82MxevqFHsCg4', 'signature': 'DD5EB1442FB236AF8C298BFC231C556664BC9A263E02DA3EE0F17D66A379C835', 'nonce': '1527861448290', 'type': 'sell', 'order_type': 'limit', 'amount': '0.002', 'price': '7495'}, 'nonce=1527861448291&pair=BTC_USD&quantity=0.002&price=7416&type=buy']
+1527861448.631552
+[(1527861448.290729, '{"complete":true,"id":"6349516207","time":1527861448514,"pending":"0.00000000","amount":"0.00200000","type":"sell","price":"7495"}'), (1527861448.425319, '{"result":true,"error":"","order_id":883291000}')]
+
+[['cex', '7504', '0.002', 'sell'], ['exmo', '7415', '0.002', 'buy']]
+1527862018.110372
+[(1527862017.2492712, 1527862017.72234, '{"complete":false,"id":"6349561730","time":1527862017497,"pending":"0.00200000","amount":"0.00200000","type":"sell","price":"7504"}'), (1527862017.410732, 1527862018.1092212, '{"result":false,"error":"Error 50054: Insufficient funds"}')]
+
+[['exmo', '7415', '0.002', 'buy']]
+1527862241.063933
+[(1527862240.712776, 1527862241.063075, '{"result":true,"error":"","order_id":883314245}')]
+
+[['exmo', '7409', '0.002', 'sell'], ['cex', '7492', '0.002', 'buy']]
+[('exmo', 1527867001.4772952, 1527867001.923174, '{"result":false,"error":"Error 50052: Insufficient funds"}'), ('cex', 1527867001.478157, 1527867001.773124, '{"error":"Error: Place order error: Insufficient funds."}')]
+
+[['exmo', '7409', '0.002', 'sell'], ['cex', '7492', '0.002', 'buy']]
+[('exmo', 1527867048.320579, 1527867048.746204, '{"result":false,"error":"Error 50052: Insufficient funds"}'), ('cex', 1527867048.32163, 1527867048.646421, '{"error":"Error: Place order error: Insufficient funds."}')]
+
+[['exmo', '7409', '0.002', 'sell'], ['cex', '7492', '0.002', 'buy']]
+[('exmo', 1527867205.862509, 1527867206.054795, '{"result":false,"error":"Error 50052: Insufficient funds"}'), ('cex', 1527867205.8631501, 1527867205.951709, '{"error":"Error: Place order error: Insufficient funds."}')]
+
+[['cex', '7489', '0.002', 'sell'], ['exmo', '7409', '0.002', 'buy']]
+[('cex', 1527867540.914552, 1527867541.0362968, '{"complete":true,"id":"6350006396","time":1527867540999,"pending":"0.00000000","amount":"0.00200000","type":"sell","price":"7489"}'), ('exmo', 1527867540.915421, 1527867541.104945, '{"result":true,"error":"","order_id":883461681}')]
+
