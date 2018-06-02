@@ -6,3 +6,4 @@
 127.0.0.1 - - [26/May/2018 16:57:42] "GET /?pair=btc_usd&top=300 HTTP/1.1" 400 -
 127.0.0.1 - - [26/May/2018 16:57:45] "GET /?pair=btc_usd&top=0 HTTP/1.1" 200 -
 127.0.0.1 - - [26/May/2018 16:57:48] "GET /?pair=btc_usd&top=x HTTP/1.1" 400 -
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)

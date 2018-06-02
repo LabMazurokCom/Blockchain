@@ -161,7 +161,7 @@ if __name__ == '__main__':
     for symbol in trading_symbols:
         p = Process(target=run_logger, args=(symbol, limit, config_file, mongo_path))
         p.start()
-
+        time.sleep(0.3)
 
     logger = logging.getLogger('werkzeug')
     handler = logging.FileHandler('access.log')

@@ -16,10 +16,13 @@ import aiohttp
 import asyncio
 import async_timeout
 import json
+import pymongo
 import time
+from pprint import pprint
 
 
 FETCH_TIMEOUT = 5   # number of seconds to wait
+MIN_TIME = 15       # minimum time between consequent queries
 
 
 async def fetch(session, url, name):
@@ -67,6 +70,7 @@ def process_responses(responses, conf, syms, limit):
         timestamp = response[2]
         if data is not None:
             try:
+                #try:
                 price_ix = conf[exch]['fields']['price']
                 volume_ix = conf[exch]['fields']['volume']
                 path = conf[exch]["path"]
@@ -90,11 +94,16 @@ def process_responses(responses, conf, syms, limit):
                 tmp = {'ask': current_asks[0][price_ix], 'bid': current_bids[0][price_ix], 'exchange': exch}
                 d['ticker'].append(tmp)
                 time_data[exch] = timestamp
-            except:  # Some error occurred while parsing json response for current exchange
+            except Exception as e: # Some error occurred while parsing json response for current exchange
+                # print(exch, type(e), int(time.time()))
+                # pprint(data)
+                # print()
                 tmp = {'ask': 0, 'bid': 0, 'exchange': exch}
                 d['ticker'].append(tmp)
                 time_data[exch] = 'fields'
         else:  # Some error occurred while making HTTP request for current exchange
+            # print(exch, "didn't respond", int(time.time()))
+            # print()
             tmp = {'ask': 0, 'bid': 0, 'exchange': exch}
             d['ticker'].append(tmp)
             time_data[exch] = timestamp
@@ -198,7 +207,7 @@ def collector(conf, urls, names, syms, limit, logfile, techfile):
     techfile.insert_one(time_data)
 
 
-def run_logger(symbol, limit, config_file, db):
+def run_logger(symbol, limit, config_file, mongo_path, clear=False):
     try:
         conf = json.load(open(config_file))    # load configuration file
         urls = []
@@ -219,20 +228,29 @@ def run_logger(symbol, limit, config_file, db):
 
 
         # DATABASE
+        client = pymongo.MongoClient(mongo_path)  # defaults to port 27017
+        db = client["test2_db"]
         logfile = db['log_' + symbol]
         techfile = db['tech_' + symbol]
-        logfile.drop()
-        techfile.drop()
+        if clear:
+            logfile.drop()
+            techfile.drop()
 
 
         while True:
             try:
+                start_time = time.time()
                 collector(conf, urls, names, syms, limit, logfile, techfile)
+                time_taken = time.time() - start_time
+                if time_taken < MIN_TIME:
+                    time.sleep(MIN_TIME - time_taken)
             except Exception as e:
-                timestamp = int(time.time())
-                print("\t ERROR", timestamp)
-                print(e)
-                print("*" * 50)
+                pass
+                # timestamp = int(time.time())
+                #print("\t ERROR", timestamp)
+                # print(type(e))
+                # print(e)
+                # print("*" * 50)
 
     except FileNotFoundError:
         print("\t ERROR")
