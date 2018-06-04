@@ -105,25 +105,38 @@ class CEX(Exchange):
 
     def get_balance_from_response(self, response, currency):
 
-        r = json.loads(response)
-        return r[currency]["available"]
+        try:
+            r = json.loads(response)
+            return r[currency]["available"]
+        except KeyError:
+            print("CEX failed to response, balance of {} is unknown".format(currency))
+            return 0.0
+        except:
+            print("Response from CEX is not a valid json")
+            return 0.0
 
 
     def get_min_lot(self, pair):
 
-        r = requests.get(self.endpoint + '/currency_limits').json()
-        pos = pair.find('/')
-        sym1 = pair[:pos]
-        sym2 = pair[pos+1:]
+        try:
+            r = requests.get(self.endpoint + '/currency_limits').json()
+            pos = pair.find('/')
+            sym1 = pair[:pos]
+            sym2 = pair[pos+1:]
 
-        minlot1 = 0
-        minlot2 = 0
+            minlot1 = 0
+            minlot2 = 0
 
-        for x in r["data"]["pairs"]:
-            if x["symbol1"] == sym1 and x["symbol2"] == sym2:
-                minlot1 = x["minLotSize"]
-                minlot2 = x["minLotSizeS2"]
-                break
+            for x in r["data"]["pairs"]:
+                if x["symbol1"] == sym1 and x["symbol2"] == sym2:
+                    minlot1 = x["minLotSize"]
+                    minlot2 = x["minLotSizeS2"]
+                    break
 
-        return minlot1, minlot2
-
+            return minlot1, minlot2
+        except KeyError:
+            print("Response from CEX for currency_limits doesn't contain required fields")
+            return 0.0, 0.0
+        except:
+            print("Unable to get currency limits from CEX")
+            return 0.0, 0.0

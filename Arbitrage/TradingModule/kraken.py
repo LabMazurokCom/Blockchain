@@ -117,15 +117,24 @@ class Kraken(Exchange):
 
     def get_balance_from_response(self, response, currency):
 
-        r = json.loads(response)
-        if currency in r['result'].keys():
-            return r['result'][currency]
-        else:
-            return 0
+        try:
+            r = json.loads(response)
+            if currency in r['result'].keys():
+                return r['result'][currency]
+            else:
+                return 0
+        except KeyError:
+            print("Kraken failed to response, balance of {} is unknown".format(currency))
+            return 0.0
+        except:
+            print("Response from Kraken is not a valid json")
+            return 0.0
 
     def get_min_lot(self, pair=''):
-
         pos = pair.find('_')
         cur1 = pair[:pos]
         cur2 = pair[pos + 1:]
-        return self.cur_limits[cur1], 0
+        if cur2 in self.cur_limits.keys():
+            return self.cur_limits[cur1], self.cur_limits[cur2]
+        else:
+            return self.cur_limits[cur1], 0

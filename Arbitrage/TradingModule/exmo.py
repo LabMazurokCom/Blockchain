@@ -92,14 +92,27 @@ class EXMO(Exchange):
 
     def get_balance_from_response(self, response, currency):
 
-        r = json.loads(response)
-        return r["balances"][currency]
-
+        try:
+            r = json.loads(response)
+            return r["balances"][currency]
+        except KeyError:
+            print("Exmo failed to response, balance of {} is unknown".format(currency))
+            return 0.0
+        except:
+            print("Response from Exmo is not a valid json")
+            return 0.0
 
     def get_min_lot(self, pair):
 
-        r = requests.get(self.endpoint + '/v1/pair_settings').json()
-        minlot1 = r[pair]["min_quantity"]
-        minlot2 = r[pair]["min_amount"]
+        try:
+            r = requests.get(self.endpoint + '/v1/pair_settings').json()
+            minlot1 = r[pair]["min_quantity"]
+            minlot2 = r[pair]["min_amount"]
+            return minlot1, minlot2
+        except KeyError:
+            print("Response from Exmo for currency_limits doesn't contain required fields")
+            return 0.0, 0.0
+        except:
+            print("Unable to get currency limits from Exmo")
+            return 0.0, 0.0
 
-        return minlot1, minlot2
