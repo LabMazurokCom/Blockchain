@@ -6,6 +6,9 @@ import requests
 import json
 
 
+TIMEOUT = 1.5
+
+
 class CEX(Exchange):
 
     def __init__(self, endpoint, api_key, api_secret, id):
@@ -103,40 +106,52 @@ class CEX(Exchange):
 
         return url, headers, data
 
-    def get_balance_from_response(self, response, currency):
 
-        try:
-            r = json.loads(response)
-            return r[currency]["available"]
-        except KeyError:
-            print("CEX failed to response, balance of {} is unknown".format(currency))
-            return 0.0
-        except:
-            print("Response from CEX is not a valid json")
+    def get_balance_from_response(self, response, currency):
+        if response is not None:
+            try:
+                r = json.loads(response)
+                return r[currency]["available"]
+            except KeyError:
+                print("CEX failed to response, balance of {} is unknown".format(currency))
+                return 0.0
+            except:
+                print("Response from CEX is not a valid json")
+                return 0.0
+        else:
             return 0.0
 
 
     def get_min_lot(self, pair):
-
         try:
-            r = requests.get(self.endpoint + '/currency_limits').json()
-            pos = pair.find('/')
-            sym1 = pair[:pos]
-            sym2 = pair[pos+1:]
-
+            r = requests.get(self.endpoint + '/currency_limits', timeout=TIMEOUT).json()
+            syms = pair.split('/')
+            sym1 = syms[0]
+            sym2 = syms[1]
             minlot1 = 0
             minlot2 = 0
 
             for x in r["data"]["pairs"]:
                 if x["symbol1"] == sym1 and x["symbol2"] == sym2:
-                    minlot1 = x["minLotSize"]
-                    minlot2 = x["minLotSizeS2"]
+                    minlot1 = float(x["minLotSize"])
+                    minlot2 = float(x["minLotSizeS2"])
                     break
 
             return minlot1, minlot2
+        except requests.exceptions.Timeout:
+            print("Response from CEX for currency_limits took too long")
+        except json.JSONDecodeError:
+            print("Response from CEX for currency_limits has wrong JSON")
         except KeyError:
             print("Response from CEX for currency_limits doesn't contain required fields")
-            return 0.0, 0.0
-        except:
+        except Exception as e:
             print("Unable to get currency limits from CEX")
-            return 0.0, 0.0
+            print(type(e))
+            print(e)
+
+'''
+start = time.time()
+e = CEX("https://cex.io/api", "keuDZ6vjTane82MxevqFHsCg4", "PgoALmQvEqdRD5tl16V2Rpep9mM", "up120149234")
+print(e.get_min_lot('BTC/USD'))
+print('{:.3f}'.format(time.time() - start))
+'''

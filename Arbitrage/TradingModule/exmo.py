@@ -6,6 +6,10 @@ import urllib.parse
 import requests
 import json
 
+
+TIMEOUT = 1.5
+
+
 class EXMO(Exchange):
 
     def _get_headers(self, data):
@@ -91,28 +95,40 @@ class EXMO(Exchange):
         return url, headers, data
 
     def get_balance_from_response(self, response, currency):
+        if response is not None:
+            try:
+                r = json.loads(response)
+                return r["balances"][currency]
+            except KeyError:
+                print("Exmo failed to response, balance of {} is unknown".format(currency))
+                return 0.0
+            except:
+                print("Response from Exmo is not a valid json")
+                return 0.0
+        else:
+            return 0.0
 
-        try:
-            r = json.loads(response)
-            return r["balances"][currency]
-        except KeyError:
-            print("Exmo failed to response, balance of {} is unknown".format(currency))
-            return 0.0
-        except:
-            print("Response from Exmo is not a valid json")
-            return 0.0
 
     def get_min_lot(self, pair):
-
         try:
-            r = requests.get(self.endpoint + '/v1/pair_settings').json()
-            minlot1 = r[pair]["min_quantity"]
-            minlot2 = r[pair]["min_amount"]
+            r = requests.get(self.endpoint + '/v1/pair_settings', timeout=TIMEOUT).json()
+            minlot1 = float(r[pair]["min_quantity"])
+            minlot2 = float(r[pair]["min_amount"])
             return minlot1, minlot2
+        except requests.exceptions.Timeout:
+            print("Response from EXMO for currency_limits took too long")
+        except json.JSONDecodeError:
+            print("Response from EXMO for currency_limits has wrong JSON")
         except KeyError:
-            print("Response from Exmo for currency_limits doesn't contain required fields")
-            return 0.0, 0.0
-        except:
-            print("Unable to get currency limits from Exmo")
-            return 0.0, 0.0
+            print("Response from EXMO for currency_limits doesn't contain required fields")
+        except Exception as e:
+            print("Unable to get currency limits from EXMO")
+            print(type(e))
+            print(e)
 
+'''
+start = time.time()
+e = EXMO("https://api.exmo.com", "K-23e37272682102a804646d9b9f7b48951b31e946", "S-9881c104ba27e435348f15618e253643fae8afde")
+print(e.get_min_lot('BTC_USD'))
+print('{:.3f}'.format(time.time() - start))
+'''

@@ -29,6 +29,7 @@ class Kraken(Exchange):
         "usdt": 5
     }
 
+
     def _get_headers(self, data, req):
 
         postdata = urllib.parse.urlencode(data)
@@ -46,7 +47,6 @@ class Kraken(Exchange):
 
 
     def _get_data(self):
-
         nonce = int(1000 * time.time())
 
         data = {
@@ -57,7 +57,6 @@ class Kraken(Exchange):
 
 
     def place_order(self, price, amount, pair, type, order_type):
-
         data = self._get_data()
 
         data['pair'] = pair
@@ -77,7 +76,6 @@ class Kraken(Exchange):
 
 
     def cancel_order(self, order_id):
-
         req = '/0/private/CancelOrder'
 
         data = self._get_data()
@@ -91,7 +89,6 @@ class Kraken(Exchange):
 
 
     def get_order_status(self, order_id=''):
-
         req = '/0/private/OpenOrders'
 
         data = self._get_data()
@@ -104,7 +101,6 @@ class Kraken(Exchange):
 
 
     def get_balance(self, currency=''):
-
         req = '/0/private/Balance'
 
         data = self._get_data()
@@ -115,26 +111,30 @@ class Kraken(Exchange):
 
         return url, headers, data
 
+
     def get_balance_from_response(self, response, currency):
-
-        try:
-            r = json.loads(response)
-            if currency in r['result'].keys():
-                return r['result'][currency]
-            else:
-                return 0
-        except KeyError:
-            print("Kraken failed to response, balance of {} is unknown".format(currency))
+        if response is not None:
+            try:
+                r = json.loads(response)
+                if currency in r['result'].keys():
+                    return r['result'][currency]
+                else:
+                    return 0
+            except KeyError:
+                print("Kraken failed to response, balance of {} is unknown".format(currency))
+                return 0.0
+            except:
+                print("Response from Kraken is not a valid json")
+                return 0.0
+        else:
             return 0.0
-        except:
-            print("Response from Kraken is not a valid json")
-            return 0.0
 
-    def get_min_lot(self, pair=''):
-        pos = pair.find('_')
-        cur1 = pair[:pos]
-        cur2 = pair[pos + 1:]
+
+    def get_min_lot(self, pair):
+        curs = pair.split('_')
+        cur1 = curs[0]
+        cur2 = curs[1]
         if cur2 in self.cur_limits.keys():
             return self.cur_limits[cur1], self.cur_limits[cur2]
         else:
-            return self.cur_limits[cur1], 0
+            return self.cur_limits[cur1], 0.0

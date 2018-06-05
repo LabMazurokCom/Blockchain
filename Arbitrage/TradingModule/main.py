@@ -2,7 +2,6 @@ import initialization as ini
 import exchs_data
 import matching
 import json
-import random
 from pprint import pprint
 import requests
 import trading
@@ -20,33 +19,53 @@ def get_best(our_orders, total_balance):
             best_pair = pair
     return best_pair, our_orders[best_pair]
 
-try:
-    botconf = json.load(open('bot_config.json'))
 
+def get_json_from_file(file_path):
+    try:
+        return json.load(open(file_path))
+    except FileNotFoundError:
+        print("File {} not found".format(file_path))
+    except json.JSONDecodeError as e:
+        print("File {} is not a valid JSON file")
+        print(e)
+    except Exception as e:
+        print("Some error occurred while parsing {}".format(file_path))
+        print(type(e))
+        print(e)
+
+
+botconf = get_json_from_file('bot_config.json')
+if botconf is None:
+    exit(1)
+try:
     pairs = botconf['symbols']
     limit = botconf['limit']
-    conffile = botconf['config_file']
-    exchsfile = botconf['exchs_credentials']
-
-    exchs, minvolumes = ini.init(pairs, conffile, exchsfile)
-    currency_list = set()
-    for pair in pairs:
-        for cur in pair.split('_'):
-            currency_list.add(cur)
+    conffile = get_json_from_file(botconf['config_file'])
+    exchsfile = get_json_from_file(botconf['exchs_credentials'])
 except KeyError:
-    print("One of bot_config.json's required keys is not set")
-    exit(0)
-except FileNotFoundError:
-    print("bot_config.json doesn't exist")
-    exit(0)
-except:
-    print("bot_config.json is not a valid json file")
-    exit(0)
+    print("Some of bot_config.json's required keys are not set")
+    exit(1)
+exchs, minvolumes = ini.init(pairs, conffile, exchsfile)
+
+
+currency_list = set()
+for pair in pairs:
+    for cur in pair.split('_'):
+        currency_list.add(cur)
+
+
+counter = 0
 
 
 with open('responses.txt', 'a') as respfile:
-
     while True:
+        counter += 1
+        if counter == 100:
+            exchs, minvolumes = ini.init(pairs, conffile, exchsfile)
+            counter = 0
+            if len(exchs) <= 1:
+                time.sleep(60)
+                continue
         try:
             balances = ini.get_balances(pairs, conffile)
             #balances = {'binance': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'bitfinex': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'bitstamp': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'bittrex': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'cex': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.002, 'usdt': 0.0}, 'cryptopia': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'exmo': {'bch': 0.0, 'eth': 0.0, 'usd': 73.39, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'gdax': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'kraken': {'bch': 8.39e-06, 'eth': 3.06e-06, 'usd': 0.0, 'dash': 0.0, 'xrp': 3.86e-06, 'btc': 6.922e-06, 'usdt': 150.0}, 'kucoin': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'poloniex': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}}
@@ -56,9 +75,9 @@ with open('responses.txt', 'a') as respfile:
             for cur in currency_list:
                 for exch in balances.keys():
                     total_balance[cur] += balances[exch][cur]
+
             order_books = exchs_data.get_order_books(pairs, limit, conffile)
             #pprint(order_books)
-
 
             our_orders = matching.get_arb_opp(order_books, balances)
             pprint(our_orders['btc_usd'])
@@ -79,5 +98,3 @@ with open('responses.txt', 'a') as respfile:
         except Exception as e:
             print(type(e))
             print(e)
-
-
