@@ -148,10 +148,3 @@ class CEX(Exchange):
             print("Unable to get currency limits from CEX")
             print(type(e))
             print(e)
-
-'''
-start = time.time()
-e = CEX("https://cex.io/api", "keuDZ6vjTane82MxevqFHsCg4", "PgoALmQvEqdRD5tl16V2Rpep9mM", "up120149234")
-print(e.get_min_lot('BTC/USD'))
-print('{:.3f}'.format(time.time() - start))
-'''
