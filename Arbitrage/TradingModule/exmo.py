@@ -125,10 +125,3 @@ class EXMO(Exchange):
             print("Unable to get currency limits from EXMO")
             print(type(e))
             print(e)
-
-'''
-start = time.time()
-e = EXMO("https://api.exmo.com", "K-23e37272682102a804646d9b9f7b48951b31e946", "S-9881c104ba27e435348f15618e253643fae8afde")
-print(e.get_min_lot('BTC_USD'))
-print('{:.3f}'.format(time.time() - start))
-'''
