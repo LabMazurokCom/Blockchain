@@ -13,7 +13,7 @@ limits = {}
 exchs = {}
 responses = []
 
-FETCH_TIMEOUT = 2
+FETCH_TIMEOUT = 5
 
 
 def init(pairs, config, credentials):
@@ -37,6 +37,7 @@ def init(pairs, config, credentials):
         kraken = Kraken(credentials['kraken_endpoint'], credentials['kraken_api_key'], credentials['kraken_api_secret'])
         global exchs
         exchs = {cex, exmo, kraken}
+        bad_exchs = {}
         try:
             for e in exchs:
                 ename = e.__class__.__name__.lower()
@@ -49,9 +50,11 @@ def init(pairs, config, credentials):
                             min_lots = e.get_min_lot(config[ename]['converter'][pair])
 
                         if min_lots is None:
-                            exchs.remove(e)
+                            bad_exchs.add(e)
                         else:
                             limits[ename][pair] = min_lots
+            for bad_exch in bad_exchs:
+                exchs.remove(bad_exch)
         except KeyError:
             print("One or more of required keys in configuration file doesn't exist")
             return {}, {}
@@ -134,7 +137,43 @@ def get_balances(pairs, config):
         print(e)
 
 
+def get_urls(symbols, conf, limit):
+    pairs = dict()
+    for symbol in symbols:
+        pairs[symbol] = dict()
+    badsyms = 0
+    try:
+        for symbol in symbols:
+            pairs[symbol]['urls'] = []
+            pairs[symbol]['names'] = []
+            syms = dict()
+            for exch in exchs:
+                ename = exch.__class__.__name__.lower()
+                try:  # get exchange's symbol for user's symbol
+                    sym = conf[ename]["converter"][symbol]
+                    syms[ename] = sym
+                    pairs[symbol]['urls'].append(conf[ename]["url"].format(sym, limit))
+                    pairs[symbol]['names'].append(ename)
+                except KeyError:
+                    pass
+            if len(pairs[symbol]['names']) <= 1:
+                badsyms += 1
+        if badsyms == len(symbols):
+            print("None of the given symbols is supported by any exchanges")
+            exit(1)
+    except Exception as e:
+        print("Some error occurred in get_url()")
+        print(type(e))
+        print(e)
+        exit(1)
+    return pairs
+
 # start = time.time()
 # init(['btc_usd', 'eth_usd'], "orders_config.json", "exchs_credentials.json")
 # print(get_balances(['btc_usd', 'eth_usd'], "orders_config.json"))
 # print('{:.3f}'.format(time.time() - start))
+
+# orders_config = json.load(open('orders_config.json'))
+# exchs_credentials = json.load(open('exchs_credentials.json'))
+# init(['btc_usd', 'btc_usdt'], orders_config, exchs_credentials)
+# get_urls(['btc_usd', 'btc_usdt'], orders_config, 50)

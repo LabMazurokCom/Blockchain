@@ -2,6 +2,7 @@ import aiohttp
 import asyncio
 import async_timeout
 import copy
+from datetime import datetime
 
 
 FETCH_TIMEOUT = 5  # number of seconds to wait
@@ -18,12 +19,15 @@ async def fetch(session, url, name, pair):
     :return: exchange name, currency pair, deJSONified response
     """
     try:
+        start = datetime.utcnow()
         with async_timeout.timeout(FETCH_TIMEOUT):
             async with session.get(url) as response:
                 response_json = await response.json(content_type=None)
+                print('###', name, pair, start, datetime.utcnow())
                 return name, pair, response_json
     except asyncio.TimeoutError:
         print("Timeout occurred while fetching order books for {} pair from {}".format(pair, name))
+        print('###', name, pair, start, datetime.utcnow())
         return name, pair, None
     except Exception as e:
         print("Error occurred while fetching order books for {} pair from {}".format(pair, name))
@@ -119,39 +123,11 @@ def process_responses(responses, conf, pairs, limit):
     return order_books
 
 
-def get_order_books(symbols, limit, conf):
-    pairs = dict()
-    badsyms = 0
+def get_order_books(pairs, limit, conf):
     try:
-        for symbol in symbols:
-            urls = []
-            names = []
-            syms = dict()
-            for exch in conf.keys():
-                try:  # get exchange's symbol for user's symbol
-                    sym = conf[exch]["converter"][symbol]
-                    syms[exch] = sym
-                    urls.append(conf[exch]["url"].format(sym, limit))
-                    names.append(exch)
-                except KeyError:
-                    pass
-            if len(names) == 0:
-                print("No exchange supports symbol {}".format(symbol))
-                badsyms += 1
-            else:
-                pairs[symbol] = dict()
-
-                pairs[symbol]['urls'] = copy.deepcopy(urls)
-                pairs[symbol]['names'] = copy.deepcopy(names)
-        if badsyms == len(symbols):
-            print("None of given symbols are supported by any exchanges")
-            exit(1)
-        try:
-            loop = asyncio.get_event_loop()
-            responses = loop.run_until_complete(collect_data(pairs))
-            return process_responses(responses, conf, pairs, limit)
-        except Exception as e:
-            print('Exception in get_order_books() occurred')
-            print(e)
-    except:
-        pass
+        loop = asyncio.get_event_loop()
+        responses = loop.run_until_complete(collect_data(pairs))
+        return process_responses(responses, conf, pairs, limit)
+    except Exception as e:
+        print('Exception in get_order_books() occurred')
+        print(e)

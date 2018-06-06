@@ -7,7 +7,7 @@ import requests
 import json
 
 
-TIMEOUT = 1.5
+TIMEOUT = 5
 
 
 class EXMO(Exchange):
