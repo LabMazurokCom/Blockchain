@@ -207,7 +207,7 @@ def collector(conf, urls, names, syms, limit, logfile, techfile):
     techfile.insert_one(time_data)
 
 
-def run_logger(symbol, limit, config_file, mongo_path, clear=False):
+def run_logger(symbol, limit, config_file, mongo_path, db_name, clear=False):
     try:
         conf = json.load(open(config_file))    # load configuration file
         urls = []
@@ -229,7 +229,7 @@ def run_logger(symbol, limit, config_file, mongo_path, clear=False):
 
         # DATABASE
         client = pymongo.MongoClient(mongo_path)  # defaults to port 27017
-        db = client["test2_db"]
+        db = client[db_name]
         logfile = db['log_' + symbol]
         techfile = db['tech_' + symbol]
         if clear:
@@ -245,12 +245,8 @@ def run_logger(symbol, limit, config_file, mongo_path, clear=False):
                 if time_taken < MIN_TIME:
                     time.sleep(MIN_TIME - time_taken)
             except Exception as e:
-                pass
-                # timestamp = int(time.time())
-                #print("\t ERROR", timestamp)
-                # print(type(e))
-                # print(e)
-                # print("*" * 50)
+                print(e)
+
 
     except FileNotFoundError:
         print("\t ERROR")

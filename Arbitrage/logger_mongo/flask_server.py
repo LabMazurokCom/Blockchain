@@ -107,18 +107,20 @@ def get_log_data():
 
 if __name__ == '__main__':
     # Initialization
-    mongo_path = "mongodb://admin:415096396771@23.100.25.146/admin"
+    mongo_config = json.load(open('mongo_credentials.json'))
+    mongo_path = mongo_config['auth_string']
     client = pymongo.MongoClient(mongo_path)  # defaults to port 27017
-    db = client["test2_db"]
+    db_name = mongo_config['database']
+    db = client[db_name]
     col_names = set(db.collection_names())
 
     # Logging to MongoDB
     trading_symbols = sorted(['bch_btc', 'bch_usd', 'dash_btc', 'eth_btc', 'btc_usd',
                               'xrp_btc', 'dash_usd', 'eth_usd', 'xrp_usd'])
     limit = 50
-    config_file = 'orders_config.json'
+    config_file = mongo_config['orders_config']
     for symbol in trading_symbols:
-        p = Process(target=run_logger, args=(symbol, limit, config_file, mongo_path))
+        p = Process(target=run_logger, args=(symbol, limit, config_file, mongo_path, db_name))
         p.start()
         time.sleep(0.3)
 
