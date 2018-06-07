@@ -1,11 +1,11 @@
 from cex import CEX
 from exmo import EXMO
 from kraken import Kraken
-import json
 import aiohttp
 import asyncio
 import async_timeout
-import time
+import datetime
+import os
 
 
 balances = {}
@@ -15,6 +15,7 @@ responses = []
 
 FETCH_TIMEOUT = 5
 
+File = os.path.basename(__file__)
 
 def init(pairs, config, credentials):
     """
@@ -37,7 +38,7 @@ def init(pairs, config, credentials):
         kraken = Kraken(credentials['kraken_endpoint'], credentials['kraken_api_key'], credentials['kraken_api_secret'])
         global exchs
         exchs = {cex, exmo, kraken}
-        bad_exchs = {}
+        bad_exchs = set()
         try:
             for e in exchs:
                 ename = e.__class__.__name__.lower()
@@ -55,39 +56,88 @@ def init(pairs, config, credentials):
                             limits[ename][pair] = min_lots
             for bad_exch in bad_exchs:
                 exchs.remove(bad_exch)
-        except KeyError:
-            print("One or more of required keys in configuration file doesn't exist")
+        except KeyError as e:
+            Time = datetime.datetime.utcnow()
+            EventType = "KeyError"
+            Function = "init"
+            Explanation = "One or more of required keys in configuration file doesn't exist"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
             return {}, {}
         except Exception as e:
-            print("Some error occurred while getting minimum lots")
-            print(type(e))
-            print(e)
+            Time = datetime.datetime.utcnow()
+            EventType = "Error"
+            Function = "init"
+            Explanation = "Some error occurred while getting minimum lots"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
             return {}, {}
         return exchs, limits
-    except KeyError:
-        print("One or more of exchanges' credentials doesn't exist or has incorrect name in")
+    except KeyError as e:
+        Time = datetime.datetime.utcnow()
+        EventType = "KeyError"
+        Function = "init"
+        Explanation = "One or more of exchanges' credentials doesn't exist or has incorrect name"
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
         return {}, {}
     except Exception as e:
-        print("Some error occurred during initialization of exchanges")
-        print(type(e))
-        print(e)
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "init"
+        Explanation = "Some error occurred during initialization of exchanges"
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
         return {}, {}
 
 
 async def fetch(url, session, headers, data, exch):
+    """
+    posts request for getting balance
+    :param url: url path for getting balance
+    :param session: aiohttp session for getting balance
+    :param headers: headers of request for getting balance
+    :param data: data of requests for getting balance
+    :param exch: exchange name for placing order to
+    :return: text of response from exchange
+    """
     try:
         with async_timeout.timeout(FETCH_TIMEOUT):
             async with session.post(url, headers=headers, data=data) as response:
                 return await response.text()
-    except asyncio.TimeoutError:
-        print("{} didn't respond in time (getting balance)".format(exch))
+    except asyncio.TimeoutError as e:
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "fetch"
+        Explanation = "{} didn't respond in time (getting balance)".format(exch)
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
     except Exception as e:
-        print("Some error occurred during post request to {} (getting balance)".format(exch))
-        print(type(e))
-        print(e)
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "fetch"
+        Explanation = "Some error occurred during post request to {} (getting balance)".format(exch)
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
 
 
 async def get_bal():
+    """
+    gets list of balances for every exchange via aiohttp session
+    :return: makes list of responses from exchanges
+    """
     tasks = []
     try:
         async with aiohttp.ClientSession() as session:
@@ -98,12 +148,35 @@ async def get_bal():
             global responses
             responses = await asyncio.gather(*tasks)
     except Exception as e:
-        print("ClientSession failed while getting balances from exchanges")
-        print(type(e))
-        print(e)
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "get_bal"
+        Explanation = "ClientSession failed while getting balances from exchanges"
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
 
 
 def get_balances(pairs, config):
+    """
+    gets balances for all currencies from all exchanges
+    :param pairs: list of pairs to be potentially traded later
+    :param config: JSONified configuration file
+    :return: list of balances for all exchanges in format {
+                                                             'binance': {
+                                                                 'btc': btc_balance,
+                                                                 'usd': usd_balance,
+                                                                 ...-
+                                                             },
+                                                             'cex': {
+                                                                 'btc': btc_balance,
+                                                                 'usd': usd_balance,
+                                                                 ...
+                                                             },
+                                                             ...
+                                                         }
+    """
     currencies = set()
     for pair in pairs:
         curs = pair.split('_')
@@ -115,10 +188,14 @@ def get_balances(pairs, config):
         future = asyncio.ensure_future(get_bal())
         loop.run_until_complete(future)
     except Exception as e:
-        print("Some error occurred while getting balances from exchanges")
-        print(type(e))
-        print(e)
-
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "get_balances"
+        Explanation = "Some error occurred while getting balances from exchanges"
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
     try:
         for exch in config.keys():
             balances[exch] = {}
@@ -132,12 +209,31 @@ def get_balances(pairs, config):
                         exch.get_balance_from_response(r, config[ename]['currency_converter'][c]))
         return balances
     except Exception as e:
-        print("Some error occurred while getting balances")
-        print(type(e))
-        print(e)
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "get_balances"
+        Explanation = "Some error occurred while getting balances"
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
 
 
 def get_urls(symbols, conf, limit):
+    """
+    generates list of urls to be placed via async post requests to get order_books
+    :param symbols: list of pairs to get order_books for
+    :param conf: JSONified configuration file
+    :param limit: number of top orders we need to get
+    :return: list of urls and exchange names for every pair in format {
+                                                                        "pair1" : {
+                                                                                    "urls" : [],
+                                                                                    "names" : []
+                                                                                  },
+                                                                         ...
+                                                                      }
+
+    """
     pairs = dict()
     for symbol in symbols:
         pairs[symbol] = dict()
@@ -154,17 +250,37 @@ def get_urls(symbols, conf, limit):
                     syms[ename] = sym
                     pairs[symbol]['urls'].append(conf[ename]["url"].format(sym, limit))
                     pairs[symbol]['names'].append(ename)
-                except KeyError:
+                except KeyError as e:
+                    Time = datetime.datetime.utcnow()
+                    EventType = "KeyError"
+                    Function = "get_urls"
+                    Explanation = "Configuration file doesn't contain required fields (converter or symbol {})".format(symbol)
+                    EventText = e
+                    ExceptionType = type(e)
+                    print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                        ExceptionType))
                     pass
             if len(pairs[symbol]['names']) <= 1:
                 badsyms += 1
         if badsyms == len(symbols):
-            print("None of the given symbols is supported by any exchanges")
+            Time = datetime.datetime.utcnow()
+            EventType = "EXIT"
+            Function = "get_urls"
+            Explanation = "None of the given symbols is supported by any exchanges"
+            EventText = ""
+            ExceptionType = ""
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
             exit(1)
     except Exception as e:
-        print("Some error occurred in get_url()")
-        print(type(e))
-        print(e)
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "get_urls"
+        Explanation = "Some error occurred in get_url()"
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
         exit(1)
     return pairs
 

@@ -1,5 +1,7 @@
-import copy
+import datetime
+import os
 
+File = os.path.basename(__file__)
 
 # order_books = {
 #     'btc_usd': {
@@ -43,6 +45,13 @@ import copy
 
 
 def get_arb_opp(order_books, current_balance, alpha=0.1):
+    """
+
+    :param order_books: as example above
+    :param current_balance: as example above
+    :param alpha: heuristic parameter
+    :return: as example above
+    """
     our_orders = dict()
     # current_balance = copy.deepcopy(current_balance)
 
@@ -115,35 +124,61 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
                 current_balance[ask_exch][quote_cur] -= m * ask_price_real
                 current_balance[bid_exch][base_cur] -= m
             except ZeroDivisionError:
-                print("ask_price_real is equal to 0 at profit point {}".format(num))
+                Time = datetime.datetime.utcnow()
+                EventType = "ZeroDivisionError"
+                Function = "get_arb_opp"
+                Explanation = "ask_price_real is equal to 0 at profit point {}".format(num)
+                EventText = e
+                ExceptionType = type(e)
+                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
                 break
-
-            # print(ax, ask_exch, ask_bal, ' ###', ask_price, ask_vol)
-            # print(bx, bid_exch, bid_bal, ' ###', bid_price, bid_vol)
-            # print(m, current_profit)
 
             num += 1
             if num == 2:
                 try:
                     first_k = (profit - prev_profit) / (quote_amount - prev_quote_amount)
-                except ZeroDivisionError:
-                    print("quote_amount is equal to prev_quote_amount at second profit point: {} {}".format(quote_amount, prev_quote_amount))
+                except ZeroDivisionError as e:
+                    Time = datetime.datetime.utcnow()
+                    EventType = "ZeroDivisionError"
+                    Function = "get_arb_opp"
+                    Explanation = "quote_amount is equal to prev_quote_amount at second profit point: {} {}".format(quote_amount, prev_quote_amount)
+                    EventText = e
+                    ExceptionType = type(e)
+                    print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                        ExceptionType))
                     break
                 except Exception as e:
-                    print("Some error occurred while computing first_k")
-                    print(type(e))
-                    print(e)
+                    Time = datetime.datetime.utcnow()
+                    EventType = "ZeroDivisionError"
+                    Function = "get_arb_opp"
+                    Explanation = "Some error occurred while computing first_k"
+                    EventText = e
+                    ExceptionType = type(e)
+                    print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                        ExceptionType))
                     break
             elif num > 2:
                 try:
                     k = (profit - prev_profit) / (quote_amount - prev_quote_amount)
                 except ZeroDivisionError:
-                    print("quote_amount is equal to prev_quote_amount at profit point {}: {} {}".format(num, quote_amount, prev_quote_amount))
+                    Time = datetime.datetime.utcnow()
+                    EventType = "ZeroDivisionError"
+                    Function = "get_arb_opp"
+                    Explanation = "quote_amount is equal to prev_quote_amount at profit point {}: {} {}".format(num, quote_amount, prev_quote_amount)
+                    EventText = e
+                    ExceptionType = type(e)
+                    print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                        ExceptionType))
                     break
                 except Exception as e:
-                    print("Some error occurred while computing k at profit point {}".format(num))
-                    print(type(e))
-                    print(e)
+                    Time = datetime.datetime.utcnow()
+                    EventType = "Error"
+                    Function = "get_arb_opp"
+                    Explanation = "Some error occurred while computing k at profit point {}".format(num)
+                    EventText = e
+                    ExceptionType = type(e)
+                    print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                        ExceptionType))
                     break
 
                 if k < first_k * alpha:
@@ -173,17 +208,3 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
         # print(buy_orders)
         # print(sell_orders)
     return our_orders
-
-
-'''
-order_books = {
-    'btc_usd': {
-        'orders': {
-            'asks': [[10, 1, 'a'], [10.5, 0.2, 'a'], [11.5, 0.3, 'b']],
-            'bids': [[11, 0.8, 'b'], [10.3, 0.3, 'b']]
-        }
-    }
-}
-current_balances = {'a': {'btc': 1.1, 'usd': 10}, 'b': {'btc': 1, 'usd': 18}}
-print(get_arb_opp(order_books, current_balances))
-'''

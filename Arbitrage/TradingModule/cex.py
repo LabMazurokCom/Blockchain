@@ -4,7 +4,10 @@ import hmac
 import hashlib
 import requests
 import json
+import os
+import datetime
 
+File = os.path.basename(__file__)
 
 TIMEOUT = 5
 
@@ -112,11 +115,25 @@ class CEX(Exchange):
             try:
                 r = json.loads(response)
                 return r[currency]["available"]
-            except KeyError:
-                print("CEX failed to response, balance of {} is unknown".format(currency))
+            except KeyError as e:
+                Time = datetime.datetime.utcnow()
+                EventType = "KeyError"
+                Function = "get_balance_from_response"
+                Explanation = "CEX failed to response, balance of {} is unknown".format(currency)
+                EventText = e
+                ExceptionType = type(e)
+                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                    ExceptionType))
                 return 0.0
-            except:
-                print("Response from CEX is not a valid json")
+            except Exception as e:
+                Time = datetime.datetime.utcnow()
+                EventType = "Error"
+                Function = "get_balance_from_response"
+                Explanation = "Response from CEX is not a valid json"
+                EventText = e
+                ExceptionType = type(e)
+                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                    ExceptionType))
                 return 0.0
         else:
             return 0.0
@@ -138,13 +155,39 @@ class CEX(Exchange):
                     break
 
             return minlot1, minlot2
-        except requests.exceptions.Timeout:
-            print("Response from CEX for currency_limits took too long")
-        except json.JSONDecodeError:
-            print("Response from CEX for currency_limits has wrong JSON")
-        except KeyError:
-            print("Response from CEX for currency_limits doesn't contain required fields")
+        except requests.exceptions.Timeout as e:
+            Time = datetime.datetime.utcnow()
+            EventType = "RequestsExceptionTimeoutError"
+            Function = "get_min_lot"
+            Explanation = "Response from CEX for currency_limits took too long"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
+        except json.JSONDecodeError as e:
+            Time = datetime.datetime.utcnow()
+            EventType = "JSONDecodeError"
+            Function = "get_min_lot"
+            Explanation = "Response from CEX for currency_limits has wrong JSON"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
+        except KeyError as e:
+            Time = datetime.datetime.utcnow()
+            EventType = "KeyError"
+            Function = "get_min_lot"
+            Explanation = "Response from CEX for currency_limits doesn't contain required fields"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
         except Exception as e:
-            print("Unable to get currency limits from CEX")
-            print(type(e))
-            print(e)
+            Time = datetime.datetime.utcnow()
+            EventType = "Error"
+            Function = "get_min_lot"
+            Explanation = "Unable to get currency limits from CEX"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))

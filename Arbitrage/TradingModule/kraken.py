@@ -4,8 +4,11 @@ import hmac
 import time
 import urllib.parse
 import base64
-import requests
+import os
+import datetime
 import json
+
+File = os.path.basename(__file__)
 
 class Kraken(Exchange):
 
@@ -120,11 +123,25 @@ class Kraken(Exchange):
                     return r['result'][currency]
                 else:
                     return 0
-            except KeyError:
-                print("Kraken failed to response, balance of {} is unknown".format(currency))
+            except KeyError as e:
+                Time = datetime.datetime.utcnow()
+                EventType = "KeyError"
+                Function = "get_balance_from_response"
+                Explanation = "Kraken failed to response, balance of {} is unknown".format(currency)
+                EventText = e
+                ExceptionType = type(e)
+                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                    ExceptionType))
                 return 0.0
-            except:
-                print("Response from Kraken is not a valid json")
+            except Exception as e:
+                Time = datetime.datetime.utcnow()
+                EventType = "Error"
+                Function = "get_balance_from_response"
+                Explanation = "Response from Kraken is not a valid json"
+                EventText = e
+                ExceptionType = type(e)
+                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                    ExceptionType))
                 return 0.0
         else:
             return 0.0

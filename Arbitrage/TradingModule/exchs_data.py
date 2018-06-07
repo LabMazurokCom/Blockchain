@@ -1,9 +1,10 @@
 import aiohttp
 import asyncio
 import async_timeout
-import copy
-from datetime import datetime
+import datetime
+import os
 
+File = os.path.basename(__file__)
 
 FETCH_TIMEOUT = 5  # number of seconds to wait
 MAX_ENTRIES = 200  # maximum allowed number of entries in DB
@@ -19,20 +20,29 @@ async def fetch(session, url, name, pair):
     :return: exchange name, currency pair, deJSONified response
     """
     try:
-        start = datetime.utcnow()
         with async_timeout.timeout(FETCH_TIMEOUT):
             async with session.get(url) as response:
                 response_json = await response.json(content_type=None)
-                print('###', name, pair, start, datetime.utcnow())
                 return name, pair, response_json
-    except asyncio.TimeoutError:
-        print("Timeout occurred while fetching order books for {} pair from {}".format(pair, name))
-        print('###', name, pair, start, datetime.utcnow())
+    except asyncio.TimeoutError as e:
+        Time = datetime.datetime.utcnow()
+        EventType = "AsyncioTimeoutError"
+        Function = "fetch"
+        Explanation = "Timeout occurred while fetching order books for {} pair from {}".format(pair, name)
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
         return name, pair, None
     except Exception as e:
-        print("Error occurred while fetching order books for {} pair from {}".format(pair, name))
-        print(type(e))
-        print(e)
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "fetch"
+        Explanation = "Error occurred while fetching order books for {} pair from {}".format(pair, name)
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
         return name, pair, None
 
 
@@ -42,12 +52,22 @@ async def collect_data(pairs):
     :param pairs: dictionary of the form {pair_name: {"urls": [], "names": []}, ...}
     :return: array of fetch() function responses
     """
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for p in pairs.keys():
-            for url, name in zip(pairs[p]['urls'], pairs[p]['names']):
-                tasks.append(fetch(session, url, name, p))
-        return await asyncio.gather(*tasks)
+    try:
+        async with aiohttp.ClientSession() as session:
+            tasks = []
+            for p in pairs.keys():
+                for url, name in zip(pairs[p]['urls'], pairs[p]['names']):
+                    tasks.append(fetch(session, url, name, p))
+            return await asyncio.gather(*tasks)
+    except Exception as e:
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "collect_data"
+        Explanation = "ClientSession failed while getting order_books from exchanges"
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
 
 
 def process_responses(responses, conf, pairs, limit):
@@ -98,9 +118,14 @@ def process_responses(responses, conf, pairs, limit):
                     order_books[pair]['orders']['asks'].append(
                         [float(current_asks[i][price_ix]), float(current_asks[i][volume_ix]), exch, float(current_asks[i][price_ix])])
             except Exception as e:  # Some error occurred while parsing json response for current exchange
-                print("Some error occurred while parsing order books for {} from {}".format(pair, exch))
-                print(type(e))
-                print(e)
+                Time = datetime.datetime.utcnow()
+                EventType = "Error"
+                Function = "process_responses"
+                Explanation = "Some error occurred while parsing order books for {} from {}".format(pair, exch)
+                EventText = e
+                ExceptionType = type(e)
+                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                    ExceptionType))
 
     for pair in order_books.keys():
         for bid in order_books[pair]['orders']['bids']:
@@ -129,5 +154,11 @@ def get_order_books(pairs, limit, conf):
         responses = loop.run_until_complete(collect_data(pairs))
         return process_responses(responses, conf, pairs, limit)
     except Exception as e:
-        print('Exception in get_order_books() occurred')
-        print(e)
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "process_responses"
+        Explanation = "Exception in get_order_books() occurred"
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))

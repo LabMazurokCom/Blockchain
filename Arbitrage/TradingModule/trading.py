@@ -1,8 +1,12 @@
-import asyncio
 import aiohttp
-import json
-import time
 import async_timeout
+import asyncio
+import datetime
+import os
+import time
+
+File = os.path.basename(__file__)
+
 
 responses = []
 reqs = []
@@ -11,24 +15,55 @@ FETCH_TIMEOUT = 5
 
 
 async def fetch(url, session, headers, data, key):
+    """
+    Sends POST request to make an order
+    :param url: url path for placing order
+    :param session: aiohttp session to place order
+    :param headers: headers of post request to place order
+    :param data: data of post request to place order
+    :param key: exchange name
+    :return: exchange name, time of start and end of post request, response from exchange
+    """
     try:
         with async_timeout.timeout(FETCH_TIMEOUT):
             start = time.time()
             async with session.post(url, headers=headers, data=data) as response:
                 resp_text = await response.text()
                 return key, start, time.time(), resp_text
-    except asyncio.TimeoutError:
-        print("{} didn't respond in time (placing order)".format(key))
+    except asyncio.TimeoutError as e:
+        Time = datetime.datetime.utcnow()
+        EventType = "TimeoutError"
+        Function = "fetch"
+        Explanation = "{} didn't respond in time (placing order)".format(key)
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
         return key, start, time.time(), None
     except Exception as e:
-        print("Some error occurred during post request to {} (placing order)".format(key))
-        print(type(e))
-        print(e)
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "fetch"
+        Explanation = "Some error occurred during post request to {} (placing order)".format(key)
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
         return key, start, time.time(), None
 
 
 async def place_orders(pair, orders, exs, conf):
-
+    """
+    :param pair: pair to be traded
+    :param orders: list of orders to be placed in format {
+                                                             'asks': [],
+                                                             'bids': [],
+                                                             'required_base_amount': float,
+                                                             'required_quote_amount': float,
+                                                             'profit': float
+                                                         }
+    :param exs: list of exchanges
+    :param conf: JSONified configuration file
+    :return: collect responses
+    """
     exchs = {}
     for e in exs:
         exchs[e.__class__.__name__.lower()] = e
@@ -47,42 +82,45 @@ async def place_orders(pair, orders, exs, conf):
                     reqs.append([key, str(value[0]), str(value[1]), 'buy'])
                     task = asyncio.ensure_future(fetch(url, session, headers, data, key))
                     tasks.append(task)
-            except KeyError:
-                print("Invalid key somewhere *here* in place_orders")
+            except KeyError as e:
+                Time = datetime.datetime.utcnow()
+                EventType = "KeyError"
+                Function = "place_orders"
+                Explanation = "Invalid key somewhere in place_orders"
+                EventText = e
+                ExceptionType = type(e)
+                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                    ExceptionType))
                 pass
             global responses
             responses = await asyncio.gather(*tasks)
     except Exception as e:
-        print("Client session failed while placing orders to exchanges")
-        print(type(e))
-        print(e)
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "place_orders"
+        Explanation = "Client session failed while placing orders to exchanges"
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
 
-'''
-async def place_minimal_orders(pair, orders, exs, conffile):
-
-    exchs = {}
-    for e in exs:
-        exchs[e.__class__.__name__.lower()] = e
-
-    conf = json.load(open(conffile))
-
-    tasks = []
-    async with aiohttp.ClientSession() as session:
-        # url, headers, data = exchs['cex'].place_order('7504', '0.002', conf['cex']['converter'][pair], 'sell', 'limit')
-        # reqs.append(['cex', '7504', '0.002', 'sell'])
-        # task = asyncio.ensure_future(fetch(url, session, headers, data))
-        # tasks.append('cex', task)
-
-        url, headers, data = exchs['exmo'].place_order('7415', '0.002', conf['exmo']['converter'][pair], 'buy', 'limit')
-        reqs.append(['exmo', '7415', '0.002', 'buy'])
-        task = asyncio.ensure_future(fetch(url, session, headers, data))
-        tasks.append('exmo', task)
-
-        global responses
-        responses = await asyncio.gather(*tasks)
-'''
 
 def make_all_orders(pair, orders, exchs, conffile):
+    """
+
+    :param pair: name of pair to be traded
+    :param orders: list of orders for pair in format {
+                                                         'asks': [],
+                                                         'bids': [],
+                                                         'required_base_amount': float,
+                                                         'required_quote_amount': float,
+                                                         'profit': float
+                                                     }
+    :param exchs: list of exchanges
+    :param conffile: JSONified configuration file
+    :return: list of requests to exchanges in format [exchange_name, price, amount, 'buy'/'sell'],
+             list of responses from exchanges in format [exchange name, time of start and end of post request, response from exchange]
+    """
     global reqs
     reqs = []
     global responses
@@ -92,8 +130,13 @@ def make_all_orders(pair, orders, exchs, conffile):
         future = asyncio.ensure_future(place_orders(pair, orders, exchs, conffile))
         loop.run_until_complete(future)
     except Exception as e:
-        print("Some error occurred while placing orders to exchanges")
-        print(type(e))
-        print(e)
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "make_all_orders"
+        Explanation = "Some error occurred while placing orders to exchanges"
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
     return reqs, responses
 

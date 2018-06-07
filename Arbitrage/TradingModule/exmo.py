@@ -5,7 +5,10 @@ import time
 import urllib.parse
 import requests
 import json
+import os
+import datetime
 
+File = os.path.basename(__file__)
 
 TIMEOUT = 5
 
@@ -99,11 +102,25 @@ class EXMO(Exchange):
             try:
                 r = json.loads(response)
                 return r["balances"][currency]
-            except KeyError:
-                print("Exmo failed to response, balance of {} is unknown".format(currency))
+            except KeyError as e:
+                Time = datetime.datetime.utcnow()
+                EventType = "KeyError"
+                Function = "get_balance_from_response"
+                Explanation = "Exmo failed to response, balance of {} is unknown".format(currency)
+                EventText = e
+                ExceptionType = type(e)
+                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                    ExceptionType))
                 return 0.0
-            except:
-                print("Response from Exmo is not a valid json")
+            except Exception as e:
+                Time = datetime.datetime.utcnow()
+                EventType = "Error"
+                Function = "get_balance_from_response"
+                Explanation = "Response from Exmo is not a valid json"
+                EventText = e
+                ExceptionType = type(e)
+                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                    ExceptionType))
                 return 0.0
         else:
             return 0.0
@@ -115,13 +132,39 @@ class EXMO(Exchange):
             minlot1 = float(r[pair]["min_quantity"])
             minlot2 = float(r[pair]["min_amount"])
             return minlot1, minlot2
-        except requests.exceptions.Timeout:
-            print("Response from EXMO for currency_limits took too long")
-        except json.JSONDecodeError:
-            print("Response from EXMO for currency_limits has wrong JSON")
-        except KeyError:
-            print("Response from EXMO for currency_limits doesn't contain required fields")
+        except requests.exceptions.Timeout as e:
+            Time = datetime.datetime.utcnow()
+            EventType = "RequestsExceptionsTimeoutError"
+            Function = "get_min_lot"
+            Explanation = "Response from EXMO for currency_limits took too long"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
+        except json.JSONDecodeError as e:
+            Time = datetime.datetime.utcnow()
+            EventType = "JSONDecodeError"
+            Function = "get_min_lot"
+            Explanation = "Response from EXMO for currency_limits has wrong JSON"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
+        except KeyError as e:
+            Time = datetime.datetime.utcnow()
+            EventType = "KeyError"
+            Function = "get_min_lot"
+            Explanation = "Response from EXMO for currency_limits doesn't contain required fields"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
         except Exception as e:
-            print("Unable to get currency limits from EXMO")
-            print(type(e))
-            print(e)
+            Time = datetime.datetime.utcnow()
+            EventType = "Error"
+            Function = "get_min_lot"
+            Explanation = "Unable to get currency limits from EXMO"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
