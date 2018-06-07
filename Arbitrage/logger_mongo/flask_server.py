@@ -109,20 +109,23 @@ if __name__ == '__main__':
     # Initialization
     mongo_config = json.load(open('mongo_credentials.json'))
     mongo_path = mongo_config['auth_string']
-    client = pymongo.MongoClient(mongo_path)  # defaults to port 27017
     db_name = mongo_config['database']
-    db = client[db_name]
-    col_names = set(db.collection_names())
+    config_file = mongo_config['orders_config']
 
     # Logging to MongoDB
     trading_symbols = sorted(['bch_btc', 'bch_usd', 'dash_btc', 'eth_btc', 'btc_usd',
                               'xrp_btc', 'dash_usd', 'eth_usd', 'xrp_usd'])
     limit = 50
-    config_file = mongo_config['orders_config']
     for symbol in trading_symbols:
         p = Process(target=run_logger, args=(symbol, limit, config_file, mongo_path, db_name))
         p.start()
         time.sleep(0.3)
+    time.sleep(120)
+
+    # Connecting to database for server requests
+    client = pymongo.MongoClient(mongo_path)  # defaults to port 27017
+    db = client[db_name]
+    col_names = set(db.collection_names())
 
     # Flask logging
     logger = logging.getLogger('werkzeug')

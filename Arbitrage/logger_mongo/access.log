@@ -7,3 +7,84 @@
 127.0.0.1 - - [26/May/2018 16:57:45] "GET /?pair=btc_usd&top=0 HTTP/1.1" 200 -
 127.0.0.1 - - [26/May/2018 16:57:48] "GET /?pair=btc_usd&top=x HTTP/1.1" 400 -
  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+127.0.0.1 - - [07/Jun/2018 16:48:25] "GET / HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:48:25] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [07/Jun/2018 16:48:34] "GET / HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:48:53] "GET / HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:48:58] "GET / HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:49:10] "GET /get_pairs HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 16:49:15] "GET / HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:49:30] "GET /?pair=btc_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:49:55] "GET /?pair=btc_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:50:00] "GET /?pair=btc_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:50:33] "GET /?pair=btc_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:50:37] "GET /?pair HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:51:19] "GET /?pair HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:51:26] "GET /?pair=btc_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:51:27] "GET /?pair=btc_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:51:29] "GET /?pair=btc_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:51:41] "GET /?pair=bch_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:52:13] "GET /?pair=bch_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:52:13] "GET /?pair=bch_usd HTTP/1.1" 400 -
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+127.0.0.1 - - [07/Jun/2018 16:55:35] "GET / HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:55:43] "GET /?pair=bch_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:55:46] "GET /?pair=bch_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:55:51] "GET /?pair=btc_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 16:55:52] "GET /?pair=btc_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 16:55:55] "GET /?pair=btc_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 16:55:57] "GET /?pair=btc_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 16:56:02] "GET /?pair=bch_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:56:12] "GET /?pair=bch_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:56:20] "GET /?pair=bch_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:56:25] "GET /?pair=bch_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:56:40] "GET /?pair=eth_usd HTTP/1.1" 400 -
+192.168.1.107 - - [07/Jun/2018 16:57:51] "GET / HTTP/1.1" 400 -
+192.168.1.107 - - [07/Jun/2018 16:57:51] "GET /favicon.ico HTTP/1.1" 404 -
+192.168.1.107 - - [07/Jun/2018 16:57:55] "GET /?pair=btc_usd HTTP/1.1" 200 -
+192.168.1.107 - - [07/Jun/2018 16:58:00] "GET /?pair=bch_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:59:07] "GET /?pair=eth_usd HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 16:59:15] "GET /?pair=btc_usd HTTP/1.1" 200 -
+192.168.1.107 - - [07/Jun/2018 16:59:56] "GET /?pair=bch_usd HTTP/1.1" 400 -
+192.168.1.107 - - [07/Jun/2018 17:00:00] "GET /?pair=bch_btc HTTP/1.1" 400 -
+192.168.1.107 - - [07/Jun/2018 17:00:06] "GET /?pair=dash_btc HTTP/1.1" 400 -
+192.168.1.107 - - [07/Jun/2018 17:00:11] "GET /?pair=dash_usd HTTP/1.1" 400 -
+192.168.1.107 - - [07/Jun/2018 17:00:15] "GET /?pair=eth_btc HTTP/1.1" 400 -
+192.168.1.107 - - [07/Jun/2018 17:00:18] "GET /?pair=btc_usd HTTP/1.1" 200 -
+192.168.1.107 - - [07/Jun/2018 17:00:23] "GET /?pair=xrp_btc HTTP/1.1" 400 -
+192.168.1.107 - - [07/Jun/2018 17:00:29] "GET /?pair=xrp_usd HTTP/1.1" 400 -
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+127.0.0.1 - - [07/Jun/2018 17:09:31] "GET / HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 17:09:44] "GET / HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 17:09:45] "GET /?pair=btc_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 17:09:46] "GET /?pair=btc_usd HTTP/1.1" 200 -
+192.168.1.107 - - [07/Jun/2018 17:10:17] "GET /?pair=xrp_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 17:10:39] "GET /?pair=eth_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 17:10:40] "GET /?pair=eth_usd HTTP/1.1" 200 -
+192.168.1.107 - - [07/Jun/2018 17:10:53] "GET /?pair=bch_btc HTTP/1.1" 200 -
+192.168.1.107 - - [07/Jun/2018 17:10:56] "GET /?pair=bch_usd HTTP/1.1" 200 -
+192.168.1.107 - - [07/Jun/2018 17:11:00] "GET /?pair=btc_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 17:11:02] "GET /?pair=btc_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 17:11:02] "GET /?pair=btc_usd HTTP/1.1" 200 -
+192.168.1.107 - - [07/Jun/2018 17:12:03] "GET /?pair=btc_usd HTTP/1.1" 200 -
+192.168.1.107 - - [07/Jun/2018 17:14:47] "GET /?pair=bch_btc HTTP/1.1" 200 -
+192.168.1.107 - - [07/Jun/2018 17:14:51] "GET /?pair=bch_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 17:21:17] "GET /?pair=eth_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 17:21:20] "GET /?pair=eth_btc HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 17:21:40] "GET /?pair=eth_usd HTTP/1.1" 500 -
+127.0.0.1 - - [07/Jun/2018 17:21:53] "GET /?pair=eth_usd HTTP/1.1" 500 -
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+127.0.0.1 - - [07/Jun/2018 17:57:39] "GET / HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 17:57:43] "GET / HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 17:57:46] "GET /?pair=btc_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 17:57:46] "GET /?pair=btc_usd HTTP/1.1" 200 -
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+127.0.0.1 - - [07/Jun/2018 18:30:28] "GET / HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 18:30:32] "GET / HTTP/1.1" 400 -
+127.0.0.1 - - [07/Jun/2018 18:30:33] "GET /?pair=btc_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 18:30:33] "GET /?pair=btc_usd HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2018 18:41:10] "GET /?pair=btc_usd HTTP/1.1" 500 -
+127.0.0.1 - - [07/Jun/2018 18:41:11] "GET /favicon.ico HTTP/1.1" 404 -
