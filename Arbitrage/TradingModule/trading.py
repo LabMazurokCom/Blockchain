@@ -107,7 +107,6 @@ async def place_orders(pair, orders, exs, conf):
 
 def make_all_orders(pair, orders, exchs, conffile):
     """
-
     :param pair: name of pair to be traded
     :param orders: list of orders for pair in format {
                                                          'asks': [],
@@ -139,4 +138,3 @@ def make_all_orders(pair, orders, exchs, conffile):
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                             ExceptionType))
     return reqs, responses
-

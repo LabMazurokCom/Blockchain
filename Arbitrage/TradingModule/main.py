@@ -12,6 +12,18 @@ import os
 File = os.path.basename(__file__)
 
 def get_best(our_orders, total_balance):
+    """
+    chooses pair to be traded
+    :param our_orders: list of dictionaries with orders for all pairs in form our_orders[pair] = {
+                                                                                     'asks': [],
+                                                                                     'bids': [],
+                                                                                     'required_base_amount': float,
+                                                                                     'required_quote_amount': float,
+                                                                                     'profit': float
+                                                                                 }
+    :param total_balance: dictionary with total balance (sum of balances from all exchanges) for each currency
+    :return: name of best pair, and dictionary with orders for it
+    """
     best_coeff = 0.0
     best_pair = ''
     for pair in our_orders.keys():
@@ -27,6 +39,11 @@ def get_best(our_orders, total_balance):
 
 
 def get_json_from_file(file_path):
+    """
+    extracts JSON from given file
+    :param file_path: path to file
+    :return: content of file in json format
+    """
     try:
         return json.load(open(file_path))
     except FileNotFoundError as e:

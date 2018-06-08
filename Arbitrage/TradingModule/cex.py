@@ -15,6 +15,13 @@ TIMEOUT = 5
 class CEX(Exchange):
 
     def __init__(self, endpoint, api_key, api_secret, id):
+        """
+        constructor
+        :param endpoint: general address for api requests
+        :param api_key: account api key
+        :param api_secret: account api secret
+        :param id: account id
+        """
         self.endpoint = endpoint
         self.api_key = api_key
         self.api_secret = api_secret
@@ -22,11 +29,19 @@ class CEX(Exchange):
 
 
     def _get_headers(self):
+        """
+        generates headers for general api post request
+        :return: empty headers
+        """
 
         return {}
 
 
     def _get_data(self):
+        """
+        generates data to write to body of general api post request
+        :return: dictionary with data, containing api_key, signature and nonce
+        """
 
         nonce = int(round(time.time() * 1000))
 
@@ -46,6 +61,15 @@ class CEX(Exchange):
 
 
     def place_order(self, price, amount, pair, type, order_type):
+        """
+        generates url, headers and data to make api post request for placing order
+        :param price: price of order in quote value
+        :param amount: amount of order in base value
+        :param pair: trading pair
+        :param type: buy/sell
+        :param order_type: market/limit
+        :return: url, headers and data for post request
+        """
 
         headers = self._get_headers()
 
@@ -66,6 +90,11 @@ class CEX(Exchange):
 
 
     def cancel_order(self, order_id):
+        """
+        generates url, headers and data to make api post request for cancelling order
+        :param order_id: id of order to be cancelled
+        :return: url, headers and data to make api post request for cancelling order
+        """
 
         headers = self._get_headers()
 
@@ -78,6 +107,11 @@ class CEX(Exchange):
 
 
     def get_order_status(self, order_id):
+        """
+        is not used. to be written later
+        :param order_id:
+        :return:
+        """
 
         headers = self._get_headers()
 
@@ -100,6 +134,11 @@ class CEX(Exchange):
 
 
     def get_balance(self, currency=''):
+        """
+        generates url, headers and data
+        :param currency: is not used. it is needed for universal function signature
+        :return: url, headers and data for api post request to get list balances
+        """
 
         headers = self._get_headers()
 
@@ -111,6 +150,12 @@ class CEX(Exchange):
 
 
     def get_balance_from_response(self, response, currency):
+        """
+        handles json response from cex to get balance for given currency
+        :param response: json response from cex
+        :param currency: currency to get balance for
+        :return: float balance for given currency
+        """
         if response is not None:
             try:
                 r = json.loads(response)
@@ -140,6 +185,12 @@ class CEX(Exchange):
 
 
     def get_min_lot(self, pair):
+        """
+        gets minimum order volumes for base_currency and quote_currency of given pair
+        :param pair: pair to get minimum volumes for
+        :return: two floats - volume for base_currency and volume for quote_currency
+                 None if Cex didn't response or some other error occurred
+        """
         try:
             r = requests.get(self.endpoint + '/currency_limits', timeout=TIMEOUT).json()
             syms = pair.split('/')

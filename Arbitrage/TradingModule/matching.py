@@ -46,7 +46,6 @@ File = os.path.basename(__file__)
 
 def get_arb_opp(order_books, current_balance, alpha=0.1):
     """
-
     :param order_books: as example above
     :param current_balance: as example above
     :param alpha: heuristic parameter

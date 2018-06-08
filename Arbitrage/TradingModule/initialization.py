@@ -232,7 +232,6 @@ def get_urls(symbols, conf, limit):
                                                                                   },
                                                                          ...
                                                                       }
-
     """
     pairs = dict()
     for symbol in symbols:
