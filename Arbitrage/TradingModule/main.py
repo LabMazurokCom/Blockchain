@@ -105,7 +105,11 @@ for pair in pairs:
 
 counter = 0
 
+#balances = ini.get_balances(pairs, conffile)
+#pprint(balances)
 
+
+verbose = False
 with open('responses.txt', 'a') as respfile:
     # sys.stdout = respfile
     while True:
@@ -132,12 +136,12 @@ with open('responses.txt', 'a') as respfile:
 
             print('\t\tGetting order books, {}'.format(datetime.datetime.utcnow()))
             order_books = exchs_data.get_order_books(requests, limit, conffile)
-            #pprint(order_books)
+            pprint(order_books['btc_usd'])
 
             print('\t\tGenerating arbitrage orders, {}'.format(datetime.datetime.utcnow()))
             our_orders = matching.get_arb_opp(order_books, balances)
-            pprint(our_orders['btc_usd'])
-
+            pprint(our_orders)
+            '''
             print('\t\tChoosing best orders, {}'.format(datetime.datetime.utcnow()))
             best, orders = get_best(our_orders, total_balance)
 
@@ -151,13 +155,32 @@ with open('responses.txt', 'a') as respfile:
             print('\t\tMaking all orders, {}'.format(datetime.datetime.utcnow()))
 
             req, res = trading.make_all_orders(best, orders, exchs, conffile)
-            print(best) #,  file=respfile)
-            print(req) # , file=respfile)
-            print(res) #, end='\n\n', file=respfile)
-            # pprint(req)
-            # print()
-            # pprint(res)
-
+            Time = datetime.datetime.utcnow()
+            EventType = "BestOrdersChosen"
+            Function = "main while true"
+            Explanation = "Best opportunity chosen"
+            EventText = best
+            ExceptionType = None
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
+            Time = datetime.datetime.utcnow()
+            EventType = "RequestsForPlacingOrders"
+            Function = "main while true"
+            Explanation = "Orders generated"
+            EventText = req
+            ExceptionType = None
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
+            Time = datetime.datetime.utcnow()
+            EventType = "ResponsesAfterPlacingOrders"
+            Function = "main while true"
+            Explanation = "Exchanges respond to orders placed"
+            EventText = res
+            ExceptionType = None
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
+            '''
+            break
             print('\t\tGoing to sleep for 30 seconds, {}'.format(datetime.datetime.utcnow()))
             time.sleep(30)
         except Exception as e:
@@ -169,3 +192,5 @@ with open('responses.txt', 'a') as respfile:
             ExceptionType = type(e)
             print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                                 ExceptionType))
+
+
