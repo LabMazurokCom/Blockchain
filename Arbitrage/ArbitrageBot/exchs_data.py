@@ -6,8 +6,8 @@ import os
 
 File = os.path.basename(__file__)
 
-FETCH_TIMEOUT = 5  # number of seconds to wait
-MAX_ENTRIES = 200  # maximum allowed number of entries in DB
+FETCH_TIMEOUT = 10  # number of seconds to wait
+MAX_ENTRIES = 200   # maximum allowed number of entries in DB
 
 
 async def fetch(session, url, name, pair):
@@ -121,7 +121,7 @@ def process_responses(responses, conf, pairs, limit):
                 Time = datetime.datetime.utcnow()
                 EventType = "Error"
                 Function = "process_responses"
-                Explanation = "Some error occurred while parsing order books for {} from {}".format(pair, exch)
+                Explanation = "Some error occurred while parsing order books for {} from {}. Response text: {}".format(pair, exch, data)
                 EventText = e
                 ExceptionType = type(e)
                 print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
@@ -149,6 +149,18 @@ def process_responses(responses, conf, pairs, limit):
 
 
 def get_order_books(pairs, limit, conf):
+    """
+    makes loop for async requests
+    :param pairs: list of pairs to get order books for
+    :param limit: number of top orders in each order book
+    :param conf: JSONified configuration file
+    :return: order_books of the form {pair_name: {'orders': { 'asks': [[price, volume, exchange_name], ...],
+                                                              'bids': [[], ...]
+                                                            }
+                                                 },
+                                      ...
+                                     }
+    """
     try:
         loop = asyncio.get_event_loop()
         responses = loop.run_until_complete(collect_data(pairs))
@@ -156,7 +168,7 @@ def get_order_books(pairs, limit, conf):
     except Exception as e:
         Time = datetime.datetime.utcnow()
         EventType = "Error"
-        Function = "process_responses"
+        Function = "get_order_books"
         Explanation = "Exception in get_order_books() occurred"
         EventText = e
         ExceptionType = type(e)

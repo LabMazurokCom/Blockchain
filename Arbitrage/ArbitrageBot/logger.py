@@ -30,9 +30,8 @@ import copy
 FETCH_TIMEOUT = 5  # number of seconds to wait
 MAX_ENTRIES = 200  # maximum allowed number of entries in DB
 
-
-# cex = cex.CEX(cf.cex_endpoint, cf.cex_api_key, cf.cex_api_secret, cf.cex_id)
-# exmo = exmo.EXMO(cf.exmo_endpoint, cf.exmo_api_key, cf.exmo_api_secret)
+#cex = cex.CEX(cf.cex_endpoint, cf.cex_api_key, cf.cex_api_secret, cf.cex_id)
+#exmo = exmo.EXMO(cf.exmo_endpoint, cf.exmo_api_key, cf.exmo_api_secret)
 
 async def fetch(session, url, name, pair):
     """ GET request via aiohttp, returns JSON """
@@ -60,8 +59,8 @@ async def collect_data(pairs):
 
 def process_responses(responses, conf, syms, limit):
     order_books = dict()
-    # bids = []
-    # asks = []
+    #bids = []
+    #asks = []
     d = {
         'orders': {'bids': [], 'asks': []}
     }
@@ -72,7 +71,7 @@ def process_responses(responses, conf, syms, limit):
         order_books[sym] = copy.deepcopy(d)
 
     for response in responses:
-        # response format: exch_name, pair, data, time
+        #response format: exch_name, pair, data, time
         exch = response[0]
         pair = response[1]
         data = response[2]
@@ -96,28 +95,24 @@ def process_responses(responses, conf, syms, limit):
                     current_asks = current_asks[x]
                 # add current orders to bids and asks arrays
                 for i in range(min(limit, len(current_bids))):
-                    order_books[pair]['orders']['bids'].append(
-                        [float(current_bids[i][price_ix]), float(current_bids[i][volume_ix]), exch])
+                    order_books[pair]['orders']['bids'].append([float(current_bids[i][price_ix]), float(current_bids[i][volume_ix]), exch])
                 for i in range(min(limit, len(current_asks))):
-                    order_books[pair]['orders']['asks'].append(
-                        [float(current_asks[i][price_ix]), float(current_asks[i][volume_ix]), exch])
-                # tmp = {'ask': current_asks[0][price_ix], 'bid': current_bids[0][price_ix], 'exchange': exch}
-                # d['ticker'].append(tmp)
+                    order_books[pair]['orders']['asks'].append([float(current_asks[i][price_ix]), float(current_asks[i][volume_ix]), exch])
+                #tmp = {'ask': current_asks[0][price_ix], 'bid': current_bids[0][price_ix], 'exchange': exch}
+                #d['ticker'].append(tmp)
                 time_data[exch] = timestamp
             except:  # Some error occurred while parsing json response for current exchange
-                # tmp = {'ask': 0, 'bid': 0, 'exchange': exch}
-                # d['ticker'].append(tmp)
+                #tmp = {'ask': 0, 'bid': 0, 'exchange': exch}
+                #d['ticker'].append(tmp)
                 time_data[exch] = 'fields'
         else:  # Some error occurred while making HTTP request for current exchange
-            # tmp = {'ask': 0, 'bid': 0, 'exchange': exch}
-            # d['ticker'].append(tmp)
+            #tmp = {'ask': 0, 'bid': 0, 'exchange': exch}
+            #d['ticker'].append(tmp)
             time_data[exch] = timestamp
     for pair in order_books.keys():
         if len(order_books[pair]['orders']['bids']) > 0 and len(order_books[pair]['orders']['asks']) > 0:
-            order_books[pair]['orders']['bids'].sort(key=lambda triple: triple[0],
-                                                     reverse=True)  # bids sorted in descending order by price
-            order_books[pair]['orders']['asks'].sort(
-                key=lambda triple: triple[0])  # asks sorted in ascending order by price
+            order_books[pair]['orders']['bids'].sort(key=lambda triple: triple[0], reverse=True)  # bids sorted in descending order by price
+            order_books[pair]['orders']['asks'].sort(key=lambda triple: triple[0])  # asks sorted in ascending order by price
     return order_books, time_data
 
 
@@ -161,11 +156,11 @@ def make_logging_entry(order_books):
             current_profit = (bids[bx][0] - asks[ax][0]) * m
             profit += current_profit
             amount += asks[ax][0] * m
-            # profit_points.append(profit)
-            # amount_points.append(amount)
+            #profit_points.append(profit)
+            #amount_points.append(amount)
             bids[bx][1] -= m
             asks[ax][1] -= m
-            # trade_cnt += 1
+            #trade_cnt += 1
 
             num += 1
             if num == 1:
@@ -198,11 +193,11 @@ def make_logging_entry(order_books):
                 prev_amount = amount
                 prev_profit = profit
         '''
-
+        
         MOVE TO OTHER FUNCTION
-
+        
         **********************
-
+                
         keys_to_delete = []
         for x in bid_orders.keys():
             if bid_orders[x][1] < cur_limits[x][0]:
@@ -221,11 +216,11 @@ def make_logging_entry(order_books):
 
         d['profit'] = profit
         d['amount'] = amount
-        # d['trade_cnt'] = trade_cnt
+        #d['trade_cnt'] = trade_cnt
         d['optimal_point']['amount'] = optimal_amount
         d['optimal_point']['profit'] = optimal_profit
-        # d['amount_points'] = amount_points
-        # d['profit_points'] = profit_points
+        #d['amount_points'] = amount_points
+        #d['profit_points'] = profit_points
         d['orders']['bids'] = bid_orders
         d['orders']['asks'] = ask_orders
 
@@ -245,8 +240,9 @@ def collector(conf, pairs, limit, logfile, techfile, db):
     return timestamp, d
 
 
+
 def run():
-    # if __name__ == "__main__":
+#if __name__ == "__main__":
     # Parsing command line arguments
     '''
     parser = argparse.ArgumentParser(prog="python orders_logger.py",
@@ -264,6 +260,7 @@ def run():
     parser.add_argument('symbol',
                         help="currency pair")
     args = parser.parse_args()  # (['-l', '5', '-c', 'orders_config.json', 'eos_btc'])
+
     '''
     # Access to arguments' values: args.config, args.limit, args.symbol
 
@@ -321,8 +318,8 @@ def run():
             "serviceAccount": "test_firebase_config.json"
         }
 
-        logfile = 'log_' + 'all'  # symbol
-        techfile = 'tech_' + 'all'  # symbol
+        logfile = 'log_' + 'all' #symbol
+        techfile = 'tech_' + 'all' #symbol
         firebase = pyrebase.initialize_app(config)
         db = firebase.database()
         db.child(logfile).remove()
@@ -330,7 +327,7 @@ def run():
 
         last_keys = deque()
 
-        # while True:
+        #while True:
         try:
             firebase = pyrebase.initialize_app(config)
             db = firebase.database()
@@ -352,16 +349,16 @@ def run():
             ts, orders = collector(conf, pairs, limit, logfile, techfile, db)
             pprint(orders)
             last_keys.append(ts)
-            # if orders['profit']/orders['amount'] > best_orders['profit']/best_orders['amount']:
+            #if orders['profit']/orders['amount'] > best_orders['profit']/best_orders['amount']:
             #   best_orders = orders
             if len(last_keys) == MAX_ENTRIES + 1:
                 first_key = last_keys.popleft()
                 db.child(logfile).child(first_key).remove()
                 db.child(techfile).child(first_key).remove()
-            # return best_orders
+            #return best_orders
         except Exception as e:
             timestamp = int(time.time())
-            # db.child(techfile).child(timestamp).set({'error': str(e)})
+            #db.child(techfile).child(timestamp).set({'error': str(e)})
             print(timestamp)
             print(e)
 
@@ -377,6 +374,5 @@ def run():
         print("Error occurred on line {}, column {}".format(e.lineno, e.colno))
         print(e.msg)
         exit(1)
-
 
 run()

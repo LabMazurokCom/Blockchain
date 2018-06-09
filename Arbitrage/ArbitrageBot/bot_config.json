@@ -11,7 +11,6 @@
     "xrp_btc",
     "dash_usd",
     "eth_usd",
-    "xrp_usd",
-    "usdt_usd"
+    "xrp_usd"
   ]
 }

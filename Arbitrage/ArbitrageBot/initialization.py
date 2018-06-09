@@ -13,7 +13,7 @@ limits = {}
 exchs = {}
 responses = []
 
-FETCH_TIMEOUT = 5
+FETCH_TIMEOUT = 10
 
 File = os.path.basename(__file__)
 
@@ -232,7 +232,6 @@ def get_urls(symbols, conf, limit):
                                                                                   },
                                                                          ...
                                                                       }
-
     """
     pairs = dict()
     for symbol in symbols:
