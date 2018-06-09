@@ -6,8 +6,8 @@ import os
 
 File = os.path.basename(__file__)
 
-FETCH_TIMEOUT = 5  # number of seconds to wait
-MAX_ENTRIES = 200  # maximum allowed number of entries in DB
+FETCH_TIMEOUT = 10  # number of seconds to wait
+MAX_ENTRIES = 200   # maximum allowed number of entries in DB
 
 
 async def fetch(session, url, name, pair):
@@ -121,7 +121,7 @@ def process_responses(responses, conf, pairs, limit):
                 Time = datetime.datetime.utcnow()
                 EventType = "Error"
                 Function = "process_responses"
-                Explanation = "Some error occurred while parsing order books for {} from {}".format(pair, exch)
+                Explanation = "Some error occurred while parsing order books for {} from {}. Response text: {}".format(pair, exch, data)
                 EventText = e
                 ExceptionType = type(e)
                 print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,

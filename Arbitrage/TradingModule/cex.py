@@ -9,7 +9,7 @@ import datetime
 
 File = os.path.basename(__file__)
 
-TIMEOUT = 5
+TIMEOUT = 10
 
 
 class CEX(Exchange):

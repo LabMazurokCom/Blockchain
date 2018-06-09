@@ -6,7 +6,7 @@ File = os.path.basename(__file__)
 # order_books = {
 #     'btc_usd': {
 #         'orders': {
-#             'asks': [[price, volume, exchange_name], ...],
+#             'asks': [[price with fees, volume, exchange_name, original price], ...],
 #             'bids': [[], ...]
 #         }
 #     },
@@ -36,8 +36,8 @@ File = os.path.basename(__file__)
 
 
 #         our_orders[pair] = {
-#             'asks': [],
-#             'bids': [],
+#             'buy': [],
+#             'sell': [],
 #             'required_base_amount': float,
 #             'required_quote_amount': float,
 #             'profit': float

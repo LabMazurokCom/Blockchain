@@ -9,7 +9,15 @@ import trading
 import time
 import os
 
+
 File = os.path.basename(__file__)
+
+
+verbose = True
+logfile = open('log.txt', 'w')
+if not verbose:
+    sys.stdout = logfile
+
 
 def get_best(our_orders, total_balance):
     """
@@ -75,7 +83,7 @@ def get_json_from_file(file_path):
                                             ExceptionType))
 
 
-print('\t\tInitialization, {}'.format(datetime.datetime.utcnow()))
+#print('\t\tInitialization, {}'.format(datetime.datetime.utcnow()))
 botconf = get_json_from_file('bot_config.json')
 if botconf is None:
     exit(1)
@@ -109,88 +117,80 @@ counter = 0
 #pprint(balances)
 
 
-verbose = False
-with open('responses.txt', 'a') as respfile:
-    # sys.stdout = respfile
-    while True:
-        counter += 1
-        if counter == 100:
+while True:
+    counter += 1
+    if counter == 100:
+        if verbose:
             print('\t\tReinitialization, {}'.format(datetime.datetime.utcnow()))
-            exchs, minvolumes = ini.init(pairs, conffile, exchsfile)
-            requests = ini.get_urls(pairs, conffile, limit)
-            counter = 0
-            if len(exchs) <= 1:
-                time.sleep(60)
-                continue
-        try:
+        exchs, minvolumes = ini.init(pairs, conffile, exchsfile)
+        requests = ini.get_urls(pairs, conffile, limit)
+        counter = 0
+        if len(exchs) <= 1:
+            time.sleep(60)
+            continue
+    try:
+        if verbose:
             print('\t\tGetting balances, {}'.format(datetime.datetime.utcnow()))
-            balances = ini.get_balances(pairs, conffile)
-            #balances = {'binance': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'bitfinex': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'bitstamp': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'bittrex': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'cex': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.002, 'usdt': 0.0}, 'cryptopia': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'exmo': {'bch': 0.0, 'eth': 0.0, 'usd': 73.39, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'gdax': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'kraken': {'bch': 8.39e-06, 'eth': 3.06e-06, 'usd': 0.0, 'dash': 0.0, 'xrp': 3.86e-06, 'btc': 6.922e-06, 'usdt': 150.0}, 'kucoin': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}, 'poloniex': {'bch': 0.0, 'eth': 0.0, 'usd': 0.0, 'dash': 0.0, 'xrp': 0.0, 'btc': 0.0, 'usdt': 0.0}}
+        balances = ini.get_balances(pairs, conffile)
+        # pprint(balances)
 
-            #pprint(balances)
-            total_balance = {cur: 0 for cur in currency_list}
-            for cur in currency_list:
-                for exch in balances.keys():
-                    total_balance[cur] += balances[exch][cur]
+        total_balance = {cur: 0 for cur in currency_list}
+        for cur in currency_list:
+            for exch in balances.keys():
+                total_balance[cur] += balances[exch][cur]
 
-
+        if verbose:
             print('\t\tGetting order books, {}'.format(datetime.datetime.utcnow()))
-            order_books = exchs_data.get_order_books(requests, limit, conffile)
-            pprint(order_books['btc_usd'])
+        order_books = exchs_data.get_order_books(requests, limit, conffile)
+        # pprint(order_books['btc_usd'])
 
+        if verbose:
             print('\t\tGenerating arbitrage orders, {}'.format(datetime.datetime.utcnow()))
-            our_orders = matching.get_arb_opp(order_books, balances)
-            pprint(our_orders)
-            '''
+        our_orders = matching.get_arb_opp(order_books, balances)
+        #pprint(our_orders['btc_usd'])
+
+        if verbose:
             print('\t\tChoosing best orders, {}'.format(datetime.datetime.utcnow()))
-            best, orders = get_best(our_orders, total_balance)
+        best, orders = get_best(our_orders, total_balance)
 
+        if best is None or orders['profit'] < 0.0001:
+            if verbose:
+                print('\t\tNo good orders. Going to sleep for 30 seconds, {}'.format(datetime.datetime.utcnow()))
+            time.sleep(30)
+            continue
+        # print(best, orders)
+        # best = 'btc_usd'
+        # orders = {'required_base_amount': 0.01788522, 'required_quote_amount': 132.7579803399024, 'profit': 1.051173937182616, 'buy': {'exmo': [7409, 0.002]}, 'sell': {'cex': [7489, 0.002]}}
 
-            if best is None or orders['profit'] < 0.0001:
-                continue
-            # print(best, orders)
-            #best = 'btc_usd'
-            #orders = {'required_base_amount': 0.01788522, 'required_quote_amount': 132.7579803399024, 'profit': 1.051173937182616, 'buy': {'exmo': [7409, 0.002]}, 'sell': {'cex': [7489, 0.002]}}
-
+        if verbose:
             print('\t\tMaking all orders, {}'.format(datetime.datetime.utcnow()))
 
-            req, res = trading.make_all_orders(best, orders, exchs, conffile)
-            Time = datetime.datetime.utcnow()
-            EventType = "BestOrdersChosen"
-            Function = "main while true"
-            Explanation = "Best opportunity chosen"
-            EventText = best
-            ExceptionType = None
-            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
-                                                ExceptionType))
-            Time = datetime.datetime.utcnow()
-            EventType = "RequestsForPlacingOrders"
-            Function = "main while true"
-            Explanation = "Orders generated"
-            EventText = req
-            ExceptionType = None
-            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
-                                                ExceptionType))
-            Time = datetime.datetime.utcnow()
-            EventType = "ResponsesAfterPlacingOrders"
-            Function = "main while true"
-            Explanation = "Exchanges respond to orders placed"
-            EventText = res
-            ExceptionType = None
-            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
-                                                ExceptionType))
-            '''
-            break
+        req, res = trading.make_all_orders(best, orders, exchs, conffile)
+        Time = datetime.datetime.utcnow()
+        EventType = "RequestsForPlacingOrders"
+        Function = "main while true"
+        Explanation = "Orders generated"
+        EventText = req
+        ExceptionType = None
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
+        Time = datetime.datetime.utcnow()
+        EventType = "ResponsesAfterPlacingOrders"
+        Function = "main while true"
+        Explanation = "Exchanges respond to orders placed"
+        EventText = res
+        ExceptionType = None
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
+        if verbose:
             print('\t\tGoing to sleep for 30 seconds, {}'.format(datetime.datetime.utcnow()))
-            time.sleep(30)
-        except Exception as e:
-            Time = datetime.datetime.utcnow()
-            EventType = "Error"
-            Function = "main while true"
-            Explanation = "Something strange happens"
-            EventText = e
-            ExceptionType = type(e)
-            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
-                                                ExceptionType))
-
-
+        time.sleep(30)
+    except Exception as e:
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "main while true"
+        Explanation = "Something strange happens"
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
