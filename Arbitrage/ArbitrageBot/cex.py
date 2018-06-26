@@ -6,6 +6,7 @@ import requests
 import json
 import os
 import datetime
+import aiohttp
 
 File = os.path.basename(__file__)
 
@@ -68,7 +69,7 @@ class CEX(Exchange):
         :param pair: trading pair
         :param type: buy/sell
         :param order_type: market/limit
-        :return: url, headers and data for post request
+        :return: url, headers, data and auth for post request
         """
 
         headers = self._get_headers()
@@ -86,14 +87,14 @@ class CEX(Exchange):
 
         url = self.endpoint + '/place_order/{}/{}'.format(sym1, sym2)
 
-        return url, headers, data
+        return url, headers, data, aiohttp.BasicAuth('', '')
 
 
     def cancel_order(self, order_id):
         """
         generates url, headers and data to make api post request for cancelling order
         :param order_id: id of order to be cancelled
-        :return: url, headers and data to make api post request for cancelling order
+        :return: url, headers, data and auth to make api post request for cancelling order
         """
 
         headers = self._get_headers()
@@ -103,7 +104,7 @@ class CEX(Exchange):
 
         url = self.endpoint + '/cancel_order/'
 
-        return url, headers, data
+        return url, headers, data, aiohttp.BasicAuth('', '')
 
 
     def get_order_status(self, order_id):
@@ -137,7 +138,7 @@ class CEX(Exchange):
         """
         generates url, headers and data
         :param currency: is not used. it is needed for universal function signature
-        :return: url, headers and data for api post request to get list balances
+        :return: url, headers, data and auth for api post request to get list balances
         """
 
         headers = self._get_headers()
@@ -146,7 +147,7 @@ class CEX(Exchange):
 
         url = self.endpoint + '/balance/'
 
-        return url, headers, data
+        return url, headers, data, aiohttp.BasicAuth('', '')
 
 
     def get_balance_from_response(self, response, currency):

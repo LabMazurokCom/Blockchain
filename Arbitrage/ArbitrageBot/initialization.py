@@ -8,6 +8,7 @@ import datetime
 import os
 
 
+
 balances = {}
 limits = {}
 exchs = {}
@@ -99,7 +100,7 @@ def init(pairs, config, credentials):
         return {}, {}
 
 
-async def fetch(url, session, headers, data, exch):
+async def fetch(url, session, headers, data, exch, auth):
     """
     posts request for getting balance
     :param url: url path for getting balance
@@ -107,11 +108,12 @@ async def fetch(url, session, headers, data, exch):
     :param headers: headers of request for getting balance
     :param data: data of requests for getting balance
     :param exch: exchange name for placing order to
+    :param auth: authentication data
     :return: text of response from exchange
     """
     try:
         with async_timeout.timeout(FETCH_TIMEOUT):
-            async with session.post(url, headers=headers, data=data) as response:
+            async with session.post(url, headers=headers, data=data, auth=auth) as response:
                 return await response.text()
     except asyncio.TimeoutError as e:
         Time = datetime.datetime.utcnow()
@@ -142,8 +144,8 @@ async def get_bal():
     try:
         async with aiohttp.ClientSession() as session:
             for exch in exchs:
-                url, headers, data = exch.get_balance()
-                task = asyncio.ensure_future(fetch(url, session, headers, data, exch.__class__.__name__))
+                url, headers, data, auth = exch.get_balance()
+                task = asyncio.ensure_future(fetch(url, session, headers, data, exch.__class__.__name__, auth))
                 tasks.append(task)
             global responses
             responses = await asyncio.gather(*tasks)

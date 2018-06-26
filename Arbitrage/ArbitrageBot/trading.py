@@ -14,7 +14,7 @@ reqs = []
 FETCH_TIMEOUT = 5
 
 
-async def fetch(url, session, headers, data, key):
+async def fetch(url, session, headers, data, key, auth):
     """
     Sends POST request to make an order
     :param url: url path for placing order
@@ -22,12 +22,13 @@ async def fetch(url, session, headers, data, key):
     :param headers: headers of post request to place order
     :param data: data of post request to place order
     :param key: exchange name
+    :param auth: authentication data
     :return: exchange name, time of start and end of post request, response from exchange
     """
     try:
         with async_timeout.timeout(FETCH_TIMEOUT):
             start = time.time()
-            async with session.post(url, headers=headers, data=data) as response:
+            async with session.post(url, headers=headers, data=data, auth=auth) as response:
                 resp_text = await response.text()
                 return key, start, time.time(), resp_text
     except asyncio.TimeoutError as e:
@@ -73,14 +74,14 @@ async def place_orders(pair, orders, exs, conf):
         async with aiohttp.ClientSession() as session:
             try:
                 for key, value in orders['sell'].items():
-                    url, headers, data = exchs[key].place_order(str(value[0]), str(value[1]), conf[key]['converter'][pair], 'sell', 'limit')
+                    url, headers, data, auth = exchs[key].place_order(str(value[0]), str(value[1]), conf[key]['converter'][pair], 'sell', 'limit')
                     reqs.append([key, str(value[0]), str(value[1]), 'sell'])
-                    task = asyncio.ensure_future(fetch(url, session, headers, data, key))
+                    task = asyncio.ensure_future(fetch(url, session, headers, data, key, auth))
                     tasks.append(task)
                 for key, value in orders['buy'].items():
-                    url, headers, data = exchs[key].place_order(str(value[0]), str(value[1]), conf[key]['converter'][pair], 'buy', 'limit')
+                    url, headers, data, auth = exchs[key].place_order(str(value[0]), str(value[1]), conf[key]['converter'][pair], 'buy', 'limit')
                     reqs.append([key, str(value[0]), str(value[1]), 'buy'])
-                    task = asyncio.ensure_future(fetch(url, session, headers, data, key))
+                    task = asyncio.ensure_future(fetch(url, session, headers, data, key, auth))
                     tasks.append(task)
             except KeyError as e:
                 Time = datetime.datetime.utcnow()

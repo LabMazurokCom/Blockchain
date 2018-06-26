@@ -7,6 +7,7 @@ import requests
 import json
 import os
 import datetime
+import aiohttp
 
 File = os.path.basename(__file__)
 
@@ -55,7 +56,7 @@ class EXMO(Exchange):
         :param pair: trading pair
         :param type: buy/sell
         :param order_type: market/limit
-        :return: url, headers and data for api post request to place order
+        :return: url, headers, data and auth for api post request to place order
         """
         data = self._get_data()
         data["pair"] = pair
@@ -72,14 +73,14 @@ class EXMO(Exchange):
 
         url = self.endpoint + '/v1/order_create'
 
-        return url, headers, data
+        return url, headers, data, aiohttp.BasicAuth('', '')
 
 
     def cancel_order(self, order_id):
         """
         generates url, headers and data for api post request to cancel order
         :param order_id: id of order to be cancelled
-        :return: url, headers and data for api post request to cancel order
+        :return: url, headers, data and auth for api post request to cancel order
         """
         data = self._get_data()
         data["order_id"] = order_id
@@ -89,7 +90,7 @@ class EXMO(Exchange):
 
         url = self.endpoint + '/v1/order_cancel'
 
-        return url, headers, data
+        return url, headers, data, aiohttp.BasicAuth('', '')
 
 
     def get_order_status(self, order_id=''):
@@ -107,14 +108,14 @@ class EXMO(Exchange):
 
         #return status, was, remains
 
-        return url, headers, data
+        return url, headers, data, aiohttp.BasicAuth('', '')
 
 
     def get_balance(self, currency=''):
         """
         generates url, headers and data for api post requests to get list of balances
         :param currency: isn't used. it is needed for universal function signature
-        :return: url, headers and data for api post requests to get list of balances
+        :return: url, headers, data and auth for api post requests to get list of balances
         """
         data = self._get_data()
         data = urllib.parse.urlencode(data)
@@ -123,7 +124,7 @@ class EXMO(Exchange):
 
         url = self.endpoint + '/v1/user_info'
 
-        return url, headers, data
+        return url, headers, data, aiohttp.BasicAuth('', '')
 
     def get_balance_from_response(self, response, currency):
         """

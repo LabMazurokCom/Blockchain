@@ -7,6 +7,7 @@ import base64
 import os
 import datetime
 import json
+import aiohttp
 
 File = os.path.basename(__file__)
 
@@ -76,7 +77,7 @@ class Kraken(Exchange):
         :param pair: trading pair
         :param type: buy/sell
         :param order_type: market/limit
-        :return: url, headers and data for api post request to place order
+        :return: url, headers, data and auth for api post request to place order
         """
         data = self._get_data()
 
@@ -93,14 +94,14 @@ class Kraken(Exchange):
 
         url = self.endpoint + req
 
-        return url, headers, data
+        return url, headers, data, aiohttp.BasicAuth('', '')
 
 
     def cancel_order(self, order_id):
         """
         generates url, headers and data for api post request to cancel order
         :param order_id: id of order to be cancelled
-        :return: url, headers and data for api post request to cancel order
+        :return: url, headers, data and auth for api post request to cancel order
         """
         req = '/0/private/CancelOrder'
 
@@ -111,12 +112,12 @@ class Kraken(Exchange):
 
         url = self.endpoint + req
 
-        return url, headers, data
+        return url, headers, data, aiohttp.BasicAuth('', '')
 
 
     def get_order_status(self, order_id=''):
         """
-        isnt' used. to be writter later
+        isn't used. to be writter later
         :param order_id:
         :return:
         """
@@ -128,14 +129,14 @@ class Kraken(Exchange):
 
         url = self.endpoint + req
 
-        return url, headers, data
+        return url, headers, data, aiohttp.BasicAuth('', '')
 
 
     def get_balance(self, currency=''):
         """
         generates url, headers and data for api post requests to get list of balances
         :param currency: isn't used. it is needed for universal function signature
-        :return: url, headers and data for api post requests to get list of balances
+        :return: url, headers, data and auth for api post requests to get list of balances
         """
         req = '/0/private/Balance'
 
@@ -145,7 +146,7 @@ class Kraken(Exchange):
 
         url = self.endpoint + req
 
-        return url, headers, data
+        return url, headers, data, aiohttp.BasicAuth('', '')
 
 
     def get_balance_from_response(self, response, currency):
