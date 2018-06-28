@@ -1,0 +1,37 @@
+{
+  "auth_string": "auth_string could have been here",
+  "db_name": "order_books",
+  "inf": 1000000000,
+  "pairs": [
+    "btc_usd"
+  ],
+  "exchanges": [
+    {
+      "name": "cex",
+      "balance": {
+        "btc": -1
+      }
+    },
+    {
+      "name": "exmo",
+      "balance": {
+        "usd": -1
+      }
+    },
+    {
+      "name": "gdax",
+      "balance": {
+        "btc": 0.1,
+        "usd": 100
+      }
+    },
+    {
+      "name": "kraken",
+      "balance": {
+        "btc": 0.1,
+        "usd": 100
+      }
+    }
+  ],
+  "number_of_entries": 1000
+}
