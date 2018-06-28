@@ -43,6 +43,7 @@ def init(pairs, config, credentials):
         try:
             for e in exchs:
                 ename = e.__class__.__name__.lower()
+                e.get_all_min_lots()
                 limits[ename] = {}
                 for pair in pairs:
                     if pair in config[ename]['converter'].keys():

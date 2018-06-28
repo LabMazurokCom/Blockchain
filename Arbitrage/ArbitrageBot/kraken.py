@@ -117,7 +117,7 @@ class Kraken(Exchange):
 
     def get_order_status(self, order_id=''):
         """
-        isn't used. to be writter later
+        isn't used. to be written later
         :param order_id:
         :return:
         """
@@ -186,6 +186,11 @@ class Kraken(Exchange):
         else:
             return 0.0
 
+    def get_all_min_lots(self):
+        """
+        is needed to unify syntax
+        :return:
+        """
 
     def get_min_lot(self, pair):
         """

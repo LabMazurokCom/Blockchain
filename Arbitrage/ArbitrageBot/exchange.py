@@ -10,3 +10,4 @@ class Exchange:
         self.endpoint = endpoint
         self.api_key = api_key
         self.api_secret = api_secret
+        self.min_lots = {}

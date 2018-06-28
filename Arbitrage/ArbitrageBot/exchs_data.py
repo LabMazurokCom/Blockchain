@@ -85,7 +85,10 @@ def process_responses(responses, conf, pairs, limit):
     """
     order_books = dict()
     for pair in pairs.keys():
-        order_books[pair] = {'orders': {'asks': [], 'bids': []}}
+        order_books[pair] = {}
+
+    for response in responses:
+        order_books[response[1]][response[0]] = {"bids" : [], "asks" : []}
 
     for response in responses:
         exch = response[0]
@@ -112,11 +115,11 @@ def process_responses(responses, conf, pairs, limit):
 
                 # add current orders to bids and asks arrays
                 for i in range(min(limit, len(current_bids))):
-                    order_books[pair]['orders']['bids'].append(
-                        [float(current_bids[i][price_ix]), float(current_bids[i][volume_ix]), exch, float(current_bids[i][price_ix])])
+                    order_books[pair][exch]['bids'].append(
+                        [float(current_bids[i][price_ix]), float(current_bids[i][volume_ix]), float(current_bids[i][price_ix])])
                 for i in range(min(limit, len(current_asks))):
-                    order_books[pair]['orders']['asks'].append(
-                        [float(current_asks[i][price_ix]), float(current_asks[i][volume_ix]), exch, float(current_asks[i][price_ix])])
+                    order_books[pair][exch]['asks'].append(
+                        [float(current_asks[i][price_ix]), float(current_asks[i][volume_ix]), float(current_asks[i][price_ix])])
             except Exception as e:  # Some error occurred while parsing json response for current exchange
                 Time = datetime.datetime.utcnow()
                 EventType = "Error"
@@ -128,23 +131,24 @@ def process_responses(responses, conf, pairs, limit):
                                                     ExceptionType))
 
     for pair in order_books.keys():
-        for bid in order_books[pair]['orders']['bids']:
-            if 'fee' in conf[bid[2]].keys():
-                alpha = conf[bid[2]]['fee']
-            else:
-                alpha = 0.0
-            bid[0] *= (1 - alpha)
-        for ask in order_books[pair]['orders']['asks']:
-            if 'fee' in conf[ask[2]].keys():
-                alpha = conf[ask[2]]['fee']
-            else:
-                alpha = 0.0
-            ask[0] *= (1 + alpha)
-        if len(order_books[pair]['orders']['bids']) > 0 and len(order_books[pair]['orders']['asks']) > 0:
-            # bids sorted in descending order by price
-            order_books[pair]['orders']['bids'].sort(key=lambda quadriple: quadriple[0], reverse=True)
-            # asks sorted in ascending order by price
-            order_books[pair]['orders']['asks'].sort(key=lambda quadriple: quadriple[0])
+        for exch in order_books[pair].keys():
+            for bid in order_books[pair][exch]['bids']:
+                if 'fee' in conf[exch].keys():
+                    alpha = conf[exch]['fee']
+                else:
+                    alpha = 0.0
+                bid[0] *= (1 - alpha)
+            for ask in order_books[pair][exch]['asks']:
+                if 'fee' in conf[exch].keys():
+                    alpha = conf[exch]['fee']
+                else:
+                    alpha = 0.0
+                ask[0] *= (1 + alpha)
+        # if len(order_books[pair]['orders']['bids']) > 0 and len(order_books[pair]['orders']['asks']) > 0:
+        #     # bids sorted in descending order by price
+        #     order_books[pair]['orders']['bids'].sort(key=lambda quadriple: quadriple[0], reverse=True)
+        #     # asks sorted in ascending order by price
+        #     order_books[pair]['orders']['asks'].sort(key=lambda quadriple: quadriple[0])
     return order_books
 
 

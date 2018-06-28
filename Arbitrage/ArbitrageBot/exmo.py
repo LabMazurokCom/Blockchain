@@ -161,22 +161,19 @@ class EXMO(Exchange):
             return 0.0
 
 
-    def get_min_lot(self, pair):
+    def get_all_min_lots(self):
         """
-        gets minimum order volumes for base_currency and quote_currency of given pair
-        :param pair: pair to get minimum volumes for
-        :return: two floats - volume for base_currency and volume for quote_currency
-                 None if Exmo didn't response or some other error occurred
+        gets minimum order volumes for all tradable pairs
+        :return: None
         """
         try:
             r = requests.get(self.endpoint + '/v1/pair_settings', timeout=TIMEOUT).json()
-            minlot1 = float(r[pair]["min_quantity"])
-            minlot2 = float(r[pair]["min_amount"])
-            return minlot1, minlot2
+            for pair in r.keys():
+                self.min_lots[pair] = (r[pair]["min_quantity"], r[pair]["min_amount"])
         except requests.exceptions.Timeout as e:
             Time = datetime.datetime.utcnow()
             EventType = "RequestsExceptionsTimeoutError"
-            Function = "get_min_lot"
+            Function = "get_all_min_lots"
             Explanation = "Response from EXMO for currency_limits took too long"
             EventText = e
             ExceptionType = type(e)
@@ -185,17 +182,8 @@ class EXMO(Exchange):
         except json.JSONDecodeError as e:
             Time = datetime.datetime.utcnow()
             EventType = "JSONDecodeError"
-            Function = "get_min_lot"
+            Function = "get_all_min_lots"
             Explanation = "Response from EXMO for currency_limits has wrong JSON"
-            EventText = e
-            ExceptionType = type(e)
-            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
-                                                ExceptionType))
-        except KeyError as e:
-            Time = datetime.datetime.utcnow()
-            EventType = "KeyError"
-            Function = "get_min_lot"
-            Explanation = "Response from EXMO for currency_limits doesn't contain required fields"
             EventText = e
             ExceptionType = type(e)
             print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
@@ -203,8 +191,27 @@ class EXMO(Exchange):
         except Exception as e:
             Time = datetime.datetime.utcnow()
             EventType = "Error"
-            Function = "get_min_lot"
+            Function = "get_all_min_lots"
             Explanation = "Unable to get currency limits from EXMO"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
+
+    def get_min_lot(self, pair):
+        """
+        gets minimum order volumes for base_currency and quote_currency of given pair
+        :param pair: pair to get minimum volumes for
+        :return: two floats - volume for base_currency and volume for quote_currency
+                 None if Exmo didn't response or some other error occurred
+        """
+        try:
+            return self.min_lots[pair]
+        except KeyError as e:
+            Time = datetime.datetime.utcnow()
+            EventType = "KeyError"
+            Function = "get_min_lot"
+            Explanation = "Response from EXMO for currency_limits doesn't contain required fields"
             EventText = e
             ExceptionType = type(e)
             print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,

@@ -27,6 +27,7 @@ class CEX(Exchange):
         self.api_key = api_key
         self.api_secret = api_secret
         self.id = id
+        self.min_lots = {}
 
 
     def _get_headers(self):
@@ -185,32 +186,21 @@ class CEX(Exchange):
             return 0.0
 
 
-    def get_min_lot(self, pair):
+    def get_all_min_lots(self):
         """
-        gets minimum order volumes for base_currency and quote_currency of given pair
-        :param pair: pair to get minimum volumes for
-        :return: two floats - volume for base_currency and volume for quote_currency
-                 None if Cex didn't response or some other error occurred
+        gets minimum order volumes for all tradable pairs
+        :return: None
         """
         try:
             r = requests.get(self.endpoint + '/currency_limits', timeout=TIMEOUT).json()
-            syms = pair.split('/')
-            sym1 = syms[0]
-            sym2 = syms[1]
-            minlot1 = 0
-            minlot2 = 0
 
             for x in r["data"]["pairs"]:
-                if x["symbol1"] == sym1 and x["symbol2"] == sym2:
-                    minlot1 = float(x["minLotSize"])
-                    minlot2 = float(x["minLotSizeS2"])
-                    break
+                self.min_lots[x["symbol1"] + '/' + x["symbol2"]] = (float(x["minLotSize"]), float(x["minLotSizeS2"]))
 
-            return minlot1, minlot2
         except requests.exceptions.Timeout as e:
             Time = datetime.datetime.utcnow()
             EventType = "RequestsExceptionTimeoutError"
-            Function = "get_min_lot"
+            Function = "get_all_min_lots"
             Explanation = "Response from CEX for currency_limits took too long"
             EventText = e
             ExceptionType = type(e)
@@ -219,17 +209,8 @@ class CEX(Exchange):
         except json.JSONDecodeError as e:
             Time = datetime.datetime.utcnow()
             EventType = "JSONDecodeError"
-            Function = "get_min_lot"
+            Function = "get_all_min_lots"
             Explanation = "Response from CEX for currency_limits has wrong JSON"
-            EventText = e
-            ExceptionType = type(e)
-            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
-                                                ExceptionType))
-        except KeyError as e:
-            Time = datetime.datetime.utcnow()
-            EventType = "KeyError"
-            Function = "get_min_lot"
-            Explanation = "Response from CEX for currency_limits doesn't contain required fields"
             EventText = e
             ExceptionType = type(e)
             print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
@@ -237,8 +218,27 @@ class CEX(Exchange):
         except Exception as e:
             Time = datetime.datetime.utcnow()
             EventType = "Error"
-            Function = "get_min_lot"
+            Function = "get_all_min_lots"
             Explanation = "Unable to get currency limits from CEX"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
+
+    def get_min_lot(self, pair):
+        """
+        gets minimum order volumes for base_currency and quote_currency of given pair
+        :param pair: pair to get minimum volumes for
+        :return: two floats - volume for base_currency and volume for quote_currency
+                 None if Cex didn't response or some other error occurred
+        """
+        try:
+            return self.min_lots[pair]
+        except KeyError as e:
+            Time = datetime.datetime.utcnow()
+            EventType = "KeyError"
+            Function = "get_min_lot"
+            Explanation = "Response from CEX for currency_limits doesn't contain required fields"
             EventText = e
             ExceptionType = type(e)
             print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,

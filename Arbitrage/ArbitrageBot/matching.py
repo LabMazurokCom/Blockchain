@@ -78,8 +78,8 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
         prev_profit = 0
         prev_quote_amount = 0
 
-        ask_price_real = asks[ax][3]
-        bid_price_real = bids[bx][3]
+        ask_price_real = asks[ax][2]
+        bid_price_real = bids[bx][2]
 
         while bx < bid_count and ax < ask_count and bids[bx][0] > asks[ax][0]:
             ask_price = asks[ax][0]
@@ -100,8 +100,8 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
                 bx += 1
                 continue
 
-            ask_exch = asks[ax][2]  # BID: base -> quote
-            bid_exch = bids[bx][2]  # ASK: quote -> base
+            ask_exch = asks[ax][3]  # BID: base -> quote
+            bid_exch = bids[bx][3]  # ASK: quote -> base
 
             ask_bal = current_balance[ask_exch][quote_cur]
             bid_bal = current_balance[bid_exch][base_cur]
