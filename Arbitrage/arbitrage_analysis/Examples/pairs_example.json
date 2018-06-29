@@ -1,0 +1,44 @@
+{
+    "bch_btc": {
+        "names": [
+            "cex",
+            "kraken",
+            "exmo",
+            "gdax"
+        ],
+        "urls": [
+            "https://cex.io/api/order_book/BCH/BTC/?depth=3",
+            "https://api.kraken.com/0/public/Depth?pair=BCHXBT&count=3",
+            "https://api.exmo.com/v1/order_book/?pair=BCH_BTC&limit=3",
+            "https://api.gdax.com/products/BCH-BTC/book?level=2"
+        ]
+    },
+    "bch_usd": {
+        "names": [
+            "cex",
+            "kraken",
+            "exmo",
+            "gdax"
+        ],
+        "urls": [
+            "https://cex.io/api/order_book/BCH/USD/?depth=3",
+            "https://api.kraken.com/0/public/Depth?pair=BCHUSD&count=3",
+            "https://api.exmo.com/v1/order_book/?pair=BCH_USD&limit=3",
+            "https://api.gdax.com/products/BCH-USD/book?level=2"
+        ]
+    },
+    "btc_usd": {
+        "names": [
+            "cex",
+            "kraken",
+            "exmo",
+            "gdax"
+        ],
+        "urls": [
+            "https://cex.io/api/order_book/BTC/USD/?depth=3",
+            "https://api.kraken.com/0/public/Depth?pair=XXBTZUSD&count=3",
+            "https://api.exmo.com/v1/order_book/?pair=BTC_USD&limit=3",
+            "https://api.gdax.com/products/BTC-USD/book?level=2"
+        ]
+    }
+}
