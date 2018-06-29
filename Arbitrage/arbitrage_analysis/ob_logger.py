@@ -30,7 +30,7 @@ def mini_logger(symbol, conf, limit, auth_string, db_name):
             time.sleep(MIN_TIME - time_taken)
 
 
-mongo_config = json.load(open('mongo_config.json'))
+mongo_config = json.load(open('logger_config.json'))
 
 conf = json.load(open(mongo_config['orders_config']))
 limit = mongo_config['limit']
