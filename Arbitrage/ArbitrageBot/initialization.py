@@ -1,6 +1,7 @@
 from cex import CEX
 from exmo import EXMO
 from kraken import Kraken
+from gdax import Gdax
 import aiohttp
 import asyncio
 import async_timeout
@@ -37,8 +38,9 @@ def init(pairs, config, credentials):
         cex = CEX(credentials['cex_endpoint'], credentials['cex_api_key'], credentials['cex_api_secret'], credentials['cex_id'])
         exmo = EXMO(credentials['exmo_endpoint'], credentials['exmo_api_key'], credentials['exmo_api_secret'])
         kraken = Kraken(credentials['kraken_endpoint'], credentials['kraken_api_key'], credentials['kraken_api_secret'])
+        gdax = Gdax(credentials['gdax_endpoint'], credentials['gdax_api_key'], credentials['gdax_api_secret'], credentials['gdax_passphrase'])
         global exchs
-        exchs = {cex, exmo, kraken}
+        exchs = {cex, exmo, gdax, kraken}
         bad_exchs = set()
         try:
             for e in exchs:
@@ -114,8 +116,12 @@ async def fetch(url, session, headers, data, exch, auth):
     """
     try:
         with async_timeout.timeout(FETCH_TIMEOUT):
-            async with session.post(url, headers=headers, data=data, auth=auth) as response:
-                return await response.text()
+            if exch == "Gdax":
+                async with session.get(url, headers=headers, data=data, auth=auth) as response:
+                    return await response.text()
+            else:
+                async with session.post(url, headers=headers, data=data, auth=auth) as response:
+                    return await response.text()
     except asyncio.TimeoutError as e:
         Time = datetime.datetime.utcnow()
         EventType = "Error"
