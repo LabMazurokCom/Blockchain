@@ -35,6 +35,7 @@ def arbitrage_analysis(config_file='arbitrage_analysis_config.json'):
             print('\t# Connecting to Mongo')
             client = pymongo.MongoClient(auth_string)  # defaults to port 27017
             db = client[db_name]
+            #db = client['arbitrage_logs']
             print(db.collection_names())
 
             # print('\t# Getting data from Mongo')

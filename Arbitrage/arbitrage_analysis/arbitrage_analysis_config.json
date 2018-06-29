@@ -1,5 +1,5 @@
 {
-  "auth_string": "auth_string could have been here",
+  "auth_string": "auth_string will go here",
   "db_name": "order_books",
   "inf": 1000000000,
   "pairs": [
