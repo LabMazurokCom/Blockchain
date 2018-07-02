@@ -14,7 +14,6 @@ def mini_logger(symbol, conf, limit, auth_string, db_name):
     print("I've started: {}".format(symbol))
 
     client = pymongo.MongoClient(auth_string)  # defaults to port 27017
-    client.drop_database(db_name)
     db = client[db_name]
 
     pairs = get_pairs([symbol], conf, limit)
