@@ -1,0 +1,26 @@
+{
+    "xrp_btc": {
+        "buy": {},
+        "profit": 0,
+        "required_base_amount": 0,
+        "required_quote_amount": 0,
+        "sell": {}
+    },
+    "xrp_usd": {
+        "buy": {
+            "exmo": [
+                0.4528,
+                249.47349411
+            ]
+        },
+        "profit": 0.16273242850339395,
+        "required_base_amount": 249.47349411,
+        "required_quote_amount": 113.18835619718385,
+        "sell": {
+            "cex": [
+                0.4555,
+                249.47349411
+            ]
+        }
+    }
+}
