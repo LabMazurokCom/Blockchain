@@ -395,6 +395,30 @@ def get_order_books(pairs, conf, limit):
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
 
 
+# def save_to_mongo(data, db):
+#     """
+#     Saves data (see example at the beginning of this file) to MongoDB:
+#         (*) separate collections for different pairs
+#         (*) separate documents for different exchanges
+#         (*) all documents are of the form
+#             {exchange_name: string, timestamp: UNIX_timestamp, asks: array, bids: array}
+#     :param data: see example at the beginning of this file
+#     :param auth_string: MongoDB authentication string
+#     :param db_name: which database to use
+#     :param overwrite: if True then overwrites database
+#     :return: None
+#     """
+#     for pair in data:
+#         col = db['ob_' + pair]
+#         for exch in data[pair]:
+#             d = dict()
+#             d['asks'] = data[pair][exch]['asks']
+#             d['bids'] = data[pair][exch]['bids']
+#             d['exch'] = exch
+#             d['timestamp'] = time.time()
+#             col.insert_one(d)
+
+
 def save_to_mongo(data, db):
     """
     Saves data (see example at the beginning of this file) to MongoDB:
@@ -410,13 +434,10 @@ def save_to_mongo(data, db):
     """
     for pair in data:
         col = db['ob_' + pair]
-        for exch in data[pair]:
-            d = dict()
-            d['asks'] = data[pair][exch]['asks']
-            d['bids'] = data[pair][exch]['bids']
-            d['exch'] = exch
-            d['timestamp'] = time.time()
-            col.insert_one(d)
+        d = dict()
+        d['timestamp'] = time.time()
+        d['data'] = data[pair]
+        col.insert_one(d)
 
 
 def get_arb_opp(order_books, current_balance, alpha=0.1, copy_balance=False):
