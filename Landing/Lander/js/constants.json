@@ -1,8 +1,8 @@
 {
   "address": [
-    "https://arb-log.firebaseio.com/log_btc_usd.json?orderBy=%22$key%22&limitToLast=1",
-    "https://arb-log.firebaseio.com/log_eth_usd.json?orderBy=%22$key%22&limitToLast=1",
-    "https://arb-log.firebaseio.com/log_xrp_usd.json?orderBy=%22$key%22&limitToLast=1"
+    "logger_with_fee.py?symbol=btc_usd",
+    "logger_with_fee.py?symbol=eth_usd",
+    "logger_with_fee.py?symbol=xrp_usd"
   ],
   "cripto_currencies": [
     "BTC", "ETH"
