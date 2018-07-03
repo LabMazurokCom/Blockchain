@@ -1,0 +1,65 @@
+{
+  "auth_string": "mongodb://admin:415096396771@40.121.22.249/admin",
+  "db_name": "order_books",
+  "inf": 1000000000,
+  "pair": "btc_usd",
+  "exchanges": [
+    {
+      "name": "bitfinex",
+      "balance": {
+        "btc": 2,
+        "usd": 10000
+      }
+    },
+    {
+      "name": "bitstamp",
+      "balance": {
+        "btc": 2,
+        "usd": 10000
+      }
+    },
+    {
+      "name": "cex",
+      "balance": {
+        "btc": 2,
+        "usd": 10000
+      }
+    },
+    {
+      "name": "exmo",
+      "balance": {
+        "btc": 2,
+        "usd": 10000
+      }
+    },
+    {
+      "name": "gdax",
+      "balance": {
+        "btc": 2,
+        "usd": 10000
+      }
+    },
+    {
+      "name": "kraken",
+      "balance": {
+        "btc": 2,
+        "usd": 10000
+      }
+    },
+    {
+      "name": "lakebtc",
+      "balance": {
+        "btc": 2,
+        "usd": 10000
+      }
+    },
+    {
+      "name": "livecoin",
+      "balance": {
+        "btc": 2,
+        "usd": 10000
+      }
+    }
+  ],
+  "number_of_entries": 1000
+}
