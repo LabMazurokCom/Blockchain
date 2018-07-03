@@ -8,15 +8,16 @@ from pprint import pprint
 import trading
 import time
 import os
+import random
 
 
 File = os.path.basename(__file__)
 
 
 verbose = True
-logfile = open('log.txt', 'w')
-if not verbose:
-    sys.stdout = logfile
+logfile = open('log.txt', 'a')
+old_stdout = sys.stdout
+sys.stdout = logfile
 
 
 def get_best(our_orders, total_balance):
@@ -82,8 +83,10 @@ def get_json_from_file(file_path):
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                             ExceptionType))
 
-
-#print('\t\tInitialization, {}'.format(datetime.datetime.utcnow()))
+if verbose:
+    sys.stdout = old_stdout
+    print('\t\tInitialization, {}'.format(datetime.datetime.utcnow()))
+    sys.stdout = logfile
 botconf = get_json_from_file('bot_config.json')
 if botconf is None:
     exit(1)
@@ -102,6 +105,7 @@ except KeyError as e:
     print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                         ExceptionType))
     exit(1)
+
 exchs, minvolumes = ini.init(pairs, conffile, exchsfile)
 requests = ini.get_urls(pairs, conffile, limit)
 
@@ -110,18 +114,27 @@ for pair in pairs:
     for cur in pair.split('_'):
         currency_list.add(cur)
 
-
 counter = 0
 
-#balances = ini.get_balances(pairs, conffile)
-#pprint(balances)
+balances = ini.get_balances(pairs, conffile)
+
+# pprint(balances)
+
+# for exch in exchs:
+#     if exch.__class__.__name__.lower() == "gdax":
+#         url, headers, data, auth = exch.place_order("0.01263", "0.75", "LTC-BTC", "sell", "limit")
+#         r = requests.post(url, headers=headers, data=data, auth=auth)
+#         print(r.text)
+
 
 
 while True:
     counter += 1
     if counter == 100:
         if verbose:
+            sys.stdout = old_stdout
             print('\t\tReinitialization, {}'.format(datetime.datetime.utcnow()))
+            sys.stdout = logfile
         exchs, minvolumes = ini.init(pairs, conffile, exchsfile)
         requests = ini.get_urls(pairs, conffile, limit)
         counter = 0
@@ -130,32 +143,40 @@ while True:
             continue
     try:
         if verbose:
+            sys.stdout = old_stdout
             print('\t\tGetting balances, {}'.format(datetime.datetime.utcnow()))
+            sys.stdout = logfile
         balances = ini.get_balances(pairs, conffile)
-        # pprint(balances)
-
         total_balance = {cur: 0 for cur in currency_list}
         for cur in currency_list:
             for exch in balances.keys():
                 total_balance[cur] += balances[exch][cur]
 
         if verbose:
+            sys.stdout = old_stdout
             print('\t\tGetting order books, {}'.format(datetime.datetime.utcnow()))
+            sys.stdout = logfile
         order_books = exchs_data.get_order_books(requests, limit, conffile)
-        # pprint(order_books['btc_usd'])
-
+        order_books = matching.join_and_sort(order_books)
+        #pprint(order_books)
         if verbose:
+            sys.stdout = old_stdout
             print('\t\tGenerating arbitrage orders, {}'.format(datetime.datetime.utcnow()))
+            sys.stdout = logfile
         our_orders = matching.get_arb_opp(order_books, balances)
-        #pprint(our_orders['btc_usd'])
-
+        #pprint(balances)
+        #pprint(our_orders)
         if verbose:
+            sys.stdout = old_stdout
             print('\t\tChoosing best orders, {}'.format(datetime.datetime.utcnow()))
+            sys.stdout = logfile
         best, orders = get_best(our_orders, total_balance)
 
         if best is None or orders['profit'] < 0.0001:
             if verbose:
-                print('\t\tNo good orders. Going to sleep for 30 seconds, {}'.format(datetime.datetime.utcnow()))
+                sys.stdout = old_stdout
+                print('\t\tNo good orders. Going to sleep for 30 seconds, {}\n'.format(datetime.datetime.utcnow()))
+                sys.stdout = logfile
             time.sleep(30)
             continue
         # print(best, orders)
@@ -163,7 +184,10 @@ while True:
         # orders = {'required_base_amount': 0.01788522, 'required_quote_amount': 132.7579803399024, 'profit': 1.051173937182616, 'buy': {'exmo': [7409, 0.002]}, 'sell': {'cex': [7489, 0.002]}}
 
         if verbose:
+            sys.stdout = old_stdout
             print('\t\tMaking all orders, {}'.format(datetime.datetime.utcnow()))
+            pprint(best)
+            sys.stdout = logfile
 
         req, res = trading.make_all_orders(best, orders, exchs, conffile)
         Time = datetime.datetime.utcnow()
@@ -183,7 +207,9 @@ while True:
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                             ExceptionType))
         if verbose:
-            print('\t\tGoing to sleep for 30 seconds, {}'.format(datetime.datetime.utcnow()))
+            sys.stdout = old_stdout
+            print('\t\tGoing to sleep for 30 seconds, {}\n'.format(datetime.datetime.utcnow()))
+            sys.stdout = logfile
         time.sleep(30)
     except Exception as e:
         Time = datetime.datetime.utcnow()
@@ -194,3 +220,5 @@ while True:
         ExceptionType = type(e)
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                             ExceptionType))
+
+

@@ -43,6 +43,40 @@ File = os.path.basename(__file__)
 #             'profit': float
 #         }
 
+def _join_and_sort(data_pair, order_type):
+    """
+    See join_and_sort
+    :param data_pair: dictionary, data[pair] (see example at the beginning of this file)
+    :return: sorted array
+    """
+    ans = []
+    for exch in data_pair:
+        for order in data_pair[exch][order_type]:
+            order.append(exch)
+            ans.append(order)
+    if order_type == 'bids':
+        ans.sort(key=lambda quad: quad[0], reverse=True)   # bids sorted in descending order by price
+    else:
+        ans.sort(key=lambda quad: quad[0])                 # asks sorted in ascending order by price
+    return ans
+
+def join_and_sort(data):
+    """
+    Processes *data* object:
+        (*) transforms all orders from
+                [price_with_fee, volume, original_price]
+            to
+                [price_with_fee, volume, original_price, exchange]
+        (*) joins all asks/bids into one sorted order_book
+    :param data: see example at the beginning of this file
+    :return: order_books (see example at the beginning of this file)
+    """
+    ans = dict()
+    for pair in data:
+        ans[pair] = dict()
+        ans[pair]['asks'] = _join_and_sort(data[pair], 'asks')
+        ans[pair]['bids'] = _join_and_sort(data[pair], 'bids')
+    return ans
 
 def get_arb_opp(order_books, current_balance, alpha=0.1):
     """
@@ -62,8 +96,8 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
 
         ax = 0
         bx = 0
-        asks = order_books[pair]['orders']['asks']
-        bids = order_books[pair]['orders']['bids']
+        asks = order_books[pair]['asks']
+        bids = order_books[pair]['bids']
         ask_count = len(asks)
         bid_count = len(bids)
 
@@ -78,8 +112,6 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
         prev_profit = 0
         prev_quote_amount = 0
 
-        ask_price_real = asks[ax][2]
-        bid_price_real = bids[bx][2]
 
         while bx < bid_count and ax < ask_count and bids[bx][0] > asks[ax][0]:
             ask_price = asks[ax][0]
@@ -99,6 +131,9 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
             if bid_vol == 0:
                 bx += 1
                 continue
+
+            ask_price_real = asks[ax][2]
+            bid_price_real = bids[bx][2]
 
             ask_exch = asks[ax][3]  # BID: base -> quote
             bid_exch = bids[bx][3]  # ASK: quote -> base
@@ -207,3 +242,5 @@ def get_arb_opp(order_books, current_balance, alpha=0.1):
         # print(buy_orders)
         # print(sell_orders)
     return our_orders
+
+

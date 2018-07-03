@@ -74,13 +74,19 @@ async def place_orders(pair, orders, exs, conf):
         async with aiohttp.ClientSession() as session:
             try:
                 for key, value in orders['sell'].items():
-                    url, headers, data, auth = exchs[key].place_order(str(value[0]), str(value[1]), conf[key]['converter'][pair], 'sell', 'limit')
-                    reqs.append([key, str(value[0]), str(value[1]), 'sell'])
+                    tmp = str(value[1])
+                    pos = tmp.find('.')
+                    tmp = tmp[:pos+9]
+                    url, headers, data, auth = exchs[key].place_order(str(value[0]), tmp, conf[key]['converter'][pair], 'sell', 'limit')
+                    reqs.append([key, str(value[0]), tmp, 'sell'])
                     task = asyncio.ensure_future(fetch(url, session, headers, data, key, auth))
                     tasks.append(task)
                 for key, value in orders['buy'].items():
-                    url, headers, data, auth = exchs[key].place_order(str(value[0]), str(value[1]), conf[key]['converter'][pair], 'buy', 'limit')
-                    reqs.append([key, str(value[0]), str(value[1]), 'buy'])
+                    tmp = str(value[1])
+                    pos = tmp.find('.')
+                    tmp = tmp[:pos + 9]
+                    url, headers, data, auth = exchs[key].place_order(str(value[0]), tmp, conf[key]['converter'][pair], 'buy', 'limit')
+                    reqs.append([key, str(value[0]), tmp, 'buy'])
                     task = asyncio.ensure_future(fetch(url, session, headers, data, key, auth))
                     tasks.append(task)
             except KeyError as e:

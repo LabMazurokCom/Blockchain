@@ -3,6 +3,9 @@
   "config_file": "orders_config.json",
   "exchs_credentials": "exchs_credentials.json",
   "symbols": [
+    "btc_usd"
+  ],
+  "symbols_1": [
     "bch_btc",
     "bch_usd",
     "dash_btc",
@@ -11,6 +14,7 @@
     "xrp_btc",
     "dash_usd",
     "eth_usd",
-    "xrp_usd"
+    "xrp_usd",
+    "ltc_usd"
   ]
 }
