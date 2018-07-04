@@ -12,7 +12,7 @@
 
   "TEMPLATE_ERR": [
     "<ul class='list-unstyled pricing-table active text-center'>",
-    "<li class='headline'><h5 class='white'>{currency.first}/{currency.second}</h5></li>",
+    "<li class='headline'><h5 class='white'>{currency.first}/{currency.second} on {currentTime}</h5></li>",
     "<li class='price'>No arbitrage</li>",
     "<li id = 'progress_btn{id}' class='features last btn btn-secondary btn-wide' onclick = 'prepare_progress_bar(document.getElementById(\"progress_btn{id}\"), {id}), update_one_pair({id});'><a>Get Started</a></li>",
     "</ul>"

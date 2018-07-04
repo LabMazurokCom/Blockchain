@@ -311,6 +311,4 @@ args = sys.argv;
 print(args, args[1], args[2])
 config_file = 'orders_config.json'
 logfile = args[1] + '.json'
-print(time.time() - os.path.getmtime(logfile))
-if time.time() - os.path.getmtime(logfile) > FETCH_TIMEOUT:
-    run_logger(args[1], int(args[2]), config_file)
+run_logger(args[1], int(args[2]), config_file)

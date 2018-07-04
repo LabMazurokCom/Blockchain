@@ -140,15 +140,9 @@ function update_one_pair(id_num) {
 
 function update() {
 
-  try {
-    console.log("i am in update");
-    let flag = false;
-    readFromServer("call_python.php", function(text) {
-      flag = true;
-    });
-
+  console.log("i am in update");
+  let secondCall = function() {
     for (let i = 0; i < currency.length; i++) {
-
       let symbol = currency[i][0].toLowerCase() + '_' + currency[i][1].toLowerCase();
       console.log(symbol);
 
@@ -158,9 +152,11 @@ function update() {
         showTicker(i, currency[i], data[symbol]);
       });
     }
-  } catch (e) {
-    console.log(e);
-  }
+  };
+
+  readFromServer("call_python.php", function(text) {})
+    .then(secondCall, secondCall)
+    .catch(console.log);
 
 }
 
@@ -183,7 +179,7 @@ function showTicker(id, currency, data) {
     }
   }
 
-  let currentTime = new Date();
+  let currentTime = new Date(data['timestamp']);
   currentTime = currentTime.toString().split(' ')[4];
 
   maxBid = fixMode(currency[1], maxBid);
@@ -197,6 +193,7 @@ function showTicker(id, currency, data) {
     console.log("There is no arbitrage");
     let resObj = {
       'id': id,
+      'currentTime': currentTime,
       'currency.first': currency[0],
       'currency.second': currency[1]
     };
