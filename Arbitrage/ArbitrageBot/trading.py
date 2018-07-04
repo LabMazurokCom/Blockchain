@@ -112,6 +112,20 @@ async def place_orders(pair, orders, exs, conf):
                                             ExceptionType))
 
 
+def filter_orders(pair, orders, minvolumes):
+    final_orders = {"buy": {}, "sell": {}, "profit": orders["profit"],
+                    "required_base_amount": orders["required_base_amount"],
+                    "required_quote_amount": orders["required_quote_amount"]}
+    for exch in orders["buy"].keys():
+        if orders["buy"][exch][1] >= minvolumes[exch][pair][0]:
+            final_orders["buy"][exch] = orders["buy"][exch]
+    for exch in orders["sell"].keys():
+        if orders["sell"][exch][1] >= minvolumes[exch][pair][0]:
+            final_orders["sell"][exch] = orders["sell"][exch]
+    return final_orders
+
+
+
 def make_all_orders(pair, orders, exchs, conffile):
     """
     :param pair: name of pair to be traded
