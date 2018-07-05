@@ -1,6 +1,14 @@
 {
+  "auth_string": mongo_auth_string,
+  "database": "order_books_bot",
   "limit": 50,
   "config_file": "orders_config.json",
+  "exchanges": [
+    "cex",
+    "exmo",
+    "gdax",
+    "kraken"
+  ],
   "exchs_credentials": "exchs_credentials.json",
   "symbols": [
     "btc_usd"
