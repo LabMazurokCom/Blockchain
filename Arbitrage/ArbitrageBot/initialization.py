@@ -8,18 +8,16 @@ import async_timeout
 import datetime
 import os
 
-
-
 balances = {}
 limits = {}
-exchs = {}
+exchs = set()
 responses = []
 
 FETCH_TIMEOUT = 10
 
 File = os.path.basename(__file__)
 
-def init(pairs, config, credentials):
+def init(pairs, config, credentials, exchanges_names):
     """
     :param pairs: list of pairs to be monitored
     :param config: dict with data about pairs, currencies and API of exchanges
@@ -39,8 +37,16 @@ def init(pairs, config, credentials):
         exmo = EXMO(credentials['exmo_endpoint'], credentials['exmo_api_key'], credentials['exmo_api_secret'])
         kraken = Kraken(credentials['kraken_endpoint'], credentials['kraken_api_key'], credentials['kraken_api_secret'])
         gdax = Gdax(credentials['gdax_endpoint'], credentials['gdax_api_key'], credentials['gdax_api_secret'], credentials['gdax_passphrase'])
+        all_exchs = {
+            "cex": cex,
+            "exmo": exmo,
+            "gdax": gdax,
+            "kraken": kraken
+        }
+
         global exchs
-        exchs = {cex, exmo, gdax, kraken}
+        for exch_name in exchanges_names:
+            exchs.add(all_exchs[exch_name])
         bad_exchs = set()
         try:
             for e in exchs:
@@ -186,12 +192,12 @@ def get_balances(pairs, config):
                                                              ...
                                                          }
     """
+    balances_for_db = {}
     currencies = set()
     for pair in pairs:
         curs = pair.split('_')
         currencies.add(curs[0])
         currencies.add(curs[1])
-
     try:
         loop = asyncio.get_event_loop()
         future = asyncio.ensure_future(get_bal())
@@ -206,17 +212,28 @@ def get_balances(pairs, config):
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                             ExceptionType))
     try:
-        for exch in config.keys():
-            balances[exch] = {}
+        for exch in exchs:
+            ename = exch.__class__.__name__.lower()
+            balances[ename] = {}
+            balances_for_db[ename] = {}
             for c in currencies:
-                balances[exch][c] = 0.0
+                balances[ename][c] = 0.0
+                balances_for_db[ename][c] = 0.0
         for r, exch in zip(responses, exchs):
             ename = exch.__class__.__name__.lower()
+            ok = False
             for c in currencies:
                 if c in config[ename]['currency_converter'].keys():
-                    balances[ename][c] = float(
-                        exch.get_balance_from_response(r, config[ename]['currency_converter'][c]))
-        return balances
+                    balances[ename][c] = float(exch.get_balance_from_response(r, config[ename]['currency_converter'][c]))
+                    if balances[ename][c] != 0.0:
+                        ok = True
+            if ok:
+                for c in balances[ename]:
+                    balances_for_db[ename][c] = balances[ename][c]
+            else:
+                for c in balances[ename]:
+                    balances_for_db[ename][c] = -1
+        return balances, balances_for_db
     except Exception as e:
         Time = datetime.datetime.utcnow()
         EventType = "Error"
@@ -291,13 +308,3 @@ def get_urls(symbols, conf, limit):
                                             ExceptionType))
         exit(1)
     return pairs
-
-# start = time.time()
-# init(['btc_usd', 'eth_usd'], "orders_config.json", "exchs_credentials.json")
-# print(get_balances(['btc_usd', 'eth_usd'], "orders_config.json"))
-# print('{:.3f}'.format(time.time() - start))
-
-# orders_config = json.load(open('orders_config.json'))
-# exchs_credentials = json.load(open('exchs_credentials.json'))
-# init(['btc_usd', 'btc_usdt'], orders_config, exchs_credentials)
-# get_urls(['btc_usd', 'btc_usdt'], orders_config, 50)

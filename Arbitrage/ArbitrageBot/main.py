@@ -1,14 +1,15 @@
-import initialization as ini
+import bot_utils
 import datetime
 import exchs_data
-import matching
+import initialization as ini
 import json
+import matching
+import os
+import pymongo
 import sys
 from pprint import pprint
 import trading
 import time
-import os
-import random
 
 
 File = os.path.basename(__file__)
@@ -17,6 +18,7 @@ File = os.path.basename(__file__)
 verbose = True
 logfile = open('log.txt', 'a')
 old_stdout = sys.stdout
+# logfile = sys.stdout
 sys.stdout = logfile
 
 
@@ -45,6 +47,15 @@ def get_best(our_orders, total_balance):
         return None, None
     else:
         return best_pair, our_orders[best_pair]
+
+
+def print2console(message, last=False):
+    if verbose:
+        sys.stdout = old_stdout
+        print('\t\t{}, {}'.format(message, datetime.datetime.utcnow()))
+        if last:
+            print()
+        sys.stdout = logfile
 
 
 def get_json_from_file(file_path):
@@ -83,18 +94,20 @@ def get_json_from_file(file_path):
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                             ExceptionType))
 
-if verbose:
-    sys.stdout = old_stdout
-    print('\t\tInitialization, {}'.format(datetime.datetime.utcnow()))
-    sys.stdout = logfile
+
+print2console('Parsing config file')
 botconf = get_json_from_file('bot_config.json')
 if botconf is None:
     exit(1)
+
 try:
     pairs = botconf['symbols']
     limit = botconf['limit']
     conffile = get_json_from_file(botconf['config_file'])
     exchsfile = get_json_from_file(botconf['exchs_credentials'])
+    exchanges_names = botconf['exchanges']
+    auth_string = botconf['auth_string']
+    db_name = botconf['database']
 except KeyError as e:
     Time = datetime.datetime.utcnow()
     EventType = "KeyError"
@@ -105,20 +118,20 @@ except KeyError as e:
     print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                         ExceptionType))
     exit(1)
+else:
+    print2console('Parsing successful', last=True)
 
-exchs, minvolumes = ini.init(pairs, conffile, exchsfile)
+print2console('Initialization')
+exchs, minvolumes = ini.init(pairs, conffile, exchsfile, exchanges_names)
 requests = ini.get_urls(pairs, conffile, limit)
 
 currency_list = set()
 for pair in pairs:
     for cur in pair.split('_'):
         currency_list.add(cur)
+print2console('Initialization successful', last=True)
 
-counter = 0
-
-balances = ini.get_balances(pairs, conffile)
-
-# pprint(balances)
+#balances = ini.get_balances(pairs, conffile)
 
 # for exch in exchs:
 #     if exch.__class__.__name__.lower() == "gdax":
@@ -126,90 +139,107 @@ balances = ini.get_balances(pairs, conffile)
 #         r = requests.post(url, headers=headers, data=data, auth=auth)
 #         print(r.text)
 
+print2console('Connecting to Mongo')
+ok_mongo = False
+try:
+    client = pymongo.MongoClient(auth_string)
+    db = client[db_name]
+    ok_mongo = True
+except Exception as e:
+    Time = datetime.datetime.utcnow()
+    EventType = "Error"
+    Function = None
+    Explanation = 'Some error occurred while connecting to Mongo before main loop'
+    EventText = e
+    ExceptionType = type(e)
+    print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
+else:
+    print2console('Connected successfully', last=True)
 
 
+print2console('Entering the main loop', last=True)
+counter = 0
+iter = 0
+session = (int)(time.time())
 while True:
+    iter += 1
+    print2console('Iteration #{}'.format(iter))
     counter += 1
     if counter == 100:
-        if verbose:
-            sys.stdout = old_stdout
-            print('\t\tReinitialization, {}'.format(datetime.datetime.utcnow()))
-            sys.stdout = logfile
+        print2console('Reinitialization')
+
         exchs, minvolumes = ini.init(pairs, conffile, exchsfile)
         requests = ini.get_urls(pairs, conffile, limit)
+
+        client = pymongo.MongoClient(auth_string)
+        db = client[db_name]
+        ok_mongo = True
+
         counter = 0
         if len(exchs) <= 1:
             time.sleep(60)
             continue
+
+        print2console('Reinitialization successful')
     try:
-        if verbose:
-            sys.stdout = old_stdout
-            print('\t\tGetting balances, {}'.format(datetime.datetime.utcnow()))
-            sys.stdout = logfile
-        balances = ini.get_balances(pairs, conffile)
+        print2console('Getting balances')
+        balances, balances_for_db = ini.get_balances(pairs, conffile)
+        #pprint(balances)
+        #pprint(balances_for_db)
+        Time = datetime.datetime.utcnow()
+        EventType = "Balances"
+        Function = None
+        Explanation = '{}#{}#Balances'.format(session, iter)
+        EventText = balances_for_db
+        ExceptionType = None
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
+
         total_balance = {cur: 0 for cur in currency_list}
         for cur in currency_list:
             for exch in balances.keys():
                 total_balance[cur] += balances[exch][cur]
 
-        if verbose:
-            sys.stdout = old_stdout
-            print('\t\tGetting order books, {}'.format(datetime.datetime.utcnow()))
-            sys.stdout = logfile
-        order_books = exchs_data.get_order_books(requests, limit, conffile)
-        order_books = matching.join_and_sort(order_books)
-        #pprint(order_books)
-        if verbose:
-            sys.stdout = old_stdout
-            print('\t\tGenerating arbitrage orders, {}'.format(datetime.datetime.utcnow()))
-            sys.stdout = logfile
-        our_orders = matching.get_arb_opp(order_books, balances)
-        #pprint(balances)
-        #pprint(our_orders)
-        if verbose:
-            sys.stdout = old_stdout
-            print('\t\tChoosing best orders, {}'.format(datetime.datetime.utcnow()))
-            sys.stdout = logfile
-        best, orders = get_best(our_orders, total_balance)
+        print2console('Getting order books')
+        data = exchs_data.get_order_books(requests, limit, conffile)
+        if ok_mongo:
+            bot_utils.save_to_mongo(data, db, iter)
+        order_books = matching.join_and_sort(data)
 
-        if best is None or orders['profit'] < 0.0001:
-            if verbose:
-                sys.stdout = old_stdout
-                print('\t\tNo good orders. Going to sleep for 30 seconds, {}\n'.format(datetime.datetime.utcnow()))
-                sys.stdout = logfile
+        print2console('Generating arbitrage orders')
+        our_orders = matching.get_arb_opp(order_books, balances)
+
+        print2console('Choosing best orders')
+        best, orders = get_best(our_orders, total_balance)
+        if best is not None:
+            orders = trading.filter_orders(best, orders, minvolumes)
+        if best is None or orders['profit'] < 0.0001 or orders["buy"] == {} or orders["sell"] == {}:
+            print2console('No good orders. Going to sleep for 30 seconds', last=True)
             time.sleep(30)
             continue
         # print(best, orders)
         # best = 'btc_usd'
         # orders = {'required_base_amount': 0.01788522, 'required_quote_amount': 132.7579803399024, 'profit': 1.051173937182616, 'buy': {'exmo': [7409, 0.002]}, 'sell': {'cex': [7489, 0.002]}}
 
-        if verbose:
-            sys.stdout = old_stdout
-            print('\t\tMaking all orders, {}'.format(datetime.datetime.utcnow()))
-            pprint(best)
-            sys.stdout = logfile
-
-        req, res = trading.make_all_orders(best, orders, exchs, conffile)
         Time = datetime.datetime.utcnow()
         EventType = "RequestsForPlacingOrders"
         Function = "main while true"
-        Explanation = "Orders generated"
+        Explanation = '{}#{}#{}'.format(session, iter, "Orders generated")
         EventText = req
         ExceptionType = None
-        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
-                                            ExceptionType))
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
+
+        print2console('Making orders: {}'.format(best))
+        req, res = trading.make_all_orders(best, orders, exchs, conffile)
+
         Time = datetime.datetime.utcnow()
         EventType = "ResponsesAfterPlacingOrders"
         Function = "main while true"
-        Explanation = "Exchanges respond to orders placed"
+        Explanation = '{}#{}#{}'.format(session, iter, "Exchanges respond to orders placed")
         EventText = res
         ExceptionType = None
-        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
-                                            ExceptionType))
-        if verbose:
-            sys.stdout = old_stdout
-            print('\t\tGoing to sleep for 30 seconds, {}\n'.format(datetime.datetime.utcnow()))
-            sys.stdout = logfile
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
+
+        print2console('Iteration ended. Going to sleep for 30 seconds', last=True)
         time.sleep(30)
     except Exception as e:
         Time = datetime.datetime.utcnow()
@@ -220,5 +250,5 @@ while True:
         ExceptionType = type(e)
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                             ExceptionType))
-
-
+        print2console('Going to sleep for 30 seconds', last=True)
+        time.sleep(30)

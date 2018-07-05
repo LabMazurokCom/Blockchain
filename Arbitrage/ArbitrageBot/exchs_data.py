@@ -94,6 +94,7 @@ def process_responses(responses, conf, pairs, limit):
         exch = response[0]
         pair = response[1]
         data = response[2]
+        fee = conf[exch]['fee']
         if data is not None:
             try:
                 price_ix = conf[exch]['fields']['price']
@@ -105,21 +106,21 @@ def process_responses(responses, conf, pairs, limit):
                 current_bids = data
                 for x in path["bids"]:
                     if x == "{}":
-                        x = x.format(sym)
+                        x = sym
                     current_bids = current_bids[x]
                 current_asks = data
                 for x in path["asks"]:
                     if x == "{}":
-                        x = x.format(sym)
+                        x = sym
                     current_asks = current_asks[x]
 
                 # add current orders to bids and asks arrays
                 for i in range(min(limit, len(current_bids))):
                     order_books[pair][exch]['bids'].append(
-                        [float(current_bids[i][price_ix]), float(current_bids[i][volume_ix]), float(current_bids[i][price_ix])])
+                        [float(current_bids[i][price_ix]) * (1 - fee), float(current_bids[i][volume_ix]), float(current_bids[i][price_ix])])
                 for i in range(min(limit, len(current_asks))):
                     order_books[pair][exch]['asks'].append(
-                        [float(current_asks[i][price_ix]), float(current_asks[i][volume_ix]), float(current_asks[i][price_ix])])
+                        [float(current_asks[i][price_ix]) * (1 + fee), float(current_asks[i][volume_ix]), float(current_asks[i][price_ix])])
             except Exception as e:  # Some error occurred while parsing json response for current exchange
                 Time = datetime.datetime.utcnow()
                 EventType = "Error"
@@ -127,28 +128,16 @@ def process_responses(responses, conf, pairs, limit):
                 Explanation = "Some error occurred while parsing order books for {} from {}. Response text: {}".format(pair, exch, data)
                 EventText = e
                 ExceptionType = type(e)
-                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
-                                                    ExceptionType))
+                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
 
-    for pair in order_books.keys():
-        for exch in order_books[pair].keys():
-            for bid in order_books[pair][exch]['bids']:
-                if 'fee' in conf[exch].keys():
-                    alpha = conf[exch]['fee']
-                else:
-                    alpha = 0.0
-                bid[0] *= (1 - alpha)
-            for ask in order_books[pair][exch]['asks']:
-                if 'fee' in conf[exch].keys():
-                    alpha = conf[exch]['fee']
-                else:
-                    alpha = 0.0
-                ask[0] *= (1 + alpha)
-        # if len(order_books[pair]['orders']['bids']) > 0 and len(order_books[pair]['orders']['asks']) > 0:
-        #     # bids sorted in descending order by price
-        #     order_books[pair]['orders']['bids'].sort(key=lambda quadriple: quadriple[0], reverse=True)
-        #     # asks sorted in ascending order by price
-        #     order_books[pair]['orders']['asks'].sort(key=lambda quadriple: quadriple[0])
+    # for pair in order_books.keys():
+    #     for exch in order_books[pair].keys():
+    #         for bid in order_books[pair][exch]['bids']:
+    #             alpha = conf[exch]['fee']
+    #             bid[0] *= (1 - alpha)
+    #         for ask in order_books[pair][exch]['asks']:
+    #             alpha = conf[exch]['fee']
+    #             ask[0] *= (1 + alpha)
     return order_books
 
 
