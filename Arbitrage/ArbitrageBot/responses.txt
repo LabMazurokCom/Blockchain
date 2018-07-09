@@ -1,7 +1,3 @@
-[{'key': 'keuDZ6vjTane82MxevqFHsCg4', 'signature': 'DD5EB1442FB236AF8C298BFC231C556664BC9A263E02DA3EE0F17D66A379C835', 'nonce': '1527861448290', 'type': 'sell', 'order_type': 'limit', 'amount': '0.002', 'price': '7495'}, 'nonce=1527861448291&pair=BTC_USD&quantity=0.002&price=7416&type=buy']
-1527861448.631552
-[(1527861448.290729, '{"complete":true,"id":"6349516207","time":1527861448514,"pending":"0.00000000","amount":"0.00200000","type":"sell","price":"7495"}'), (1527861448.425319, '{"result":true,"error":"","order_id":883291000}')]
-
 [['cex', '7504', '0.002', 'sell'], ['exmo', '7415', '0.002', 'buy']]
 1527862018.110372
 [(1527862017.2492712, 1527862017.72234, '{"complete":false,"id":"6349561730","time":1527862017497,"pending":"0.00200000","amount":"0.00200000","type":"sell","price":"7504"}'), (1527862017.410732, 1527862018.1092212, '{"result":false,"error":"Error 50054: Insufficient funds"}')]
