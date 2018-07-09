@@ -11,6 +11,7 @@ import aiohttp
 
 File = os.path.basename(__file__)
 
+
 class Kraken(Exchange):
 
     cur_limits = {
@@ -33,7 +34,6 @@ class Kraken(Exchange):
         "usdt": 5
     }
 
-
     def _get_headers(self, data, req):
         """
         generates headers for general api post request
@@ -54,7 +54,6 @@ class Kraken(Exchange):
 
         return headers
 
-
     def _get_data(self):
         """
         generates data of general api post request
@@ -67,7 +66,6 @@ class Kraken(Exchange):
         }
 
         return data
-
 
     def place_order(self, price, amount, pair, type, order_type):
         """
@@ -95,7 +93,6 @@ class Kraken(Exchange):
         url = self.endpoint + req
 
         return url, headers, data, None
-
 
     def cancel_order(self, order_id):
         """
@@ -129,15 +126,10 @@ class Kraken(Exchange):
         :return:
         """
         req = '/0/private/OpenOrders'
-
         data = self._get_data()
-
         headers = self._get_headers(data, req)
-
         url = self.endpoint + req
-
         return url, headers, data, aiohttp.BasicAuth('', '')
-
 
     def get_balance(self, currency=''):
         """
@@ -146,15 +138,10 @@ class Kraken(Exchange):
         :return: url, headers, data and auth for api post requests to get list of balances
         """
         req = '/0/private/Balance'
-
         data = self._get_data()
-
         headers = self._get_headers(data, req)
-
         url = self.endpoint + req
-
         return url, headers, data, aiohttp.BasicAuth('', '')
-
 
     def get_balance_from_response(self, response, currency):
         """
@@ -212,3 +199,36 @@ class Kraken(Exchange):
             return self.cur_limits[cur1], self.cur_limits[cur2]
         else:
             return self.cur_limits[cur1], 0.0
+
+    def get_open_orders(self):
+        """
+        generates url, headers, data and auth to get list of open orders
+        :return: url, headers, data and auth to get list of open orders
+        """
+        req = '/0/private/OpenOrders'
+        data = self._get_data()
+        headers = self._get_headers(data, req)
+        url = self.endpoint + req
+        return url, headers, data, None
+
+    def cancel_open_orders(self, open_orders):
+        """
+        generates list of urls, headers, data, and auths to cancel all open orders
+        :param open_orders: response from exchange with open orders
+        :return: list of urls, headers, data, and auths to cancel all open orders
+        """
+        res = []
+        try:
+            orders = json.loads(open_orders)
+            for order in orders["result"]["open"]:
+                res.append(self.cancel_order(order))
+        except Exception as e:
+            Time = datetime.datetime.utcnow()
+            EventType = "Error"
+            Function = "cancel_open_orders"
+            Explanation = "Response from Kraken for open orders is not a valid json"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
+        return res

@@ -10,7 +10,6 @@ import sys
 from pprint import pprint
 import trading
 import time
-import requests
 
 
 File = os.path.basename(__file__)
@@ -19,7 +18,7 @@ File = os.path.basename(__file__)
 verbose = True
 logfile = open('log.txt', 'a')
 old_stdout = sys.stdout
-#logfile = sys.stdout
+# logfile = sys.stdout
 sys.stdout = logfile
 
 
@@ -95,12 +94,6 @@ def get_json_from_file(file_path):
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                             ExceptionType))
 
-def make_resp_list(results):
-    resp_list = {}
-    for res in results:
-        resp_list[res[0]] = res[3]
-    return resp_list
-
 
 print2console('Parsing config file')
 botconf = get_json_from_file('bot_config.json')
@@ -130,13 +123,7 @@ else:
 
 print2console('Initialization')
 exchs, minvolumes = ini.init(pairs, conffile, exchsfile, exchanges_names)
-#requests = ini.get_urls(pairs, conffile, limit)
-
-for e in exchs:
-    if e.__class__.__name__.lower() == "kraken":
-        url, headers, data, auth = e.get_open_orders()
-        r = requests.post(url, headers=headers, data=data, auth=auth)
-        print2console(r.text)
+requests = ini.get_urls(pairs, conffile, limit)
 
 while len(exchs) <= 1:
     time.sleep(60)
@@ -172,21 +159,13 @@ counter = 0
 iter = 0
 session = (int)(time.time())
 
-# for e in exchs:
-#     url, headers, data, auth = e.place_order(0, 0, conffile[e.__class__.__name__.lower()]['converter']['btc_usd'], 'sell', 'limit')
-#     r = requests.post(url, headers=headers, data=data, auth=auth)
-#     print2console(e)
-#     print2console(r.text)
-
-orders_to_cancel = {}
-'''
 while True:
     iter += 1
     print2console('Iteration #{}'.format(iter))
     counter += 1
+
     if counter == 100:
         print2console('Reinitialization')
-
         exchs, minvolumes = ini.init(pairs, conffile, exchsfile, exchanges_names)
         requests = ini.get_urls(pairs, conffile, limit)
         try:
@@ -202,7 +181,6 @@ while True:
             EventText = e
             ExceptionType = type(e)
             print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
-
         if len(exchs) <= 1:
             time.sleep(60)
             print2console('')
@@ -212,13 +190,11 @@ while True:
         print2console('Reinitialization successful')
 
     try:
-        if orders_to_cancel != {}:
-            trading.cancel_orders(orders_to_cancel)
-            orders_to_cancel = {}
+        print2console('Cancelling open orders')
+        trading.cancel_all_open_orders(exchs)
+
         print2console('Getting balances')
         balances, balances_for_db = ini.get_balances(pairs, conffile)
-        #pprint(balances)
-        #pprint(balances_for_db)
         Time = datetime.datetime.utcnow()
         EventType = "Balances"
         Function = None
@@ -226,7 +202,6 @@ while True:
         EventText = balances_for_db
         ExceptionType = None
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
-
         total_balance = {cur: 0 for cur in currency_list}
         for cur in currency_list:
             for exch in balances.keys():
@@ -249,16 +224,9 @@ while True:
             print2console('No good orders. Going to sleep for 30 seconds', last=True)
             time.sleep(30)
             continue
-        # print(best, orders)
-        # best = 'btc_usd'
-        # orders = {'required_base_amount': 0.01788522, 'required_quote_amount': 132.7579803399024, 'profit': 1.051173937182616, 'buy': {'exmo': [7409, 0.002]}, 'sell': {'cex': [7489, 0.002]}}
 
         print2console('Making orders: {}'.format(best))
         req, res = trading.make_all_orders(best, orders, exchs, conffile)
-
-        #orders_to_cancel = make_resp_list(res)
-
-
         Time = datetime.datetime.utcnow()
         EventType = "RequestsForPlacingOrders"
         Function = "main while true"
@@ -266,7 +234,6 @@ while True:
         EventText = req
         ExceptionType = None
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
-
         Time = datetime.datetime.utcnow()
         EventType = "ResponsesAfterPlacingOrders"
         Function = "main while true"
@@ -274,7 +241,6 @@ while True:
         EventText = res
         ExceptionType = None
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
-
         print2console('Iteration ended. Going to sleep for 30 seconds', last=True)
         time.sleep(30)
     except Exception as e:
@@ -288,6 +254,3 @@ while True:
                                             ExceptionType))
         print2console('Going to sleep for 30 seconds', last=True)
         time.sleep(30)
-'''
-
-

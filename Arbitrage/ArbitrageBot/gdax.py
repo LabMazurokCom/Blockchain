@@ -270,3 +270,27 @@ class Gdax(Exchange):
             ExceptionType = type(e)
             print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                                 ExceptionType))
+
+    def get_open_orders(self):
+        """
+        generates url, headers, data and auth to get list of open orders
+        :return: url, headers, data and auth to get list of open orders
+        """
+        headers = self._get_headers('GET', '/orders', '')
+        data = self._get_data()
+        url = self.endpoint + 'orders'
+        auth = None
+        return url, headers, data, auth
+
+    def cancel_open_orders(self, open_orders):
+        """
+        generates list of urls, headers, data, and auths to cancel all open orders
+        :param open_orders: response from exchange with open orders
+        :return: list of urls, headers, data, and auths to cancel all open orders
+        """
+        headers = self._get_headers('DELETE', '/orders', '')
+        data = self._get_data()
+        url = self.endpoint + 'orders'
+        auth = None
+
+        return [(url, headers, data, auth)]

@@ -243,3 +243,39 @@ class CEX(Exchange):
             ExceptionType = type(e)
             print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                                 ExceptionType))
+
+
+    def get_open_orders(self):
+        """
+        generates url, headers, data and auth to get list of open orders
+        :return: url, headers, data and auth to get list of open orders
+        """
+        headers = self._get_headers()
+        data = self._get_data()
+        url = self.endpoint + '/open_orders/'
+
+        return url, headers, data, None
+
+
+    def cancel_open_orders(self, open_orders):
+        """
+        generates list of urls, headers, data, and auths to cancel all open orders
+        :param open_orders: response from exchange with open orders
+        :return: list of urls, headers, data, and auths to cancel all open orders
+        """
+        res = []
+        try:
+            orders = json.loads(open_orders)
+            for order in orders:
+                res.append(self.cancel_order(order["id"]))
+                time.sleep(0.001)
+        except Exception as e:
+            Time = datetime.datetime.utcnow()
+            EventType = "Error"
+            Function = "cancel_open_orders"
+            Explanation = "Response from CEX for open orders is not a valid json"
+            EventText = e
+            ExceptionType = type(e)
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                ExceptionType))
+        return res
