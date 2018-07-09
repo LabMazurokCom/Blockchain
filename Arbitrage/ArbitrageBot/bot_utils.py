@@ -608,8 +608,3 @@ def get_arb_opp(order_books, current_balance, alpha=0.1, copy_balance=False, cop
         # print(buy_orders)
         # print(sell_orders)
     return our_orders
-
-
-# data = json.load(open('data_example.json'))
-# # save_to_mongo(data, "mongodb://admin:415096396771@40.121.22.249/admin", 'test')
-# json.dump(join_and_sort(data), open('order_books_example.json', 'w'), indent=4)
