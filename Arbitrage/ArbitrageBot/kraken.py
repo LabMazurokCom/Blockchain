@@ -94,7 +94,7 @@ class Kraken(Exchange):
 
         url = self.endpoint + req
 
-        return url, headers, data, aiohttp.BasicAuth('', '')
+        return url, headers, data, None
 
 
     def cancel_order(self, order_id):
@@ -112,7 +112,14 @@ class Kraken(Exchange):
 
         url = self.endpoint + req
 
-        return url, headers, data, aiohttp.BasicAuth('', '')
+        return url, headers, data, None
+
+    def get_open_orders(self):
+        req = '/0/private/OpenOrders'
+        data = self._get_data()
+        headers = self._get_headers(data, req)
+        url = self.endpoint + req
+        return url, headers, data, None
 
 
     def get_order_status(self, order_id=''):

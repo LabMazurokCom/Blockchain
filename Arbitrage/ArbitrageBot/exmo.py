@@ -73,7 +73,7 @@ class EXMO(Exchange):
 
         url = self.endpoint + '/v1/order_create'
 
-        return url, headers, data, aiohttp.BasicAuth('', '')
+        return url, headers, data, None
 
 
     def cancel_order(self, order_id):
@@ -90,7 +90,7 @@ class EXMO(Exchange):
 
         url = self.endpoint + '/v1/order_cancel'
 
-        return url, headers, data, aiohttp.BasicAuth('', '')
+        return url, headers, data, None
 
 
     def get_order_status(self, order_id=''):
@@ -169,7 +169,7 @@ class EXMO(Exchange):
         try:
             r = requests.get(self.endpoint + '/v1/pair_settings', timeout=TIMEOUT).json()
             for pair in r.keys():
-                self.min_lots[pair] = (r[pair]["min_quantity"], r[pair]["min_amount"])
+                self.min_lots[pair] = (float(r[pair]["min_quantity"]), float(r[pair]["min_amount"]))
         except requests.exceptions.Timeout as e:
             Time = datetime.datetime.utcnow()
             EventType = "RequestsExceptionsTimeoutError"

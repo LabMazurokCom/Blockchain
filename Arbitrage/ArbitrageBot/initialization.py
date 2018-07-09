@@ -45,6 +45,7 @@ def init(pairs, config, credentials, exchanges_names):
         }
 
         global exchs
+        exchs = set()
         for exch_name in exchanges_names:
             exchs.add(all_exchs[exch_name])
         bad_exchs = set()
@@ -54,7 +55,7 @@ def init(pairs, config, credentials, exchanges_names):
                 e.get_all_min_lots()
                 limits[ename] = {}
                 for pair in pairs:
-                    if pair in config[ename]['converter'].keys():
+                    if pair in config[ename]['converter']:
                         if e == kraken:
                             min_lots = e.get_min_lot(pair)
                         else:
@@ -154,13 +155,14 @@ async def get_bal():
     :return: makes list of responses from exchanges
     """
     tasks = []
+    global responses
+    responses = []
     try:
         async with aiohttp.ClientSession() as session:
             for exch in exchs:
                 url, headers, data, auth = exch.get_balance()
                 task = asyncio.ensure_future(fetch(url, session, headers, data, exch.__class__.__name__, auth))
                 tasks.append(task)
-            global responses
             responses = await asyncio.gather(*tasks)
     except Exception as e:
         Time = datetime.datetime.utcnow()
@@ -193,6 +195,8 @@ def get_balances(pairs, config):
                                                          }
     """
     balances_for_db = {}
+    global balances
+    balances = {}
     currencies = set()
     for pair in pairs:
         curs = pair.split('_')

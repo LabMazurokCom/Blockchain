@@ -14,28 +14,37 @@ reqs = []
 FETCH_TIMEOUT = 5
 
 
-async def fetch(url, session, headers, data, key, auth):
+async def fetch(url, session, headers, data, key, auth, cancel=False):
     """
-    Sends POST request to make an order
+    Sends POST request to make an order or to cancel an order
     :param url: url path for placing order
     :param session: aiohttp session to place order
     :param headers: headers of post request to place order
     :param data: data of post request to place order
     :param key: exchange name
     :param auth: authentication data
+    :param cancel: flag to cancel order
     :return: exchange name, time of start and end of post request, response from exchange
     """
     try:
         with async_timeout.timeout(FETCH_TIMEOUT):
             start = time.time()
-            async with session.post(url, headers=headers, data=data, auth=auth) as response:
-                resp_text = await response.text()
-                return key, start, time.time(), resp_text
+            if cancel and key == "gdax":
+                async with session.delete(url, headers=headers, data=data, auth=auth) as response:
+                    resp_text = await response.text()
+                    return key, start, time.time(), resp_text
+            else:
+                async with session.post(url, headers=headers, data=data, auth=auth) as response:
+                    resp_text = await response.text()
+                    return key, start, time.time(), resp_text
     except asyncio.TimeoutError as e:
         Time = datetime.datetime.utcnow()
         EventType = "TimeoutError"
         Function = "fetch"
-        Explanation = "{} didn't respond in time (placing order)".format(key)
+        if cancel:
+            Explanation = "{} didn't respond in time (cancelling order)".format(key)
+        else:
+            Explanation = "{} didn't respond in time (placing order)".format(key)
         EventText = e
         ExceptionType = type(e)
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
@@ -44,7 +53,10 @@ async def fetch(url, session, headers, data, key, auth):
         Time = datetime.datetime.utcnow()
         EventType = "Error"
         Function = "fetch"
-        Explanation = "Some error occurred during post request to {} (placing order)".format(key)
+        if cancel:
+            Explanation = "Some error occurred during post request to {} (cancelling order)".format(key)
+        else:
+            Explanation = "Some error occurred during post request to {} (placing order)".format(key)
         EventText = e
         ExceptionType = type(e)
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
@@ -110,6 +122,50 @@ async def place_orders(pair, orders, exs, conf):
         ExceptionType = type(e)
         print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
                                             ExceptionType))
+'''
+async def cancel_orders(orders_to_cancel, exchs):
+    tasks = []
+    try:
+        async with aiohttp.ClientSession() as session:
+            try:
+                # for key, value in orders['sell'].items():
+                #     tmp = str(value[1])
+                #     pos = tmp.find('.')
+                #     tmp = tmp[:pos+9]
+                #     url, headers, data, auth = exchs[key].place_order(str(value[0]), tmp, conf[key]['converter'][pair], 'sell', 'limit')
+                #     reqs.append([key, str(value[0]), tmp, 'sell'])
+                #     task = asyncio.ensure_future(fetch(url, session, headers, data, key, auth))
+                #     tasks.append(task)
+                # for key, value in orders['buy'].items():
+                #     tmp = str(value[1])
+                #     pos = tmp.find('.')
+                #     tmp = tmp[:pos + 9]
+                #     url, headers, data, auth = exchs[key].place_order(str(value[0]), tmp, conf[key]['converter'][pair], 'buy', 'limit')
+                #     reqs.append([key, str(value[0]), tmp, 'buy'])
+                #     task = asyncio.ensure_future(fetch(url, session, headers, data, key, auth))
+                #     tasks.append(task)
+            except KeyError as e:
+                Time = datetime.datetime.utcnow()
+                EventType = "KeyError"
+                Function = "place_orders"
+                Explanation = "Invalid key somewhere in place_orders"
+                EventText = e
+                ExceptionType = type(e)
+                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                    ExceptionType))
+                pass
+            global responses
+            responses = await asyncio.gather(*tasks)
+    except Exception as e:
+        Time = datetime.datetime.utcnow()
+        EventType = "Error"
+        Function = "cancel_orders"
+        Explanation = "Client session failed while cancelling orders"
+        EventText = e
+        ExceptionType = type(e)
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                            ExceptionType))
+'''
 
 
 def filter_orders(pair, orders, minvolumes):

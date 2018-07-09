@@ -413,7 +413,7 @@ def get_order_books(pairs, conf, limit):
 #             col.insert_one(d)
 
 
-def save_to_mongo(data, db, iter):
+def save_to_mongo(data, db, iter, session, counter):
     """
     Saves data (see example at the beginning of this file) to MongoDB:
         (*) separate collections for different pairs
@@ -432,6 +432,8 @@ def save_to_mongo(data, db, iter):
         d['timestamp'] = time.time()
         d['data'] = data[pair]
         d['iter'] = iter
+        d['session'] = session
+        d['counter'] = counter
         col.insert_one(d)
 
 

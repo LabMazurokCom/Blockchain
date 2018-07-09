@@ -88,7 +88,7 @@ class CEX(Exchange):
 
         url = self.endpoint + '/place_order/{}/{}'.format(sym1, sym2)
 
-        return url, headers, data, aiohttp.BasicAuth('', '')
+        return url, headers, data, None
 
 
     def cancel_order(self, order_id):
@@ -105,7 +105,7 @@ class CEX(Exchange):
 
         url = self.endpoint + '/cancel_order/'
 
-        return url, headers, data, aiohttp.BasicAuth('', '')
+        return url, headers, data, None
 
 
     def get_order_status(self, order_id):

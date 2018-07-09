@@ -114,24 +114,22 @@ class Gdax(Exchange):
         url = self.endpoint + 'orders'
 
         return url, headers, json.dumps(data), auth
-    #
-    #
-    # def cancel_order(self, order_id):
-    #     """
-    #     generates url, headers and data to make api post request for cancelling order
-    #     :param order_id: id of order to be cancelled
-    #     :return: url, headers, data and auth to make api post request for cancelling order
-    #     """
-    #
-    #     headers = self._get_headers()
-    #
-    #     data = self._get_data()
-    #     data["id"] = order_id
-    #
-    #     url = self.endpoint + '/cancel_order/'
-    #
-    #     return url, headers, data, aiohttp.BasicAuth('', '')
-    #
+
+
+    def cancel_order(self, order_id):
+        """
+        generates url, headers and data to make api post request for cancelling order
+        :param order_id: id of order to be cancelled
+        :return: url, headers, data and auth to make api post request for cancelling order
+        """
+
+        data = self._get_data()
+        headers = self._get_headers('DELETE', '/orders/{}'.format(order_id), '')
+
+        auth = None
+        url = self.endpoint + 'orders/{}'.format(order_id)
+        return url, headers, data, auth
+
     #
     # def get_order_status(self, order_id):
     #     """
