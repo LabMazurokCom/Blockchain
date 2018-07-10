@@ -1,5 +1,5 @@
 {
-  "auth_string": "mongodb://admin:415096396771@178.128.186.1:27018/admin",
+  "auth_string": "auth_string will be here",
   "database": "test",
   "exchanges": [
     "gdax"
