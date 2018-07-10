@@ -1,0 +1,43 @@
+digraph D{
+    
+  BCH -> BTC [  label="4.1; 0.110727" ];
+  BCH -> BTC [  label="1.3361; 0.110726"  ];
+  BTC -> BCH [  label="4.05; 8.9332"  ];
+  BTC -> BCH [  label="0.4; 8.9331" ];
+  BTC -> BCH [  label="0.1; 8.9325" ];
+  BCH -> USD [  label="2; 743.1375" ];
+  BCH -> USD [  label="0.27; 742.9878"  ];
+  USD -> BCH [  label="2; 0.00133359"  ];
+  USD -> BCH [  label="0.5; 0.00133356" ];
+  DASH -> BTC [ label="0.086328; 0.03504"  ];
+  DASH -> BTC [ label="24.53; 0.03491"  ];
+  BTC -> DASH [ label="2.257; 28.17575" ];
+  BTC -> DASH [ label="4.004; 28.14792" ];
+  ETH -> BTC [  label="0.5; 0.07122" ];
+  ETH -> BTC [  label="0.821324; 0.07121" ];
+  BTC -> ETH [  label="0.5; 13.908" ];
+  BTC -> ETH [  label="7; 13.907432" ];
+  BTC -> USD [  label="1.637; 6688.2" ];
+  BTC -> USD [  label="0.648; 6688" ];
+  BTC -> USD [  label="0.00451765; 6683.85" ];
+  USD -> BTC [  label="1.159233; 1.486812e-4" ];
+  USD -> BTC [  label="0.6; 1.485733e-4"  ];
+  XRP -> BTC [  label="707.4; 7.087e-5" ];
+  XRP -> BTC [  label="960; 7.086e-5" ];
+  BTC -> XRP [  label="1.507; 14035.5"  ];
+  BTC -> XRP [  label="250; 13972.6"  ];
+  DASH -> USD [ label="0.8; 234.8"  ];
+  DASH -> USD [ label="0.1; 234.4"  ];
+  USD -> DASH [ label="0.3; 0.42e-2"];
+  USD -> DASH [ label="0.3567; 0.41e-2"  ];
+  ETH -> USD [  label="20.61; 476.75" ];
+  ETH -> USD [  label="5.92; 476.73"  ];
+  ETH -> USD [  label="0.885; 476.71" ];
+  USD -> ETH [  label="0.6; 2.0846e-3"  ];
+  USD -> ETH [  label="1.3781; 2.0845e-3" ];
+  USD -> ETH [  label="3.44198; 2.0844e-3"  ];
+  XRP -> USD [  label="680; 0.475"  ];
+  XRP -> USD [  label ="27353; 0.474" ];
+  USD -> XRP [  label="7000; 2.083" ];
+  USD -> XRP [  label="429.25; 2.082" ]
+}
