@@ -1,4 +1,7 @@
+#!/usr/bin/python3.7
+
 import json
+import os
 import pymongo
 import sys
 import time
@@ -6,15 +9,15 @@ from bot_utils import get_data, get_pairs, save_to_mongo
 from multiprocessing import Process
 
 
-MIN_TIME = 15
+MIN_TIME = 30
 old_stdout = sys.stdout
 
 
 def mini_logger(symbol, conf, limit, auth_string, db_name):
-    print("I've started: {}".format(symbol))
-
     client = pymongo.MongoClient(auth_string)  # defaults to port 27017
     db = client[db_name]
+
+    sys.stdout = open(os.devnull, 'w')
 
     pairs = get_pairs([symbol], conf, limit)
 
