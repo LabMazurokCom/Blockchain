@@ -1,0 +1,25 @@
+{
+  "auth_string": "mongodb://admin:415096396771@178.128.186.1:27018/admin",
+  "database": "test",
+  "exchanges": [
+    "gdax"
+  ],
+  "limit": 50,
+  "orders_config": "orders_config.json",
+  "symbols": [
+    "bch_usd",
+    "btc_usd",
+    "eth_usd"
+  ],
+  "symbols_extended": [
+    "bch_btc",
+    "bch_usd",
+    "btc_usd",
+    "dash_btc",
+    "dash_usd",
+    "eth_btc",
+    "eth_usd",
+    "xrp_btc",
+    "xrp_usd"
+  ]
+}
