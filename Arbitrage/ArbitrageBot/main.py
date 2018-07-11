@@ -3,14 +3,14 @@ import datetime
 import exchs_data
 import initialization as ini
 import json
-import matching
 import os
 import pymongo
 import sys
 from pprint import pprint
 import trading
 import time
-
+import rebalancing
+import requests as rq
 
 File = os.path.basename(__file__)
 
@@ -159,6 +159,8 @@ counter = 0
 iter = 0
 session = (int)(time.time())
 
+prev_balances, tmp = ini.get_balances(pairs, conffile)
+
 while True:
     iter += 1
     print2console('Iteration #{}'.format(iter))
@@ -168,7 +170,9 @@ while True:
         print2console('Reinitialization')
         exchs, minvolumes = ini.init(pairs, conffile, exchsfile, exchanges_names)
         requests = ini.get_urls(pairs, conffile, limit)
+        prev_balances, tmp = ini.get_balances(pairs, conffile)
         try:
+            client.close()
             client = pymongo.MongoClient(auth_string)
             db = client[db_name]
             ok_mongo = True
@@ -195,32 +199,97 @@ while True:
 
         print2console('Getting balances')
         balances, balances_for_db = ini.get_balances(pairs, conffile)
-        Time = datetime.datetime.utcnow()
-        EventType = "Balances"
-        Function = None
-        Explanation = '{}#{}#Balances'.format(session, iter)
-        EventText = balances_for_db
-        ExceptionType = None
-        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
+        tb = 0
         total_balance = {cur: 0 for cur in currency_list}
+        ok_balances = False
         for cur in currency_list:
             for exch in balances.keys():
                 total_balance[cur] += balances[exch][cur]
+                if balances_for_db[exch][cur] != -1:
+                    ok_balances = True
+
+        if not ok_balances:
+            print2console('No exchange has respond. Going to sleep for 30 seconds', last=True)
+            time.sleep(30)
+            continue
+
+        bchanged = False
+        allanswered = True
+        for exch in balances:
+            for cur in balances[exch]:
+                if balances[exch][cur] != prev_balances[exch][cur] and balances_for_db[exch][cur] != -1:
+                    bchanged = True
+                if balances_for_db[exch][cur] != -1:
+                    prev_balances[exch][cur] = balances[exch][cur]
+                else:
+                    allanswered = False
+
+        if bchanged:
+            try:
+                rq.post('http://192.168.1.104:5000/', json=prev_balances)
+            except Exception as e:
+                Time = datetime.datetime.utcnow()
+                EventType = "ServerFailed"
+                Function = "main while true"
+                Explanation = '{}#{}#{}'.format(session, iter, "Post request to server")
+                EventText = e
+                ExceptionType = type(e)
+                print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                    ExceptionType))
+            Time = datetime.datetime.utcnow()
+            EventType = "Balances"
+            Function = None
+            Explanation = '{}#{}#Balances'.format(session, iter)
+            EventText = balances_for_db
+            ExceptionType = None
+            print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
 
         print2console('Getting order books')
         data = exchs_data.get_order_books(requests, limit, conffile)
         if ok_mongo:
             bot_utils.save_to_mongo(data, db, iter, session, counter)
-        order_books = matching.join_and_sort(data)
+        order_books = bot_utils.join_and_sort(data)
+
 
         print2console('Generating arbitrage orders')
-        our_orders = matching.get_arb_opp(order_books, balances)
+        our_orders = bot_utils.get_arb_opp(order_books, balances, copy_balance=True, copy_order_books=True)
 
         print2console('Choosing best orders')
         best, orders = get_best(our_orders, total_balance)
         if best is not None:
             orders = trading.filter_orders(best, orders, minvolumes)
         if best is None or orders['profit'] < 0.0001 or orders["buy"] == {} or orders["sell"] == {}:
+            need_to_rebalance, pair, orders = rebalancing.rebalance(data, order_books, total_balance, balances)
+            if need_to_rebalance and allanswered:
+                print2console('Rebalancing')
+                try:
+                    orders = trading.filter_orders(pair, orders, minvolumes)
+                    req, res = trading.make_all_orders(pair, orders, exchs, conffile)
+                    Time = datetime.datetime.utcnow()
+                    EventType = "RequestsForPlacingOrdersForRebalancing"
+                    Function = "main while true"
+                    Explanation = '{}#{}#{}'.format(session, iter, "Orders generated")
+                    EventText = req
+                    ExceptionType = None
+                    print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                        ExceptionType))
+                    Time = datetime.datetime.utcnow()
+                    EventType = "ResponsesAfterPlacingOrdersForRebalancing"
+                    Function = "main while true"
+                    Explanation = '{}#{}#{}'.format(session, iter, "Exchanges respond to orders placed")
+                    EventText = res
+                    ExceptionType = None
+                    print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                        ExceptionType))
+                except Exception as e:
+                    Time = datetime.datetime.utcnow()
+                    EventType = "Error"
+                    Function = 'main while true'
+                    Explanation = "Error while trying to rebalance assets"
+                    EventText = e
+                    ExceptionType = type(e)
+                    print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
+                                                        ExceptionType))
             print2console('No good orders. Going to sleep for 30 seconds', last=True)
             time.sleep(30)
             continue
@@ -247,10 +316,9 @@ while True:
         Time = datetime.datetime.utcnow()
         EventType = "Error"
         Function = "main while true"
-        Explanation = "Something strange happens"
+        Explanation = '{}#{}#{}'.format(session, iter, "Some error occurred in main")
         EventText = e
         ExceptionType = type(e)
-        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText,
-                                            ExceptionType))
+        print("{}|{}|{}|{}|{}|{}|{}".format(Time, EventType, Function, File, Explanation, EventText, ExceptionType))
         print2console('Going to sleep for 30 seconds', last=True)
         time.sleep(30)
