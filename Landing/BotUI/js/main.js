@@ -13,8 +13,8 @@ let currency_to_usd = {
 }
 
 
-function myplot(time, pdata) {
-  let plot = document.createElement('div');
+function plot_graph(plot, time, pdata) {
+  // let plot = document.createElement('div');
   let plottingData = [];
   let layouts = [];
   console.log([...Array(time.length).keys()])
@@ -65,27 +65,29 @@ function myplot(time, pdata) {
   };
 
 
-  Plotly.plot('plot', plottingData, layout).catch(console.log);
-  // Plotly.plot(plot, plottingData, layout).then(
-  //   function(gd) {
-  //     return Plotly.toImage(gd, {
-  //       format: "svg",
-  //       height: 600,
-  //       width: 1000
-  //     }).then(
-  //       function(url) {
-  //         let img_jpg = document.getElementById("jpg-export");
-  //         img_jpg.src = url;
-  //       }
-  //     )
-  //   }).catch(e => console.log(e));
+  Plotly.plot(plot, plottingData, layout).catch(console.log);
 }
 
-// let file = 'balances.txt';
 
 function format_date(date) {
-  return date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+  function two_char(n){
+    if (n.toString().length < 2) {
+      n = '0' + n;
+    }
+    return n;
+  }
+  // return two_char(date.getHours()) + ':' + 
+  //        two_char(date.getMinutes()) + ':' + 
+  //        two_char(date.getSeconds()) + '<br>' + 
+  //        two_char(date.getDate()) + '.' + 
+  //        two_char(date.getMonth());
+  return two_char(date.getDate()) + '.' + 
+         two_char(date.getMonth()) + '<br>' + 
+         two_char(date.getHours()) + ':' + 
+         two_char(date.getMinutes()) + ':' + 
+         two_char(date.getSeconds());
 }
+
 
 function prepare_csv(text) {
 
@@ -114,23 +116,9 @@ function prepare_csv(text) {
     }
   }
 
-  data = data.map(x => {
-    let acc = {};
-    for (let exch in x[1]) {
-      for (let curr in x[1][exch]) {
-        if (curr in acc) {
-          acc[curr] += +x[1][exch][curr];
-        } else {
-          acc[curr] = +x[1][exch][curr];
-        }
-      }
-    }
-    return [x[0], acc];
-  });
-
   return data;
-
 }
+
 
 function prepare_json(text) {
   let data = text.split('\n').map(x => {
@@ -155,6 +143,13 @@ function prepare_json(text) {
       }
     }
   }
+  return data;
+}
+
+
+function aggrigate_currencies(pdata) {
+
+  let data = pdata;
 
   data = data.map(x => {
     let acc = {};
@@ -194,10 +189,62 @@ function get_lines(pdata, number_of_records) {
 }
 
 
+function create_table(element, pdata) {
+  let timestamp = pdata[0];
+  let data = pdata[1];
+
+  console.log("i am in create table function", data);
+
+  let exchanges = Object.keys(data);
+  let currencies = ['usd', 'btc'];
+
+  let table = `<table class="table table-bordered"><tr><td>${timestamp}</td>`;
+  for(let exchange of exchanges) {
+    table += '<td>' + exchange + '</td>'
+  }
+  table += '</tr>'
+
+  for(let currency of currencies) {
+    table += '<tr><td>' + currency + '</td>'
+    for(let exchange of exchanges) {
+        table += '<td>' + data[exchange][currency] + '</td>';
+    }
+    table += '</tr>';
+  }
+
+  table += '</table>';
+  console.log(table)
+  $('#' + element).append(table); //document.getElementById(element).appendChild(table);
+}
+
+
+function create_tables(element, pdata) {
+  for(let i = 0; i < pdata.length; i++) {
+    create_table(element, pdata[i]);
+  }
+}
+
+
+function fill_log(logfile, pdata) {
+  let str = '';
+  for(let i = 0; i < pdata.length; i++) {
+    str += pdata[i][0] + '|' + JSON.stringify(pdata[i][1]) + '\n\n';
+  }
+  $('#' + logfile).val(str);
+}
+
+
 function process_file(file, prepare_data) {
   $.get(file, function(text) {
+
+    //Extraction
     let data = prepare_data(text);
-    let [time, lines] = get_lines(data, 20);
-    myplot(time, lines);
+    let pdata = aggrigate_currencies(data);
+    let [time, lines] = get_lines(pdata, 20);
+
+    //Use
+    plot_graph('plot', time, lines);
+    fill_log('log', data);
+    create_tables('table', data.slice(-1));
   });
 }
