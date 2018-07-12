@@ -48,4 +48,4 @@ for sym in symbols:
     p = Process(target=mini_logger, args=(sym, conf, limit, auth_string, db_name, exchanges))
     p.start()
     time.sleep(0.3)
-print('\t#Parent process can be killed')
+exit(0)
