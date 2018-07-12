@@ -1,7 +1,3 @@
-class Plotter {
-
-}
-
 let currency_to_usd = {
   'btc': 6370,
   'ltc': 80,
