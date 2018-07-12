@@ -48,6 +48,11 @@
     foreach($commands as $key => $value) {
       $filename = $PATH_TO_DIR.$key.'.json';
       var_dump($filename);
+
+      if(time() - filemtime($filename) < $FILE_CHANGE_TIME) {
+        sleep($FILE_CHANGE_TIME - time() + filemtime($filename));
+      }
+
       if(time() - filemtime($filename) > $FILE_CHANGE_TIME && !is_sem($key)) {
         $sem = get_sem($key);
         exec($value, $out, $status);
@@ -56,14 +61,19 @@
         del_sem($key, $sem);
       }
       else {
-
-          echo "PHP: $key Access is blocked";
+        sleep(2);
+        echo "PHP: $key Access is blocked";
       }
     }
   }
   else {
     $symbol = $_GET['symbol'];
     $filename = $PATH_TO_DIR.$symbol.'.json';
+
+    if(time() - filemtime($filename) < $FILE_CHANGE_TIME) {
+      sleep($FILE_CHANGE_TIME - time() + filemtime($filename));
+    }
+
     if(time() - filemtime($filename) > $FILE_CHANGE_TIME && !is_sem($symbol)) {
       $sem = get_sem($symbol);
       exec($commands[$symbol], $out, $status);
@@ -72,6 +82,7 @@
       del_sem($symbol, $sem);
     }
     else {
+      sleep(2);
       echo "PHP: $symbol Access is blocked";
     }
   }

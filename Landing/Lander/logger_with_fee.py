@@ -70,6 +70,11 @@ def process_responses(responses, conf, syms, limit):
         exch = response[0]
         data = response[1]
         timestamp = response[2]
+        try:
+            alpha = conf[exch]['fee']
+        except:
+            alpha = 0
+
         if data is not None:
             try:
                 #try:
@@ -81,101 +86,78 @@ def process_responses(responses, conf, syms, limit):
                 current_bids = data
                 for x in path["bids"]:
                     if x == "{}":
-                        x = x.format(sym)
+                        x = sym
                     current_bids = current_bids[x]
                 current_asks = data
                 for x in path["asks"]:
                     if x == "{}":
-                        x = x.format(sym)
+                        x = sym
                     current_asks = current_asks[x]
 
                 # add current orders to bids and asks arrays
                 for i in range(min(limit, len(current_bids))):
                     bids.append([float(current_bids[i][price_ix]), float(current_bids[i][volume_ix]), exch, float(current_bids[i][price_ix])])
+                    bids[-1][0] *= (1 - alpha) # added fee to bids
 
                 for i in range(min(limit, len(current_asks))):
                     asks.append([float(current_asks[i][price_ix]), float(current_asks[i][volume_ix]), exch, float(current_asks[i][price_ix])])
+                    asks[-1][0] *= (1 + alpha) # added fee to ask
 
-                tmp = {'ask': float(current_asks[0][price_ix]), 'bid': float(current_bids[0][price_ix]), 'exchange': exch}
+                tmp = {'ask': float(current_asks[0][price_ix]) * (1 + alpha), 'bid': float(current_bids[0][price_ix]) * (1 - alpha), 'exchange': exch}
                 d['ticker'].append(tmp)
                 time_data[exch] = timestamp
+
             except Exception as e: # Some error occurred while parsing json response for current exchange
-                # print(exch, type(e), int(time.time()))
-                # pprint(data)
-                # print()
+                print(exch, type(e), int(time.time()))
+                pprint(data)
+                print()
                 tmp = {'ask': 0, 'bid': 0, 'exchange': exch}
                 d['ticker'].append(tmp)
                 time_data[exch] = 'fields'
         else:  # Some error occurred while making HTTP request for current exchange
-            # print(exch, "didn't respond", int(time.time()))
-            # print()
+            print(exch, "didn't respond", int(time.time()))
+            print()
             tmp = {'ask': 0, 'bid': 0, 'exchange': exch}
             d['ticker'].append(tmp)
             time_data[exch] = timestamp
-    for bid in bids:
-        if 'fee' in conf[bid[2]].keys():
-            alpha = conf[bid[2]]['fee']
-        else:
-            alpha = 0.0
-        bid[0] *= (1 - alpha)
-    for ask in asks:
-        if 'fee' in conf[ask[2]].keys():
-            alpha = conf[ask[2]]['fee']
-        else:
-            alpha = 0.0
-        ask[0] *= (1 + alpha)
+
     if  len(bids) > 0  and  len(asks) > 0:
         bids.sort(key = lambda quadriple: quadriple[0], reverse = True)   # bids sorted in descending order by price
         asks.sort(key = lambda quadriple: quadriple[0])                   # asks sorted in ascending order by price
 
-    for x in d['ticker']:
-        if 'fee' in conf[x['exchange']].keys():
-            alpha = conf[x['exchange']]['fee']
-        else:
-            alpha = 0.0
-        x['bid'] = float(x['bid']) * (1 - alpha)
-        x['ask'] = float(x['ask']) * (1 + alpha)
 
     return bids, asks, d, time_data
 
 
 def make_logging_entry(bids, asks, d):
-    bx = 0
+
+    alpha = 0.1
+
     ax = 0
-    bid_count = len(bids)
+    bx = 0
     ask_count = len(asks)
+    bid_count = len(bids)
+
     profit = 0
-    amount = 0
-    trade_cnt = 0
+    base_amount = 0  # required amount of base currency
+    quote_amount = 0  # required amount of quote currency
+
+    num = 0  # number of current micro-trade
+    sell_orders = {}  # all sell_orders for current pair
+    buy_orders = {}  # all buy_orders for current pair
+
+    prev_profit = 0
+    prev_quote_amount = 0
+
     profit_points = []
     amount_points = []
-    alpha = 0.1
-    prev_profit = 0
-    prev_amount = 0
-    optimal_amount = 0
-    optimal_profit = 0
-    num = 0
-    bid_orders = {}
-    ask_orders = {}
 
-    ok = True
+    optimal_quote_amount = 0
+    optimal_profit = 0
 
     while bx < bid_count and ax < ask_count and bids[bx][0] > asks[ax][0]:
         ask_price = asks[ax][0]
         bid_price = bids[bx][0]
-        bid_vol = bids[bx][1]
-        ask_vol = asks[ax][1]
-        ask_exch = asks[ax][2]  # BID: base -> quote
-        bid_exch = bids[bx][2]  # ASK: quote -> base
-        ask_price_real = asks[ax][3]
-        bid_price_real = bids[bx][3]
-
-        if bid_vol == 0:
-            bx += 1
-            continue
-        if ask_vol == 0:
-            ax += 1
-            continue
 
         if ask_price == 0:
             ax += 1
@@ -184,55 +166,79 @@ def make_logging_entry(bids, asks, d):
             bx += 1
             continue
 
+        ask_vol = asks[ax][1]
+        bid_vol = bids[bx][1]
+
+        if ask_vol == 0:
+            ax += 1
+            continue
+        if bid_vol == 0:
+            bx += 1
+            continue
+
+        ask_price_real = asks[ax][3]
+        bid_price_real = bids[bx][3]
+
+        ask_exch = asks[ax][2]  # BID: base -> quote
+        bid_exch = bids[bx][2]  # ASK: quote -> base
+
+        # ask_bal = current_balance[ask_exch][quote_cur]
+        # bid_bal = current_balance[bid_exch][base_cur]
+        # if ask_bal == 0:
+        #     ax += 1
+        #     continue
+        # if bid_bal == 0:
+        #     bx += 1
+        #     continue
 
         m = min(ask_vol, bid_vol)  # current micro-trade volume
-        current_profit = (bid_price - ask_price) * m  # current micro-trade profit
+        current_profit = (bid_price - ask_price) * m                  # current micro-trade profit
         profit = prev_profit + current_profit
-        amount = prev_amount + ask_price * m
-        profit_points.append(profit)
-        amount_points.append(amount)
+        base_amount += m
+        quote_amount = prev_quote_amount + ask_price * m
+        profit_points.append(profit)                                  #added now
+        amount_points.append(quote_amount)                            #added now
         bids[bx][1] -= m
         asks[ax][1] -= m
-        trade_cnt += 1
+        # current_balance[ask_exch][quote_cur] -= m * ask_price_real
+        # current_balance[bid_exch][base_cur] -= m
+
 
         num += 1
-        if num == 1:
-            prev_amount = amount
-            prev_profit = profit
-        elif num == 2:
-            first_k = (profit - prev_profit) / (amount - prev_amount)
-            prev_amount = amount
-            prev_profit = profit
-        else:
-            k = (profit - prev_profit) / (amount - prev_amount)
-            if k >= alpha * first_k:
-                optimal_amount = amount
-                optimal_profit = profit
-            else:
-                ok = False
-            if ok:
-                if bid_exch in bid_orders:
-                    bid_orders[bid_exch][0] = min(bid_orders[bid_exch][0], bid_price_real)
-                    bid_orders[bid_exch][1] += m
-                else:
-                    bid_orders[bid_exch] = [bid_price_real, m]
+        if num == 2:
+            first_k = (profit - prev_profit) / (quote_amount - prev_quote_amount)
 
-                if ask_exch in ask_orders:
-                    ask_orders[ask_exch][0] = max(ask_orders[ask_exch][0], ask_price_real)
-                    ask_orders[ask_exch][1] += m
-                else:
-                    ask_orders[ask_exch] = [ask_price_real, m]
-            prev_amount = amount
-            prev_profit = profit
+        elif num > 2:
+            k = (profit - prev_profit) / (quote_amount - prev_quote_amount)
+            if k < first_k * alpha:
+                pass
+            else:
+                optimal_quote_amount = quote_amount
+                optimal_profit = profit
+
+        if bid_exch in sell_orders:
+            sell_orders[bid_exch][0] = min(sell_orders[bid_exch][0], bid_price_real)
+            sell_orders[bid_exch][1] += m
+        else:
+            sell_orders[bid_exch] = [bid_price_real, m]
+
+        if ask_exch in buy_orders:
+            buy_orders[ask_exch][0] = max(buy_orders[ask_exch][0], ask_price_real)
+            buy_orders[ask_exch][1] += m
+        else:
+            buy_orders[ask_exch] = [ask_price_real, m]
+
+        prev_quote_amount = quote_amount
+        prev_profit = profit
+
     d['profit'] = profit
-    d['amount'] = amount
-    d['trade_cnt'] = trade_cnt
-    d['optimal_point']['amount'] = optimal_amount
+    d['amount'] = quote_amount
+    d['optimal_point']['amount'] = optimal_quote_amount
     d['optimal_point']['profit'] = optimal_profit
     d['amount_points'] = amount_points
     d['profit_points'] = profit_points
-    d['orders']['bids'] = bid_orders
-    d['orders']['asks'] = ask_orders
+    d['orders']['bids'] = sell_orders
+    d['orders']['asks'] = buy_orders
 
 
 def collector(conf, urls, names, syms, limit, symbol):

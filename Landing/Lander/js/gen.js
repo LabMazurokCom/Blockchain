@@ -112,7 +112,6 @@ function fixedStateUpdate() {
   }
 }
 
-
 function update_one_pair(id_num) {
   console.log("update_one_pair", id_num, currency);
 
@@ -189,7 +188,7 @@ function showTicker(id, currency, data) {
   let volume = fixMode(currency[1], data['optimal_point']['amount']);
   let profit = fixMode(currency[1], data['optimal_point']['profit']);
 
-  if (profit < 0.001) {
+  if (profit === 0.0) {
     console.log("There is no arbitrage");
     let resObj = {
       'id': id,
